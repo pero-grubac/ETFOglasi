@@ -87,9 +87,9 @@ final List<Category> availableCategories = [
   Category(
     id: 7,
     title: HomeStrings.secondCycle,
-    urlId: '1',
+    urlId: '20',
     route: PageRouteBuilder(
-      settings: const RouteSettings(name: Routes.placeholderScreen),
+      settings: const RouteSettings(name: Routes.announcementScreen),
       pageBuilder: (_, __, ___) => const Placeholder(),
       transitionsBuilder: (_, animation, __, child) =>
           FadeTransition(opacity: animation, child: child),
@@ -98,9 +98,9 @@ final List<Category> availableCategories = [
   Category(
     id: 8,
     title: HomeStrings.thirdCycle,
-    urlId: '1',
+    urlId: '30',
     route: PageRouteBuilder(
-      settings: const RouteSettings(name: Routes.placeholderScreen),
+      settings: const RouteSettings(name: Routes.announcementScreen),
       pageBuilder: (_, __, ___) => const Placeholder(),
       transitionsBuilder: (_, animation, __, child) =>
           FadeTransition(opacity: animation, child: child),
@@ -109,9 +109,9 @@ final List<Category> availableCategories = [
   Category(
     id: 9,
     title: HomeStrings.postgraduateStudy,
-    urlId: '1',
+    urlId: '102',
     route: PageRouteBuilder(
-      settings: const RouteSettings(name: Routes.placeholderScreen),
+      settings: const RouteSettings(name: Routes.announcementScreen),
       pageBuilder: (_, __, ___) => const Placeholder(),
       transitionsBuilder: (_, animation, __, child) =>
           FadeTransition(opacity: animation, child: child),
@@ -120,9 +120,9 @@ final List<Category> availableCategories = [
   Category(
     id: 10,
     title: HomeStrings.finalThesis,
-    urlId: '1',
+    urlId: '21',
     route: PageRouteBuilder(
-      settings: const RouteSettings(name: Routes.placeholderScreen),
+      settings: const RouteSettings(name: Routes.announcementScreen),
       pageBuilder: (_, __, ___) => const Placeholder(),
       transitionsBuilder: (_, animation, __, child) =>
           FadeTransition(opacity: animation, child: child),

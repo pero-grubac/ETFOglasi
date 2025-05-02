@@ -52,13 +52,21 @@ class _AnnouncementCardState extends State<AnnouncementCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              widget.announcement.naslov,
-              style: effectiveTheme.textStyle ??
-                  theme.textTheme.titleLarge
-                      ?.copyWith(fontWeight: FontWeight.bold),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  _isExpanded = !_isExpanded;
+                });
+              },
+              child: Text(
+                widget.announcement.naslov,
+                style: effectiveTheme.textStyle ??
+                    theme.textTheme.titleLarge
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                maxLines: _isExpanded ? null : 2,
+                overflow:
+                    _isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
+              ),
             ),
             const SizedBox(height: 12), // Spacing between title and dates
             Row(
@@ -93,7 +101,22 @@ class _AnnouncementCardState extends State<AnnouncementCard> {
             ),
             if (widget.announcement.oglasPrilozi.isNotEmpty) ...[
               const SizedBox(height: 12),
-              Text('PRILOG')
+              InkWell(
+                onTap: () {},
+                child: Row(
+                  children: [
+                    Icon(Icons.attach_file,
+                        size: 16, color: theme.colorScheme.onSurface),
+                    Text(
+                      'PRILOG',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurface,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
             if (widget.announcement.potpis != null) ...[
               const SizedBox(height: 12), // Spacing before signature

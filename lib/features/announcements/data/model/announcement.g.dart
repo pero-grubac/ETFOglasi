@@ -38,9 +38,9 @@ Map<String, dynamic> _$AnnouncementToJson(Announcement instance) =>
 
 OglasnaPloca _$OglasnaPlocaFromJson(Map<String, dynamic> json) => OglasnaPloca(
       id: (json['id'] as num).toInt(),
-      naziv: json['naziv'] as String,
-      opis: json['opis'] as String,
-      napomena: json['napomena'] as String,
+      naziv: json['naziv'] as String?,
+      opis: json['opis'] as String?,
+      napomena: json['napomena'] as String?,
     );
 
 Map<String, dynamic> _$OglasnaPlocaToJson(OglasnaPloca instance) =>

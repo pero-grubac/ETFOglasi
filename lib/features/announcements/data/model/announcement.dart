@@ -36,15 +36,15 @@ class Announcement {
 @JsonSerializable()
 class OglasnaPloca {
   final int id;
-  final String naziv;
-  final String opis;
-  final String napomena;
+  final String? naziv;
+  final String? opis;
+  final String? napomena;
 
   OglasnaPloca({
     required this.id,
-    required this.naziv,
-    required this.opis,
-    required this.napomena,
+    this.naziv,
+    this.opis,
+    this.napomena,
   });
 
   factory OglasnaPloca.fromJson(Map<String, dynamic> json) =>
