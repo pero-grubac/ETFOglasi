@@ -1,7 +1,7 @@
 import 'package:etf_oglasi/core/constants/strings.dart';
 import 'package:etf_oglasi/features/home/data/model/category.dart';
 import 'package:etf_oglasi/features/home/presentation/widget/category_grid_item.dart';
-import 'package:etf_oglasi/features/home/presentation/widget/main_drawer.dart';
+import 'package:etf_oglasi/features/settings/presentation/widget/main_drawer.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {

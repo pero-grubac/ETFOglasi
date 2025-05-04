@@ -20,6 +20,7 @@ class AnnouncementScreen extends StatefulWidget {
 
 class _AnnouncementScreenState extends State<AnnouncementScreen> {
   late Future<List<Announcement>> _data;
+  final announcementService = AnnouncementService();
 
   @override
   void initState() {
@@ -29,7 +30,6 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
 
   Future<List<Announcement>> _loadItems() async {
     String url = getAnnouncementsUrl(widget.category.urlId);
-    final announcementService = AnnouncementService();
     return await announcementService.fetchAnnouncements(url);
   }
 

@@ -1,19 +1,17 @@
+import 'package:etf_oglasi/core/ui/widget/expandable_text_widget.dart';
+import 'package:etf_oglasi/core/ui/widget/spaced_column.dart';
 import 'package:etf_oglasi/features/announcements/data/model/announcement.dart';
+import 'package:etf_oglasi/features/announcements/presentation/widget/attachment_widget.dart';
+import 'package:etf_oglasi/features/announcements/presentation/widget/date_row_widget.dart';
+import 'package:etf_oglasi/features/announcements/presentation/widget/signature_widget.dart';
 import 'package:flutter/material.dart';
 
 import 'package:etf_oglasi/core/ui/theme/announcement_card_theme.dart';
-import 'package:intl/intl.dart';
 
-class AnnouncementCard extends StatefulWidget {
+class AnnouncementCard extends StatelessWidget {
   const AnnouncementCard({super.key, required this.announcement});
   final Announcement announcement;
 
-  @override
-  State<AnnouncementCard> createState() => _AnnouncementCardState();
-}
-
-class _AnnouncementCardState extends State<AnnouncementCard> {
-  bool _isExpanded = false;
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -49,84 +47,39 @@ class _AnnouncementCardState extends State<AnnouncementCard> {
       child: Container(
         decoration: effectiveTheme.decoration,
         padding: effectiveTheme.padding,
-        child: Column(
+        child: SpacedColumn(
           crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 12.0,
           children: [
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  _isExpanded = !_isExpanded;
-                });
-              },
-              child: Text(
-                widget.announcement.naslov,
-                style: effectiveTheme.textStyle ??
-                    theme.textTheme.titleLarge
-                        ?.copyWith(fontWeight: FontWeight.bold),
-                maxLines: _isExpanded ? null : 2,
-                overflow:
-                    _isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
+            ExpandableTextWidget(
+              text: announcement.naslov,
+              style: effectiveTheme.textStyle ??
+                  theme.textTheme.titleLarge
+                      ?.copyWith(fontWeight: FontWeight.bold),
+              maxLines: 2,
+            ),
+            DateRowWidget(
+              creationDate: announcement.vrijemeKreiranja,
+              expirationDate: announcement.vrijemeIsteka,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurface.withOpacity(0.7),
               ),
             ),
-            const SizedBox(height: 12), // Spacing between title and dates
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Kreirano: ${DateFormat('dd.MM.yyyy HH:mm').format(widget.announcement.vrijemeKreiranja)}',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurface.withOpacity(0.7)),
-                ),
-                Text(
-                  'Istek: ${DateFormat('dd.MM.yyyy HH:mm').format(widget.announcement.vrijemeIsteka)}',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurface.withOpacity(0.7)),
-                ),
-              ],
+            ExpandableTextWidget(
+              text: announcement.sadrzaj,
+              style: theme.textTheme.bodyMedium,
+              maxLines: 3,
             ),
-            const SizedBox(height: 12), // Spacing between dates and content
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  _isExpanded = !_isExpanded;
-                });
-              },
-              child: Text(
-                widget.announcement.sadrzaj,
-                style: theme.textTheme.bodyMedium,
-                maxLines: _isExpanded ? null : 3,
-                overflow:
-                    _isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
-              ),
-            ),
-            if (widget.announcement.oglasPrilozi.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              InkWell(
-                onTap: () {},
-                child: Row(
-                  children: [
-                    Icon(Icons.attach_file,
-                        size: 16, color: theme.colorScheme.onSurface),
-                    Text(
-                      'PRILOG',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurface,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-            if (widget.announcement.potpis != null) ...[
-              const SizedBox(height: 12), // Spacing before signature
-              Text(
-                'Potpis: ${widget.announcement.potpis}',
+            if (announcement.oglasPrilozi.isNotEmpty)
+              AttachmentWidget(announcement: announcement),
+            if (announcement.potpis != null)
+              SignatureWidget(
+                signature: announcement.potpis,
                 style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurface.withOpacity(0.6),
-                    fontStyle: FontStyle.italic),
+                  color: theme.colorScheme.onSurface.withOpacity(0.6),
+                  fontStyle: FontStyle.italic,
+                ),
               ),
-            ],
           ],
         ),
       ),
