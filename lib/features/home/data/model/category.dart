@@ -23,8 +23,7 @@ final List<Category> availableCategories = [
     urlId: '1',
     route: PageRouteBuilder(
       settings: const RouteSettings(name: Routes.announcementScreen),
-      pageBuilder: (_, __, ___) =>
-          const Placeholder(), // Placeholder widget (not used)
+      pageBuilder: (_, __, ___) => const Placeholder(),
       transitionsBuilder: (_, animation, __, child) =>
           FadeTransition(opacity: animation, child: child),
     ),

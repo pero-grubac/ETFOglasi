@@ -1,3 +1,4 @@
+import 'package:etf_oglasi/features/schedule/presentation/screen/schedule_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:etf_oglasi/features/home/data/model/category.dart';
 
@@ -5,7 +6,7 @@ import 'package:etf_oglasi/features/announcements/presentation/screen/announceme
 
 class Routes {
   static const String announcementScreen = AnnouncementScreen.id;
-  static const String scheduleScreen = '/schedule';
+  static const String scheduleScreen = ScheduleScreen.id;
   static const String placeholderScreen = '/placeholder';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -19,9 +20,13 @@ class Routes {
         }
         return _errorRoute();
       case scheduleScreen:
-        return MaterialPageRoute(
-          builder: (_) => const Placeholder(),
-        );
+        final category = settings.arguments as Category?;
+        if (category != null) {
+          return MaterialPageRoute(
+            builder: (_) => ScheduleScreen(category: category),
+          );
+        }
+        return _errorRoute();
       case placeholderScreen:
         final category = settings.arguments as Category?;
         return MaterialPageRoute(

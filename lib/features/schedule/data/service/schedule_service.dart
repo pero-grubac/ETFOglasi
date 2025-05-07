@@ -37,11 +37,16 @@ class ScheduleService {
       final subjects = items.sublist(1, 6); // samo pon-pet
 
       if (subjects.length >= 5) {
-        monday.add((time, subjects[0] as String?));
-        tuesday.add((time, subjects[1] as String?));
-        wednesday.add((time, subjects[2] as String?));
-        thursday.add((time, subjects[3] as String?));
-        friday.add((time, subjects[4] as String?));
+        final cleanSubjects = subjects.map((subject) {
+          if (subject == null) return null;
+          return (subject as String).replaceAll('<br /> --- <br />', '\n');
+        }).toList();
+
+        monday.add((time, cleanSubjects[0]));
+        tuesday.add((time, cleanSubjects[1]));
+        wednesday.add((time, cleanSubjects[2]));
+        thursday.add((time, cleanSubjects[3]));
+        friday.add((time, cleanSubjects[4]));
       }
     }
 

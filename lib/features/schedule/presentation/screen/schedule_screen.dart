@@ -4,6 +4,7 @@ import 'package:etf_oglasi/features/schedule/data/service/schedule_service.dart'
 import 'package:flutter/material.dart';
 
 class ScheduleScreen extends StatefulWidget {
+  static const id = 'schedule_screen';
   const ScheduleScreen({super.key, required this.category});
   final Category category;
 
@@ -11,9 +12,12 @@ class ScheduleScreen extends StatefulWidget {
   State<ScheduleScreen> createState() => _ScheduleScreenState();
 }
 
-class _ScheduleScreenState extends State<ScheduleScreen> {
-  late Schedule schedule;
-  final ScheduleService service = ScheduleService();
+class _ScheduleScreenState extends State<ScheduleScreen>
+    with SingleTickerProviderStateMixin {
+  late Schedule _schedule;
+  late TabController _tabController;
+  final ScheduleService _service = ScheduleService();
+  final ScrollController _scrollController = ScrollController();
 /*
 * TODO
 *  Load smjer
@@ -28,14 +32,159 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   void initState() {
     super.initState();
     _loadData();
+    _tabController = TabController(length: 5, vsync: this);
+    _setInitialTab();
   }
 
-  void _loadData() async {
-    schedule = await service.fetchSchedule('TODO');
+  Future<void> _loadData() async {
+    try {
+      _schedule = await _service.fetchSchedule('TODO');
+      setState(() {});
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollToCurrentHour();
+      });
+    } catch (e) {
+      setState(() {
+        _schedule = Schedule(
+          monday: [],
+          tuesday: [],
+          wednesday: [],
+          thursday: [],
+          friday: [],
+        );
+      });
+    }
+  }
+
+  void _setInitialTab() {
+    final now = DateTime.now();
+    final dayOfWeek = now.weekday;
+    if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+      _tabController.index = dayOfWeek - 1;
+    }
+  }
+
+  void _scrollToCurrentHour() {
+    final now = DateTime.now();
+    final currentTime = Duration(hours: now.hour, minutes: now.minute);
+    for (int i = 0; i < _schedule.tuesday.length; i++) {
+      final time = _schedule.parseTime(_schedule.tuesday[i].$1);
+      if (time <= currentTime &&
+          (i + 1 >= _schedule.tuesday.length ||
+              _schedule.parseTime(_schedule.tuesday[i + 1].$1) > currentTime)) {
+        _scrollController.jumpTo(_scrollController.position.maxScrollExtent *
+            (i / _schedule.tuesday.length));
+        break;
+      }
+    }
+  }
+
+  Widget _buildScheduleList(List<(String, String?)> daySchedule) {
+    final now = DateTime.now();
+    final currentTime = Duration(hours: now.hour, minutes: now.minute);
+
+    return ListView.builder(
+      controller: _scrollController,
+      itemCount: daySchedule.length,
+      itemBuilder: (context, index) {
+        final (timeStr, subject) = daySchedule[index];
+        final time = _schedule.parseTime(timeStr);
+        final isCurrentHour = time <= currentTime &&
+            (index + 1 >= daySchedule.length ||
+                _schedule.parseTime(daySchedule[index + 1].$1) > currentTime);
+
+        return Column(
+          children: [
+            ListTile(
+              title: Text(
+                timeStr,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: subject != null
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: subject
+                          .split('\n')
+                          .map((s) => Text(s.trim()))
+                          .toList(),
+                    )
+                  : const Text(''),
+              tileColor: isCurrentHour ? Colors.yellow.withOpacity(0.3) : null,
+            ),
+            if (index < daySchedule.length - 1)
+              const Divider(
+                color: Colors.grey,
+                thickness: 1.0,
+                height: 10.0,
+              ),
+          ],
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    final colorScheme = Theme.of(context).colorScheme;
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Raspored',
+          style: TextStyle(color: colorScheme.onSurface),
+        ),
+        centerTitle: true,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: colorScheme.onSurface,
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.settings,
+              color: colorScheme.onSurface,
+            ),
+            onPressed: () {
+              setState(() {
+                // TODO
+              });
+            },
+            tooltip: 'Podešavanja',
+          ),
+        ],
+        bottom: TabBar(
+          controller: _tabController,
+          labelColor: colorScheme.onSurface,
+          unselectedLabelColor: colorScheme.onPrimary,
+          labelStyle: const TextStyle(fontSize: 14),
+          unselectedLabelStyle: const TextStyle(fontSize: 14),
+          labelPadding:
+              const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+          tabs: const [
+            Tab(text: 'Ponedjeljak'),
+            Tab(text: 'Utorak'),
+            Tab(text: 'Srijeda'),
+            Tab(text: 'Četvrtak'),
+            Tab(text: 'Petak'),
+          ],
+        ),
+      ),
+      body: _schedule.monday.isNotEmpty
+          ? TabBarView(
+              controller: _tabController,
+              children: [
+                _buildScheduleList(_schedule.monday),
+                _buildScheduleList(_schedule.tuesday),
+                _buildScheduleList(_schedule.wednesday),
+                _buildScheduleList(_schedule.thursday),
+                _buildScheduleList(_schedule.friday),
+              ],
+            )
+          : const Center(child: CircularProgressIndicator()),
+    );
   }
 }

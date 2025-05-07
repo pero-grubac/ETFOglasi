@@ -105,6 +105,17 @@ class AppTheme {
           color: colorScheme.onPrimary,
         ),
       ),
+      tabBarTheme: TabBarTheme(
+        labelColor: colorScheme.onPrimary,
+        unselectedLabelColor: colorScheme.onSurface,
+        labelStyle: GoogleFonts.roboto(fontSize: 14),
+        unselectedLabelStyle: GoogleFonts.roboto(fontSize: 14),
+        labelPadding:
+            const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+        indicator: BoxDecoration(
+          color: colorScheme.primary,
+        ),
+      ),
       cardTheme: CardTheme(
         color: colorScheme.secondaryContainer,
         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),

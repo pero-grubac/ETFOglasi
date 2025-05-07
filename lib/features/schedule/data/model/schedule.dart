@@ -14,14 +14,14 @@ class Schedule {
   });
 
   void sort() {
-    monday.sort((a, b) => _parseTime(a.$1).compareTo(_parseTime(b.$1)));
-    tuesday.sort((a, b) => _parseTime(a.$1).compareTo(_parseTime(b.$1)));
-    wednesday.sort((a, b) => _parseTime(a.$1).compareTo(_parseTime(b.$1)));
-    thursday.sort((a, b) => _parseTime(a.$1).compareTo(_parseTime(b.$1)));
-    friday.sort((a, b) => _parseTime(a.$1).compareTo(_parseTime(b.$1)));
+    monday.sort((a, b) => parseTime(a.$1).compareTo(parseTime(b.$1)));
+    tuesday.sort((a, b) => parseTime(a.$1).compareTo(parseTime(b.$1)));
+    wednesday.sort((a, b) => parseTime(a.$1).compareTo(parseTime(b.$1)));
+    thursday.sort((a, b) => parseTime(a.$1).compareTo(parseTime(b.$1)));
+    friday.sort((a, b) => parseTime(a.$1).compareTo(parseTime(b.$1)));
   }
 
-  Duration _parseTime(String time) {
+  Duration parseTime(String time) {
     final parts = time.split(":");
     final hours = int.parse(parts[0]);
     final min = int.parse(parts[1]);
