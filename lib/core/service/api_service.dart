@@ -8,7 +8,6 @@ class ApiService {
     required T Function(dynamic json) fromJson,
     Map<String, String>? headers,
   }) async {
-    print(url);
     try {
       final response = await http.get(
         Uri.parse(url),

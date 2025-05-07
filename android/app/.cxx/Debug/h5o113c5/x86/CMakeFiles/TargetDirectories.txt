@@ -1,0 +1,2 @@
+D:/Downloads/ETF Oglasi/ETFOglasi/android/app/.cxx/Debug/h5o113c5/x86/CMakeFiles/edit_cache.dir
+D:/Downloads/ETF Oglasi/ETFOglasi/android/app/.cxx/Debug/h5o113c5/x86/CMakeFiles/rebuild_cache.dir

@@ -1,9 +1,15 @@
+import 'dart:io';
+import 'package:flutter/material.dart';
+
 import 'package:etf_oglasi/features/announcements/data/model/announcement.dart';
 import 'package:etf_oglasi/features/announcements/data/service/announcement_service.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:etf_oglasi/features/announcements/constants/strings.dart';
+
+import 'package:file_picker/file_picker.dart';
+import 'package:open_filex/open_filex.dart';
+import 'package:path/path.dart' as path;
+import 'package:open_filex/open_filex.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class AttachmentWidget extends StatefulWidget {
   final Announcement announcement;
@@ -17,10 +23,32 @@ class AttachmentWidget extends StatefulWidget {
 class _AttachmentWidgetState extends State<AttachmentWidget> {
   bool _isDownloading = false;
 
-  void _showSnackBar(String message) {
+  void _showSnackBar(
+    String message, {
+    String? actionLabel,
+    VoidCallback? onActionPressed,
+  }) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        action: actionLabel != null && onActionPressed != null
+            ? SnackBarAction(
+                label: actionLabel,
+                onPressed: onActionPressed,
+              )
+            : null,
+      ),
+    );
+  }
+
+  Future<bool> _checkStoragePermission() async {
+    if (await Permission.manageExternalStorage.isGranted) {
+      return true;
+    }
+
+    final status = await Permission.manageExternalStorage.request();
+    return status.isGranted;
   }
 
   Future<void> _handleDownload() async {
@@ -28,46 +56,77 @@ class _AttachmentWidgetState extends State<AttachmentWidget> {
     if (!confirmed || !mounted) return;
 
     try {
-      if (await Permission.storage.request().isGranted) {
-        setState(() {
-          _isDownloading = true;
-        });
-        try {
-          String? selectedDirectory =
-              await FilePicker.platform.getDirectoryPath(
-            dialogTitle: 'Izaberite lokaciju za preuzimanje',
-          );
-          if (!mounted) return;
+      setState(() {
+        _isDownloading = true;
+      });
+      try {
+        String? selectedDirectory = await FilePicker.platform.getDirectoryPath(
+          dialogTitle: 'Izaberite lokaciju za preuzimanje',
+        );
+        if (!mounted) return;
 
-          if (selectedDirectory == null) {
-            _showSnackBar('Preuzimanje otkazano');
-            return;
-          }
+        if (selectedDirectory == null) {
+          _showSnackBar('Preuzimanje otkazano');
+          return;
+        }
 
-          final prilog = widget.announcement.oglasPrilozi.first;
-          final filePath = '$selectedDirectory/${prilog.originalniNaziv}';
-
-          final announcementService = AnnouncementService();
-          await announcementService.download(
-            widget.announcement.id.toString(),
-            customPath: filePath,
-          );
-
-          _showSnackBar('File downloaded successfully');
-        } catch (e) {
-          _showSnackBar('Failed to download file: $e');
-        } finally {
-          if (mounted) {
-            setState(() {
-              _isDownloading = false;
-            });
+        final segments = selectedDirectory
+            .split('/')
+            .where((segment) => segment.isNotEmpty)
+            .toList();
+        final uniqueSegments = <String>[];
+        final seen = <String>{};
+        for (var segment in segments) {
+          if (seen.add(segment)) {
+            uniqueSegments.add(segment);
           }
         }
-      } else {
-        _showSnackBar('Permisija odbijena');
+        selectedDirectory = '/${uniqueSegments.join('/')}';
+
+        final directory = Directory(selectedDirectory);
+        if (!await directory.exists()) {
+          _showSnackBar('Direktorijum ne postoji');
+          return;
+        }
+
+        final prilog = widget.announcement.oglasPrilozi.first;
+
+        final announcementService = AnnouncementService();
+        final downloadPath = await announcementService.download(
+            widget.announcement.id.toString(),
+            selectedDirectory,
+            prilog.originalniNaziv);
+
+        _showSnackBar(
+          'File downloaded successfully',
+          actionLabel: 'Open',
+          onActionPressed: () async {
+            try {
+              if (!await _checkStoragePermission()) {
+                _showSnackBar('Dozvola za otvaranje fajlova nije odobrena.');
+                return;
+              }
+              final result = await OpenFilex.open(downloadPath);
+              if (result.type != ResultType.done) {
+                _showSnackBar('Failed to open file');
+              }
+            } catch (e) {
+              _showSnackBar('Error opening file');
+            }
+          },
+        );
+      } catch (e) {
+        print('error $e');
+        _showSnackBar('Failed to download file: $e');
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isDownloading = false;
+          });
+        }
       }
     } catch (e) {
-      _showSnackBar('Greska: $e');
+      _showSnackBar('Greška: $e');
     }
   }
 
