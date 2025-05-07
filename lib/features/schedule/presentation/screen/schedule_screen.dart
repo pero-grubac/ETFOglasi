@@ -1,3 +1,4 @@
+import 'package:etf_oglasi/config/api_constants.dart';
 import 'package:etf_oglasi/features/home/data/model/category.dart';
 import 'package:etf_oglasi/features/schedule/data/model/schedule.dart';
 import 'package:etf_oglasi/features/schedule/data/service/schedule_service.dart';
@@ -18,10 +19,10 @@ class _ScheduleScreenState extends State<ScheduleScreen>
   late TabController _tabController;
   final ScheduleService _service = ScheduleService();
   final ScrollController _scrollController = ScrollController();
+  late Future<void> _assetsFuture;
 /*
 * TODO
-*  Load smjer
-* Load usmjerenje
+*  Schedule settings widget
 * Load Data po tome
 * Dugme persist data
 * Jump to top
@@ -31,14 +32,15 @@ class _ScheduleScreenState extends State<ScheduleScreen>
   @override
   void initState() {
     super.initState();
-    _loadData();
+    _assetsFuture = _loadData();
     _tabController = TabController(length: 5, vsync: this);
     _setInitialTab();
   }
 
   Future<void> _loadData() async {
     try {
-      _schedule = await _service.fetchSchedule('TODO');
+      String url = getScheduleUrl("1", "1");
+      _schedule = await _service.fetchSchedule(url);
       setState(() {});
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _scrollToCurrentHour();
@@ -173,18 +175,26 @@ class _ScheduleScreenState extends State<ScheduleScreen>
           ],
         ),
       ),
-      body: _schedule.monday.isNotEmpty
-          ? TabBarView(
-              controller: _tabController,
-              children: [
-                _buildScheduleList(_schedule.monday),
-                _buildScheduleList(_schedule.tuesday),
-                _buildScheduleList(_schedule.wednesday),
-                _buildScheduleList(_schedule.thursday),
-                _buildScheduleList(_schedule.friday),
-              ],
-            )
-          : const Center(child: CircularProgressIndicator()),
+      body: FutureBuilder<void>(
+        future: _assetsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return _schedule.monday.isNotEmpty
+              ? TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _buildScheduleList(_schedule.monday),
+                    _buildScheduleList(_schedule.tuesday),
+                    _buildScheduleList(_schedule.wednesday),
+                    _buildScheduleList(_schedule.thursday),
+                    _buildScheduleList(_schedule.friday),
+                  ],
+                )
+              : const Center(child: Text('Nema rasporeda'));
+        },
+      ),
     );
   }
 }

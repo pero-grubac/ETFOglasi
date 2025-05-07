@@ -25,7 +25,7 @@ class AnnouncementService {
 
   Future<String> download(String id, String directory, String fileName) async {
     try {
-      final url = getAnnouncementDownload(id);
+      final url = getAnnouncementDownloadUrl(id);
       final response = await http.get(Uri.parse(url));
 
       if (response.statusCode != 200) {

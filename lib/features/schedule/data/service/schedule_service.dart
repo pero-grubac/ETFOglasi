@@ -9,14 +9,13 @@ class ScheduleService {
       : service = apiService ?? ApiService();
 
   Future<Schedule> fetchSchedule(String url) async {
-    /*return await service.fetchData<Schedule>(
+    return await service.fetchData<Schedule>(
       url: url,
       fromJson: (json) {
         final List<dynamic> data = json;
         return _transformData(data);
       },
-    );*/
-    return _transformData(dummyData);
+    );
   }
 
   Schedule _transformData(List<dynamic> data) {
