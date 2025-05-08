@@ -20,26 +20,28 @@ class _ScheduleScreenState extends State<ScheduleScreen>
   final ScheduleService _service = ScheduleService();
   final ScrollController _scrollController = ScrollController();
   late Future<void> _assetsFuture;
+  late String _url;
 /*
 * TODO
 *  Schedule settings widget
 * Load Data po tome
-* Dugme persist data
-* Jump to top
+* Dugme persist data i persist url
 * If persist data dont call api
+* cached data valid?
 */
 
   @override
   void initState() {
     super.initState();
-    _assetsFuture = _loadData();
+    // iz baze ucitaj url za raspored ako nema  ucitaj getScheduleUrl(widget.category.urlId, widget.category.urlId)
+    _url = widget.category.url;
+    _assetsFuture = _loadData(_url);
     _tabController = TabController(length: 5, vsync: this);
     _setInitialTab();
   }
 
-  Future<void> _loadData() async {
+  Future<void> _loadData(String url) async {
     try {
-      String url = getScheduleUrl("1", "1");
       _schedule = await _service.fetchSchedule(url);
       setState(() {});
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -145,6 +147,18 @@ class _ScheduleScreenState extends State<ScheduleScreen>
           },
         ),
         actions: [
+          IconButton(
+            icon: Icon(
+              Icons.refresh,
+              color: colorScheme.onSurface,
+            ),
+            onPressed: () {
+              setState(() {
+                _assetsFuture = _loadData(_url);
+              });
+            },
+            tooltip: 'Osvježi',
+          ),
           IconButton(
             icon: Icon(
               Icons.settings,

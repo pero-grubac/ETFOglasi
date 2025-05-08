@@ -1,4 +1,4 @@
-import 'announcement.dart';
+import '../../../../core/model/api/announcement.dart';
 
 final List<Announcement> dummyAnnouncements = [
   Announcement(

@@ -1,5 +1,5 @@
 import 'package:etf_oglasi/config/api_constants.dart';
-import 'package:etf_oglasi/features/announcements/data/model/announcement.dart';
+import 'package:etf_oglasi/core/model/api/announcement.dart';
 import 'package:etf_oglasi/features/announcements/presentation/widget/announcement_card.dart';
 import 'package:etf_oglasi/features/announcements/presentation/widget/api_error_widget.dart';
 import 'package:etf_oglasi/features/announcements/presentation/widget/no_data_widget.dart';
@@ -29,8 +29,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
   }
 
   Future<List<Announcement>> _loadItems() async {
-    String url = getAnnouncementsUrl(widget.category.urlId);
-    return await announcementService.fetchAnnouncements(url);
+    return await announcementService.fetchAnnouncements(widget.category.url);
   }
 
   @override

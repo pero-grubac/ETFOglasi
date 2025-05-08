@@ -1,6 +1,6 @@
 import 'package:etf_oglasi/core/ui/widget/expandable_text_widget.dart';
 import 'package:etf_oglasi/core/ui/widget/spaced_column.dart';
-import 'package:etf_oglasi/features/announcements/data/model/announcement.dart';
+import 'package:etf_oglasi/core/model/api/announcement.dart';
 import 'package:etf_oglasi/features/announcements/presentation/widget/attachment_widget.dart';
 import 'package:etf_oglasi/features/announcements/presentation/widget/date_row_widget.dart';
 import 'package:etf_oglasi/features/announcements/presentation/widget/signature_widget.dart';

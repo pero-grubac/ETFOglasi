@@ -1,3 +1,4 @@
+import 'package:etf_oglasi/config/api_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:etf_oglasi/core/navigation/routes.dart';
 import 'package:etf_oglasi/features/home/constants/strings.dart';
@@ -5,13 +6,13 @@ import 'package:etf_oglasi/features/home/constants/strings.dart';
 class Category {
   final int id;
   final String title;
-  final String urlId;
+  final String url;
   final Route<dynamic> route;
 
   const Category({
     required this.id,
     required this.title,
-    required this.urlId,
+    required this.url,
     required this.route,
   });
 }
@@ -20,7 +21,7 @@ final List<Category> availableCategories = [
   Category(
     id: 1,
     title: HomeStrings.firstYear,
-    urlId: '1',
+    url: getAnnouncementsUrl("1"),
     route: PageRouteBuilder(
       settings: const RouteSettings(name: Routes.announcementScreen),
       pageBuilder: (_, __, ___) => const Placeholder(),
@@ -31,7 +32,7 @@ final List<Category> availableCategories = [
   Category(
     id: 2,
     title: HomeStrings.secondYear,
-    urlId: '2',
+    url: getAnnouncementsUrl("2"),
     route: PageRouteBuilder(
       settings: const RouteSettings(name: Routes.announcementScreen),
       pageBuilder: (_, __, ___) => const Placeholder(),
@@ -42,7 +43,7 @@ final List<Category> availableCategories = [
   Category(
     id: 3,
     title: HomeStrings.thirdYear,
-    urlId: '3',
+    url: getAnnouncementsUrl("3"),
     route: PageRouteBuilder(
       settings: const RouteSettings(name: Routes.announcementScreen),
       pageBuilder: (_, __, ___) => const Placeholder(),
@@ -53,7 +54,7 @@ final List<Category> availableCategories = [
   Category(
     id: 4,
     title: HomeStrings.fourthYear,
-    urlId: '4',
+    url: getAnnouncementsUrl("4"),
     route: PageRouteBuilder(
       settings: const RouteSettings(name: Routes.announcementScreen),
       pageBuilder: (_, __, ___) => const Placeholder(),
@@ -64,7 +65,7 @@ final List<Category> availableCategories = [
   Category(
     id: 5,
     title: HomeStrings.classSchedule,
-    urlId: '1',
+    url: getScheduleUrl("1", "1"),
     route: PageRouteBuilder(
       settings: const RouteSettings(name: Routes.scheduleScreen),
       pageBuilder: (_, __, ___) => const Placeholder(),
@@ -75,7 +76,7 @@ final List<Category> availableCategories = [
   Category(
     id: 6,
     title: HomeStrings.hallSchedule,
-    urlId: '1',
+    url: getScheduleUrl("1", "1"),
     route: PageRouteBuilder(
       settings: const RouteSettings(name: Routes.scheduleScreen),
       pageBuilder: (_, __, ___) => const Placeholder(),
@@ -86,7 +87,7 @@ final List<Category> availableCategories = [
   Category(
     id: 7,
     title: HomeStrings.secondCycle,
-    urlId: '20',
+    url: getAnnouncementsUrl("20"),
     route: PageRouteBuilder(
       settings: const RouteSettings(name: Routes.announcementScreen),
       pageBuilder: (_, __, ___) => const Placeholder(),
@@ -97,7 +98,7 @@ final List<Category> availableCategories = [
   Category(
     id: 8,
     title: HomeStrings.thirdCycle,
-    urlId: '30',
+    url: getAnnouncementsUrl("30"),
     route: PageRouteBuilder(
       settings: const RouteSettings(name: Routes.announcementScreen),
       pageBuilder: (_, __, ___) => const Placeholder(),
@@ -108,7 +109,7 @@ final List<Category> availableCategories = [
   Category(
     id: 9,
     title: HomeStrings.postgraduateStudy,
-    urlId: '102',
+    url: getAnnouncementsUrl("102"),
     route: PageRouteBuilder(
       settings: const RouteSettings(name: Routes.announcementScreen),
       pageBuilder: (_, __, ___) => const Placeholder(),
@@ -119,7 +120,7 @@ final List<Category> availableCategories = [
   Category(
     id: 10,
     title: HomeStrings.finalThesis,
-    urlId: '21',
+    url: getAnnouncementsUrl("21"),
     route: PageRouteBuilder(
       settings: const RouteSettings(name: Routes.announcementScreen),
       pageBuilder: (_, __, ___) => const Placeholder(),

@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 
-import 'package:etf_oglasi/features/announcements/data/model/announcement.dart';
+import 'package:etf_oglasi/core/model/api/announcement.dart';
 import 'package:etf_oglasi/features/announcements/data/service/announcement_service.dart';
 import 'package:etf_oglasi/features/announcements/constants/strings.dart';
 
