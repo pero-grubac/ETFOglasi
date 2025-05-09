@@ -1,17 +1,15 @@
 import 'dart:io';
 
 import 'package:etf_oglasi/config/api_constants.dart';
-import 'package:etf_oglasi/core/service/api_service.dart';
 import 'package:etf_oglasi/core/model/api/announcement.dart';
+import 'package:etf_oglasi/core/service/api_service.dart';
 import 'package:http/http.dart' as http;
-import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 
 class AnnouncementService {
   final ApiService service;
 
-  AnnouncementService({ApiService? apiService})
-      : service = apiService ?? ApiService();
+  AnnouncementService({required this.service});
 
   Future<List<Announcement>> fetchAnnouncements(String url) async {
     return await service.fetchData<List<Announcement>>(

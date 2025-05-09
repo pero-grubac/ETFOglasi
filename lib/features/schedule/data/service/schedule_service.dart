@@ -1,12 +1,10 @@
 import 'package:etf_oglasi/core/service/api_service.dart';
-import 'package:etf_oglasi/features/schedule/data/model/dummy_data.dart';
 import 'package:etf_oglasi/features/schedule/data/model/schedule.dart';
 
 class ScheduleService {
   final ApiService service;
 
-  ScheduleService({ApiService? apiService})
-      : service = apiService ?? ApiService();
+  ScheduleService({required this.service});
 
   Future<Schedule> fetchSchedule(String url) async {
     return await service.fetchData<Schedule>(

@@ -1,4 +1,4 @@
-import 'package:etf_oglasi/config/api_constants.dart';
+import 'package:etf_oglasi/core/util/service_locator.dart';
 import 'package:etf_oglasi/features/home/data/model/category.dart';
 import 'package:etf_oglasi/features/schedule/data/model/schedule.dart';
 import 'package:etf_oglasi/features/schedule/data/service/schedule_service.dart';
@@ -17,7 +17,7 @@ class _ScheduleScreenState extends State<ScheduleScreen>
     with SingleTickerProviderStateMixin {
   late Schedule _schedule;
   late TabController _tabController;
-  final ScheduleService _service = ScheduleService();
+  final ScheduleService _service = getIt<ScheduleService>();
   final ScrollController _scrollController = ScrollController();
   late Future<void> _assetsFuture;
   late String _url;

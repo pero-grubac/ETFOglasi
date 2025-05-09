@@ -1,12 +1,11 @@
-import 'package:etf_oglasi/config/api_constants.dart';
 import 'package:etf_oglasi/core/model/api/announcement.dart';
+import 'package:etf_oglasi/core/util/service_locator.dart';
+import 'package:etf_oglasi/features/announcements/data/service/announcement_service.dart';
 import 'package:etf_oglasi/features/announcements/presentation/widget/announcement_card.dart';
 import 'package:etf_oglasi/features/announcements/presentation/widget/api_error_widget.dart';
 import 'package:etf_oglasi/features/announcements/presentation/widget/no_data_widget.dart';
 import 'package:etf_oglasi/features/home/data/model/category.dart';
 import 'package:flutter/material.dart';
-
-import 'package:etf_oglasi/features/announcements/data/service/announcement_service.dart';
 
 class AnnouncementScreen extends StatefulWidget {
   static const id = 'announcement_screen';
@@ -20,7 +19,7 @@ class AnnouncementScreen extends StatefulWidget {
 
 class _AnnouncementScreenState extends State<AnnouncementScreen> {
   late Future<List<Announcement>> _data;
-  final announcementService = AnnouncementService();
+  final AnnouncementService announcementService = getIt<AnnouncementService>();
 
   @override
   void initState() {

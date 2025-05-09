@@ -1,13 +1,11 @@
 import 'dart:io';
-import 'package:flutter/material.dart';
 
 import 'package:etf_oglasi/core/model/api/announcement.dart';
-import 'package:etf_oglasi/features/announcements/data/service/announcement_service.dart';
+import 'package:etf_oglasi/core/util/service_locator.dart';
 import 'package:etf_oglasi/features/announcements/constants/strings.dart';
-
+import 'package:etf_oglasi/features/announcements/data/service/announcement_service.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:open_filex/open_filex.dart';
-import 'package:path/path.dart' as path;
+import 'package:flutter/material.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -22,7 +20,7 @@ class AttachmentWidget extends StatefulWidget {
 
 class _AttachmentWidgetState extends State<AttachmentWidget> {
   bool _isDownloading = false;
-
+  final announcementService = getIt<AnnouncementService>();
   void _showSnackBar(
     String message, {
     String? actionLabel,
@@ -91,7 +89,6 @@ class _AttachmentWidgetState extends State<AttachmentWidget> {
 
         final prilog = widget.announcement.oglasPrilozi.first;
 
-        final announcementService = AnnouncementService();
         final downloadPath = await announcementService.download(
             widget.announcement.id.toString(),
             selectedDirectory,
@@ -164,8 +161,11 @@ class _AttachmentWidgetState extends State<AttachmentWidget> {
                   height: 16,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : Icon(Icons.attach_file,
-                  size: 16, color: theme.colorScheme.onSurface),
+              : Icon(
+                  Icons.attach_file,
+                  size: 16,
+                  color: theme.colorScheme.onSurface,
+                ),
           const SizedBox(width: 4),
           Text(
             AnnouncementStrings.attachment,
