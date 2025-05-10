@@ -9,6 +9,8 @@ const String _rooms = 'prostorije';
 const String _teachers = 'nastavnici';
 const String _studyProgramCode = 'octt-epg';
 const String _yearCode = '/epg/';
+const String _scheduleByRoom = 'po-prostoriji/';
+const String _scheduleByTeacher = 'po-nastavniku/';
 String getAnnouncementsUrl(String id) {
   return _baseApiUrl + _announcements + id;
 }
@@ -40,4 +42,12 @@ String getStudyProgramsUrl() {
 
 String getMajorsUrl(String studyProgramId) {
   return _baseApiUrl + _studyProgramCode + _yearCode + studyProgramId;
+}
+
+String getScheduleByRoomUrl(String roomId) {
+  return _baseApiUrl + _schedule + _scheduleByRoom + roomId;
+}
+
+String getScheduleByTeacherUrl(String teacherId) {
+  return _baseApiUrl + _schedule + _scheduleByTeacher + teacherId;
 }

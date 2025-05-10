@@ -7,7 +7,7 @@ class MajorService {
 
   MajorService({required this.service});
 
-  Future<List<Major>> fetchTeachers(String studyProgramId) async {
+  Future<List<Major>> fetchMajors(String studyProgramId) async {
     return await service.fetchData<List<Major>>(
       url: getMajorsUrl(studyProgramId),
       fromJson: (json) {

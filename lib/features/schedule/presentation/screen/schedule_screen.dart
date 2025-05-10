@@ -6,9 +6,13 @@ import 'package:flutter/material.dart';
 
 class ScheduleScreen extends StatefulWidget {
   static const id = 'schedule_screen';
-  const ScheduleScreen({super.key, required this.category});
+  const ScheduleScreen({
+    super.key,
+    required this.category,
+    required this.settingsWidget,
+  });
   final Category category;
-
+  final Widget settingsWidget;
   @override
   State<ScheduleScreen> createState() => _ScheduleScreenState();
 }
@@ -127,6 +131,20 @@ class _ScheduleScreenState extends State<ScheduleScreen>
     );
   }
 
+  void _showSettingsDialog() async {
+    final selectedUrl = await showDialog<String>(
+      context: context,
+      builder: (context) => widget.settingsWidget,
+    );
+
+    if (selectedUrl != null) {
+      setState(() {
+        _url = selectedUrl;
+        _assetsFuture = _loadData(_url);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -164,11 +182,7 @@ class _ScheduleScreenState extends State<ScheduleScreen>
               Icons.settings,
               color: colorScheme.onSurface,
             ),
-            onPressed: () {
-              setState(() {
-                // TODO
-              });
-            },
+            onPressed: _showSettingsDialog,
             tooltip: 'Podešavanja',
           ),
         ],

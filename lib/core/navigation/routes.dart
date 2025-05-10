@@ -1,8 +1,7 @@
+import 'package:etf_oglasi/features/announcements/presentation/screen/announcement_screen.dart';
+import 'package:etf_oglasi/features/home/data/model/category.dart';
 import 'package:etf_oglasi/features/schedule/presentation/screen/schedule_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:etf_oglasi/features/home/data/model/category.dart';
-
-import 'package:etf_oglasi/features/announcements/presentation/screen/announcement_screen.dart';
 
 class Routes {
   static const String announcementScreen = AnnouncementScreen.id;
@@ -23,7 +22,10 @@ class Routes {
         final category = settings.arguments as Category?;
         if (category != null) {
           return MaterialPageRoute(
-            builder: (_) => ScheduleScreen(category: category),
+            builder: (_) => ScheduleScreen(
+              category: category,
+              settingsWidget: category.settingsWidget ?? const Placeholder(),
+            ),
           );
         }
         return _errorRoute();

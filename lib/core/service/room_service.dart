@@ -7,7 +7,7 @@ class RoomService {
 
   RoomService({required this.service});
 
-  Future<List<Room>> fetchTeachers() async {
+  Future<List<Room>> fetchRooms() async {
     return await service.fetchData<List<Room>>(
       url: getRoomUrl(),
       fromJson: (json) {

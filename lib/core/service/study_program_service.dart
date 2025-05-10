@@ -7,7 +7,7 @@ class StudyProgramService {
 
   StudyProgramService({required this.service});
 
-  Future<List<StudyProgram>> fetchTeachers() async {
+  Future<List<StudyProgram>> fetchStudyPrograms() async {
     return await service.fetchData<List<StudyProgram>>(
       url: getStudyProgramsUrl(),
       fromJson: (json) {

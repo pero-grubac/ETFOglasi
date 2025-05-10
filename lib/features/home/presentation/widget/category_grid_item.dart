@@ -1,7 +1,6 @@
 import 'package:etf_oglasi/core/ui/theme/category_grid_item_theme.dart';
-import 'package:flutter/material.dart';
-
 import 'package:etf_oglasi/features/home/data/model/category.dart';
+import 'package:flutter/material.dart';
 
 class CategoryGridItem extends StatelessWidget {
   const CategoryGridItem({
@@ -29,7 +28,7 @@ class CategoryGridItem extends StatelessWidget {
       onTap: () {
         Navigator.pushNamed(
           context,
-          category.route.settings.name!,
+          category.screenId,
           arguments: category,
         );
       },
