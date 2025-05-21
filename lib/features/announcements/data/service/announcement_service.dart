@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:etf_oglasi/config/api_constants.dart';
 import 'package:etf_oglasi/core/model/api/announcement.dart';
-import 'package:etf_oglasi/core/service/api_service.dart';
+import 'package:etf_oglasi/core/service/api/api_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 

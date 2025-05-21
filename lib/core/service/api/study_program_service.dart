@@ -1,6 +1,6 @@
 import 'package:etf_oglasi/config/api_constants.dart';
 import 'package:etf_oglasi/core/model/api/study_program.dart';
-import 'package:etf_oglasi/core/service/api_service.dart';
+import 'package:etf_oglasi/core/service/api/api_service.dart';
 
 class StudyProgramService {
   final ApiService service;

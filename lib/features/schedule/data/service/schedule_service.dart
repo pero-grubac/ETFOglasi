@@ -1,4 +1,4 @@
-import 'package:etf_oglasi/core/service/api_service.dart';
+import 'package:etf_oglasi/core/service/api/api_service.dart';
 import 'package:etf_oglasi/features/schedule/data/model/schedule.dart';
 
 class ScheduleService {

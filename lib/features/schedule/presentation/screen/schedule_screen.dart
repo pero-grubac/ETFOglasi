@@ -90,7 +90,7 @@ class _ScheduleScreenState extends State<ScheduleScreen>
   Widget _buildScheduleList(List<(String, String?)> daySchedule) {
     final now = DateTime.now();
     final currentTime = Duration(hours: now.hour, minutes: now.minute);
-
+    final colorScheme = Theme.of(context).colorScheme;
     return ListView.builder(
       controller: _scrollController,
       itemCount: daySchedule.length,
@@ -117,7 +117,7 @@ class _ScheduleScreenState extends State<ScheduleScreen>
                           .toList(),
                     )
                   : const Text(''),
-              tileColor: isCurrentHour ? Colors.yellow.withOpacity(0.3) : null,
+              tileColor: isCurrentHour ? colorScheme.primaryContainer : null,
             ),
             if (index < daySchedule.length - 1)
               const Divider(
@@ -150,26 +150,17 @@ class _ScheduleScreenState extends State<ScheduleScreen>
     final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Raspored',
-          style: TextStyle(color: colorScheme.onSurface),
-        ),
+        title: const Text('Raspored'),
         centerTitle: true,
         leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: colorScheme.onSurface,
-          ),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
         actions: [
           IconButton(
-            icon: Icon(
-              Icons.refresh,
-              color: colorScheme.onSurface,
-            ),
+            icon: const Icon(Icons.refresh),
             onPressed: () {
               setState(() {
                 _assetsFuture = _loadData(_url);
@@ -178,10 +169,7 @@ class _ScheduleScreenState extends State<ScheduleScreen>
             tooltip: 'Osvježi',
           ),
           IconButton(
-            icon: Icon(
-              Icons.settings,
-              color: colorScheme.onSurface,
-            ),
+            icon: const Icon(Icons.settings),
             onPressed: _showSettingsDialog,
             tooltip: 'Podešavanja',
           ),

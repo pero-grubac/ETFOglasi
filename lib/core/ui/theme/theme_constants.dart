@@ -1,35 +1,35 @@
 import 'package:etf_oglasi/core/ui/theme/theme.dart';
 import 'package:flutter/material.dart';
 
-const primaryColor = Color(0xFFEE4488);
-const complementaryColor = Color(0xFF44EEAA);
-const errorColor = Color(0xFFEE5544);
+const primaryColor = Color(0xFF1976D2);
+const secondaryColor = Color(0xFF00ACC1);
+const errorColor = Color(0xFFD32F2F);
 
-var kColorScheme = ColorScheme(
+var kColorScheme = const ColorScheme(
   primary: primaryColor,
-  primaryContainer: primaryColor.withOpacity(0.8),
-  secondary: complementaryColor,
-  secondaryContainer: complementaryColor.withOpacity(0.8),
-  surface: Colors.white,
+  primaryContainer: Color(0xFFBBDEFB),
+  secondary: secondaryColor,
+  secondaryContainer: Color(0xFFB2EBF2),
+  surface: Color(0xFFFAFAFA),
   error: errorColor,
   onPrimary: Colors.white,
-  onSecondary: Colors.white,
-  onSurface: Colors.black,
+  onSecondary: Colors.black,
+  onSurface: Color(0xFF202124),
   onError: Colors.white,
   brightness: Brightness.light,
 );
 
-const darkPrimaryColor = Color(0xFF0088DA);
-const darkComplementaryColor = Color(0xFFDA5400);
-const darkTriadicColor1 = Color(0xFF5400DA);
+const darkPrimaryColor = Color(0xFF1976D2);
+const darkSecondaryColor = Color(0xFF4DB6AC);
+const darkErrorColor = Color(0xFFEF5350);
 
-var kDarkColorScheme = ColorScheme(
+var kDarkColorScheme = const ColorScheme(
   primary: darkPrimaryColor,
-  primaryContainer: darkPrimaryColor.withOpacity(0.8),
-  secondary: darkComplementaryColor,
-  secondaryContainer: darkComplementaryColor.withOpacity(0.8),
-  surface: const Color(0xFF1E1E1E),
-  error: errorColor,
+  primaryContainer: Color(0xFF42A5F7),
+  secondary: darkSecondaryColor,
+  secondaryContainer: Color(0xFF00695C),
+  surface: Color(0xFF1E1E1E),
+  error: darkErrorColor,
   onPrimary: Colors.black,
   onSecondary: Colors.black,
   onSurface: Colors.white,

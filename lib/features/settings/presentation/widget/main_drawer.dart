@@ -1,7 +1,8 @@
 import 'package:etf_oglasi/core/constants/strings.dart';
+import 'package:etf_oglasi/core/ui/theme/drawer_header_theme.dart';
 import 'package:flutter/material.dart';
 
-import 'package:etf_oglasi/core/ui/theme/drawer_header_theme.dart';
+import '../screen/settings_screen.dart';
 
 class MainDrawer extends StatelessWidget {
   const MainDrawer({super.key});
@@ -19,25 +20,30 @@ class MainDrawer extends StatelessWidget {
             child: Row(
               children: [
                 Icon(
-                  Icons.settings,
+                  Icons.school,
                   size: 48,
-                  color: theme.colorScheme.onSurface,
+                  color: theme.colorScheme.onPrimary,
                 ),
                 const SizedBox(
                   width: 18,
                 ),
-                const Text(GeneralStrings.settings),
+                Text(
+                  GeneralStrings.appTitle,
+                  style: TextStyle(color: theme.colorScheme.onPrimary),
+                ),
               ],
             ),
           ),
           ListTile(
             leading: Icon(
-              Icons.format_paint,
+              Icons.settings,
               size: 26,
               color: theme.colorScheme.primary,
             ),
-            title: const Text('Tema'),
-            onTap: () {},
+            title: const Text('Podešavanja'),
+            onTap: () {
+              Navigator.of(context).pushNamed(SettingsScreen.id);
+            },
           ),
           ListTile(
             leading: Icon(
@@ -55,15 +61,6 @@ class MainDrawer extends StatelessWidget {
               color: theme.colorScheme.primary,
             ),
             title: const Text('Raspored'),
-            onTap: () {},
-          ),
-          ListTile(
-            leading: Icon(
-              Icons.language,
-              size: 26,
-              color: theme.colorScheme.primary,
-            ),
-            title: const Text('Jezik'),
             onTap: () {},
           ),
         ],

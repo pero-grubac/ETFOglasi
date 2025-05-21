@@ -81,14 +81,7 @@ class AppTheme {
     );
     final drawerHeaderTheme = DrawerHeaderTheme(
       drawerHeaderDecoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            colorScheme.primaryContainer,
-            colorScheme.primaryContainer.withOpacity(0.8),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: colorScheme.primary,
       ),
     );
 

@@ -36,26 +36,17 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          widget.category.title,
-          style: TextStyle(color: theme.colorScheme.onSurface),
-        ),
+        title: Text(widget.category.title),
         centerTitle: true,
         leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: theme.colorScheme.onSurface,
-          ),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
         actions: [
           IconButton(
-            icon: Icon(
-              Icons.refresh,
-              color: theme.colorScheme.onSurface,
-            ),
+            icon: const Icon(Icons.refresh),
             onPressed: () {
               setState(() {
                 _data = _loadItems();

@@ -3,10 +3,10 @@ import 'package:etf_oglasi/core/model/api/major.dart';
 import 'package:etf_oglasi/core/model/api/room.dart';
 import 'package:etf_oglasi/core/model/api/study_program.dart';
 import 'package:etf_oglasi/core/model/api/teacher.dart';
-import 'package:etf_oglasi/core/service/major_service.dart';
-import 'package:etf_oglasi/core/service/room_service.dart';
-import 'package:etf_oglasi/core/service/study_program_service.dart';
-import 'package:etf_oglasi/core/service/teacher_service.dart';
+import 'package:etf_oglasi/core/service/api/major_service.dart';
+import 'package:etf_oglasi/core/service/api/room_service.dart';
+import 'package:etf_oglasi/core/service/api/study_program_service.dart';
+import 'package:etf_oglasi/core/service/api/teacher_service.dart';
 import 'package:etf_oglasi/core/util/service_locator.dart';
 import 'package:flutter/material.dart';
 
@@ -15,24 +15,27 @@ class ClassScheduleSettingsWidget extends StatefulWidget {
 
   @override
   State<ClassScheduleSettingsWidget> createState() =>
-      _ClassScheduleSettingsWidget();
+      _ClassScheduleSettingsWidgetState();
 }
 
-class _ClassScheduleSettingsWidget extends State<ClassScheduleSettingsWidget> {
+class _ClassScheduleSettingsWidgetState
+    extends State<ClassScheduleSettingsWidget> {
   final TeacherService _teacherService = getIt<TeacherService>();
   final RoomService _roomService = getIt<RoomService>();
   final StudyProgramService _studyProgramService = getIt<StudyProgramService>();
   final MajorService _majorService = getIt<MajorService>();
-  Future<List<Teacher>> _teachers = Future.value([]);
-  Future<List<Room>> _rooms = Future.value([]);
-  Future<List<StudyProgram>> _studyPrograms = Future.value([]);
-  Future<List<Major>> _majors = Future.value([]);
+
+  late Future<List<Teacher>> _teachers;
+  late Future<List<Room>> _rooms;
+  late Future<List<StudyProgram>> _studyPrograms;
+  late Future<List<Major>> _majors;
   String? _selectedTeacherId;
   String? _selectedRoomId;
   String? _selectedStudyProgramId;
   String? _selectedMajorId;
   String? _generatedUrl;
   String? _errorMessage;
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -42,17 +45,23 @@ class _ClassScheduleSettingsWidget extends State<ClassScheduleSettingsWidget> {
 
   Future<void> _initializeData() async {
     try {
-      _teachers = _teacherService.fetchTeachers();
-      _rooms = _roomService.fetchRooms();
-      _studyPrograms = _studyProgramService.fetchStudyPrograms();
+      final teachersFuture = _teacherService.fetchTeachers();
+      final roomsFuture = _roomService.fetchRooms();
+      final studyProgramsFuture = _studyProgramService.fetchStudyPrograms();
 
-      final studyProgramsList = await _studyProgramService.fetchStudyPrograms();
-      if (studyProgramsList.isNotEmpty) {
-        final firstId = studyProgramsList.first.epgId.toString();
-        _majors = _majorService.fetchMajors(firstId);
-      } else {
-        _majors = Future.value([]);
-      }
+      final studyProgramsList = await studyProgramsFuture;
+
+      setState(() {
+        _teachers = teachersFuture;
+        _rooms = roomsFuture;
+        _studyPrograms = studyProgramsFuture;
+        _majors = studyProgramsList.isNotEmpty
+            ? _majorService
+                .fetchMajors(studyProgramsList.first.epgId.toString())
+            : Future.value([]);
+        _errorMessage = null;
+        _isLoading = false;
+      });
     } catch (e) {
       setState(() {
         _errorMessage = 'Failed to load initial data: $e';
@@ -60,6 +69,7 @@ class _ClassScheduleSettingsWidget extends State<ClassScheduleSettingsWidget> {
         _rooms = Future.value([]);
         _studyPrograms = Future.value([]);
         _majors = Future.value([]);
+        _isLoading = false;
       });
     }
   }
@@ -67,9 +77,7 @@ class _ClassScheduleSettingsWidget extends State<ClassScheduleSettingsWidget> {
   Future<void> _loadMajors(String studyProgramId) async {
     try {
       _majors = _majorService.fetchMajors(studyProgramId);
-      setState(() {
-        _selectedMajorId = null;
-      });
+      setState(() => _selectedMajorId = null);
     } catch (e) {
       setState(() {
         _errorMessage = 'Failed to load majors: $e';
@@ -78,223 +86,217 @@ class _ClassScheduleSettingsWidget extends State<ClassScheduleSettingsWidget> {
     }
   }
 
-  Widget _buildTeacherDropdown(StateSetter setDialogState) {
-    return FutureBuilder<List<Teacher>>(
-      future: _teachers,
+  Widget _buildDropdown<T>(
+    Future<List<T>> future,
+    String hint,
+    String? value,
+    List<DropdownMenuItem<String>> Function(List<T>) itemBuilder,
+    void Function(String?) onChanged,
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return FutureBuilder<List<T>>(
+      future: future,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
-        if (snapshot.hasError) {
-          return const Text('Error loading teachers');
+        if (snapshot.hasError ||
+            snapshot.data == null ||
+            snapshot.data!.isEmpty) {
+          return const Text('No data available');
         }
-        final teachers = snapshot.data ?? [];
+        final items = itemBuilder(snapshot.data!);
         return DropdownButton<String>(
-          hint: const Text('Select Teacher'),
-          value: _selectedTeacherId,
+          hint: Text(hint),
+          value: value,
           isExpanded: true,
-          items: teachers.map((teacher) {
-            return DropdownMenuItem<String>(
-              value: teacher.id.toString(),
-              child: Text(teacher.ime),
-            );
-          }).toList(),
-          onChanged: (value) {
-            setDialogState(() {
-              _selectedTeacherId = value;
-              _selectedRoomId = null;
-              _selectedStudyProgramId = null;
-              _selectedMajorId = null;
-              _generatedUrl =
-                  value != null ? getScheduleByTeacherUrl(value) : null;
-            });
-          },
+          dropdownColor: colorScheme.primaryContainer,
+          style: TextStyle(color: colorScheme.onSurfaceVariant),
+          focusColor: colorScheme.primaryContainer,
+          items: items.isNotEmpty
+              ? items
+              : [const DropdownMenuItem(child: Text('No options'))],
+          onChanged: onChanged,
         );
       },
     );
   }
 
-  Widget _buildRoomDropdown(StateSetter setDialogState) {
-    return FutureBuilder<List<Room>>(
-      future: _rooms,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snapshot.hasError) {
-          return const Text('Error loading rooms');
-        }
-        final rooms = snapshot.data ?? [];
-        return DropdownButton<String>(
-          hint: const Text('Select Room'),
-          value: _selectedRoomId,
-          isExpanded: true,
-          items: rooms.map((room) {
-            return DropdownMenuItem<String>(
-              value: room.id.toString(),
-              child: Text(room.naziv),
-            );
-          }).toList(),
-          onChanged: (value) {
-            setDialogState(() {
-              _selectedTeacherId = null;
-              _selectedRoomId = value;
-              _selectedStudyProgramId = null;
-              _selectedMajorId = null;
-              _generatedUrl =
-                  value != null ? getScheduleByRoomUrl(value) : null;
-            });
-          },
-        );
-      },
-    );
+  List<DropdownMenuItem<String>> _buildTeacherItems(List<Teacher> teachers) {
+    return teachers.map((teacher) {
+      return DropdownMenuItem<String>(
+        value: teacher.id.toString(),
+        child: Text(teacher.ime),
+      );
+    }).toList();
   }
 
-  Widget _buildStudyProgramDropdown(StateSetter setDialogState) {
-    return FutureBuilder<List<StudyProgram>>(
-      future: _studyPrograms,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snapshot.hasError) {
-          return const Text('Error loading study programs');
-        }
-        final studyPrograms = snapshot.data ?? [];
-        return DropdownButton<String>(
-          hint: const Text('Select Study Program'),
-          value: _selectedStudyProgramId,
-          isExpanded: true,
-          items: studyPrograms.map((studyProgram) {
-            return DropdownMenuItem<String>(
-              value: studyProgram.epgId.toString(),
-              child: Text(studyProgram.name),
-            );
-          }).toList(),
-          onChanged: (value) {
-            setDialogState(() {
-              _selectedTeacherId = null;
-              _selectedRoomId = null;
-              _selectedStudyProgramId = value;
-              _selectedMajorId = null;
-              _generatedUrl = null;
-              if (value != null) {
-                _loadMajors(value);
-              }
-            });
-          },
-        );
-      },
-    );
+  List<DropdownMenuItem<String>> _buildRoomItems(List<Room> rooms) {
+    return rooms.map((room) {
+      return DropdownMenuItem<String>(
+        value: room.id.toString(),
+        child: Text(room.naziv),
+      );
+    }).toList();
   }
 
-  Widget _buildMajorDropdown(StateSetter setDialogState) {
-    return FutureBuilder<List<Major>>(
-      future: _majors,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snapshot.hasError) {
-          return const Text('Error loading majors');
-        }
-        final majors = snapshot.data ?? [];
-        return DropdownButton<String>(
-          hint: const Text('Select Major'),
-          value: _selectedMajorId,
-          isExpanded: true,
-          items: majors.map((major) {
-            return DropdownMenuItem<String>(
-              value: major.epgId.toString(),
-              child: Text(major.name),
-            );
-          }).toList(),
-          onChanged: (value) {
-            setDialogState(() {
-              _selectedMajorId = value;
-              _generatedUrl = (value != null && _selectedStudyProgramId != null)
-                  ? getScheduleUrl(_selectedStudyProgramId!, value)
-                  : null;
-            });
-          },
-        );
-      },
-    );
+  List<DropdownMenuItem<String>> _buildStudyProgramItems(
+      List<StudyProgram> studyPrograms) {
+    return studyPrograms.map((studyProgram) {
+      return DropdownMenuItem<String>(
+        value: studyProgram.epgId.toString(),
+        child: Text(studyProgram.name),
+      );
+    }).toList();
+  }
+
+  List<DropdownMenuItem<String>> _buildMajorItems(List<Major> majors) {
+    return majors.map((major) {
+      return DropdownMenuItem<String>(
+        value: major.epId.toString(),
+        child: Text(major.name),
+      );
+    }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16.0),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
       child: Card(
         elevation: 8.0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16.0),
-        ),
+        color: colorScheme.surface,
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: 400, // Limit width for card-like appearance
-              minWidth: 280,
-            ),
-            child: StatefulBuilder(
-              builder: (BuildContext context, StateSetter setDialogState) {
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Select Schedule Parameters',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+          child: _isLoading
+              ? const SizedBox(
+                  height: 200,
+                  child: Center(child: CircularProgressIndicator()),
+                )
+              : SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      maxWidth: 400,
+                      minWidth: 280,
                     ),
-                    if (_errorMessage != null) ...[
-                      const SizedBox(height: 16),
-                      Text(
-                        _errorMessage!,
-                        style: const TextStyle(color: Colors.red),
-                      ),
-                    ],
-                    const SizedBox(height: 16),
-                    _buildTeacherDropdown(setDialogState),
-                    const SizedBox(height: 16),
-                    _buildRoomDropdown(setDialogState),
-                    const SizedBox(height: 16),
-                    _buildStudyProgramDropdown(setDialogState),
-                    const SizedBox(height: 16),
-                    _buildMajorDropdown(setDialogState),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('Set as default'),
-                        ),
-                        const SizedBox(width: 16),
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('Cancel'),
-                        ),
-                        const SizedBox(width: 16),
-                        ElevatedButton(
-                          onPressed: _generatedUrl != null
-                              ? () => Navigator.pop(context, _generatedUrl)
-                              : null,
-                          child: const Text('Select'),
-                        ),
-                      ],
+                    child: StatefulBuilder(
+                      builder: (context, setDialogState) {
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Select Schedule Parameters',
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                            if (_errorMessage != null) ...[
+                              const SizedBox(height: 16),
+                              Text(_errorMessage!,
+                                  style: const TextStyle(color: Colors.red)),
+                            ],
+                            const SizedBox(height: 16),
+                            _buildDropdown<Teacher>(
+                              _teachers,
+                              'Select Teacher',
+                              _selectedTeacherId,
+                              _buildTeacherItems,
+                              (value) {
+                                setDialogState(() {
+                                  _selectedTeacherId = value;
+                                  _selectedRoomId = null;
+                                  _selectedStudyProgramId = null;
+                                  _selectedMajorId = null;
+                                  _generatedUrl = value != null
+                                      ? getScheduleByTeacherUrl(value)
+                                      : null;
+                                });
+                              },
+                            ),
+                            const SizedBox(height: 16),
+                            _buildDropdown<Room>(
+                              _rooms,
+                              'Select Room',
+                              _selectedRoomId,
+                              _buildRoomItems,
+                              (value) {
+                                setDialogState(() {
+                                  _selectedTeacherId = null;
+                                  _selectedRoomId = value;
+                                  _selectedStudyProgramId = null;
+                                  _selectedMajorId = null;
+                                  _generatedUrl = value != null
+                                      ? getScheduleByRoomUrl(value)
+                                      : null;
+                                });
+                              },
+                            ),
+                            const SizedBox(height: 16),
+                            _buildDropdown<StudyProgram>(
+                              _studyPrograms,
+                              'Select Study Program',
+                              _selectedStudyProgramId,
+                              _buildStudyProgramItems,
+                              (value) {
+                                setDialogState(() {
+                                  _selectedTeacherId = null;
+                                  _selectedRoomId = null;
+                                  _selectedStudyProgramId = value;
+                                  _selectedMajorId = null;
+                                  _generatedUrl = null;
+                                  if (value != null) _loadMajors(value);
+                                });
+                              },
+                            ),
+                            const SizedBox(height: 16),
+                            _buildDropdown<Major>(
+                              _majors,
+                              'Select Major',
+                              _selectedMajorId,
+                              _buildMajorItems,
+                              (value) {
+                                setDialogState(() {
+                                  _selectedMajorId = value;
+                                  _generatedUrl = (value != null &&
+                                          _selectedStudyProgramId != null)
+                                      ? getScheduleUrl(
+                                          _selectedStudyProgramId!, value)
+                                      : null;
+                                });
+                              },
+                            ),
+                            const SizedBox(height: 16),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text('Set as default'),
+                                ),
+                                const SizedBox(width: 16),
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text('Cancel'),
+                                ),
+                                const SizedBox(width: 16),
+                                ElevatedButton(
+                                  onPressed: _generatedUrl != null
+                                      ? () =>
+                                          Navigator.pop(context, _generatedUrl)
+                                      : null,
+                                  child: const Text('Select'),
+                                ),
+                              ],
+                            ),
+                          ],
+                        );
+                      },
                     ),
-                  ],
-                );
-              },
-            ),
-          ),
+                  ),
+                ),
         ),
       ),
     );
