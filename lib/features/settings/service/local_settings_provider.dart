@@ -26,7 +26,7 @@ class LocalSettingsNotifier extends StateNotifier<LocalSettings> {
         themeMode == LocalSettings.darkMode ? ThemeMode.dark : ThemeMode.light;
     ref.read(themeNotifierProvider.notifier).setTheme(themeModeEnum);
 
-    final locale = Locale(language);
+    final locale = parseLocale(language);
     ref.read(localeProvider.notifier).updateLocale(locale);
   }
 
@@ -43,7 +43,7 @@ class LocalSettingsNotifier extends StateNotifier<LocalSettings> {
     state = LocalSettings(themeMode: state.themeMode, language: language);
     _saveSettings();
 
-    final locale = Locale(language);
+    final locale = parseLocale(language);
     ref.read(localeProvider.notifier).updateLocale(locale);
   }
 

@@ -1,6 +1,6 @@
-import 'package:etf_oglasi/core/constants/strings.dart';
 import 'package:etf_oglasi/core/ui/theme/drawer_header_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../screen/settings_screen.dart';
 
@@ -9,6 +9,8 @@ class MainDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context);
+
     final theme = Theme.of(context);
     final drawerHeaderTheme = theme.extension<DrawerHeaderTheme>();
     return Drawer(
@@ -28,7 +30,7 @@ class MainDrawer extends StatelessWidget {
                   width: 18,
                 ),
                 Text(
-                  GeneralStrings.appTitle,
+                  locale!.appTitle,
                   style: TextStyle(color: theme.colorScheme.onPrimary),
                 ),
               ],
@@ -40,7 +42,7 @@ class MainDrawer extends StatelessWidget {
               size: 26,
               color: theme.colorScheme.primary,
             ),
-            title: const Text('Podešavanja'),
+            title: Text(locale!.settings),
             onTap: () {
               Navigator.of(context).pushNamed(SettingsScreen.id);
             },
@@ -51,7 +53,7 @@ class MainDrawer extends StatelessWidget {
               size: 26,
               color: theme.colorScheme.primary,
             ),
-            title: const Text('Obavjestenja'),
+            title: Text(locale.notifications),
             onTap: () {},
           ),
           ListTile(
@@ -60,7 +62,7 @@ class MainDrawer extends StatelessWidget {
               size: 26,
               color: theme.colorScheme.primary,
             ),
-            title: const Text('Raspored'),
+            title: Text(locale.schedule),
             onTap: () {},
           ),
         ],

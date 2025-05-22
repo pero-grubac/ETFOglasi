@@ -1,5 +1,6 @@
 import 'package:etf_oglasi/features/settings/service/local_settings_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/model/local_settings.dart';
@@ -9,7 +10,11 @@ class SettingsScreen extends ConsumerWidget {
 
   const SettingsScreen({super.key});
   Widget _buildSettingsContent(
-      BuildContext context, WidgetRef ref, LocalSettings settings) {
+    BuildContext context,
+    WidgetRef ref,
+    LocalSettings settings,
+  ) {
+    final locale = AppLocalizations.of(context);
     final isDarkMode = settings.themeMode == LocalSettings.darkMode;
 
     final languageOptions = [
@@ -47,9 +52,9 @@ class SettingsScreen extends ConsumerWidget {
               padding:
                   const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: DropdownButtonFormField<String>(
-                decoration: const InputDecoration(
-                  labelText: 'Jezik',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: locale?.language,
+                  border: const OutlineInputBorder(),
                 ),
                 style: TextStyle(
                   color: Theme.of(context).textTheme.titleLarge!.color,
@@ -78,7 +83,7 @@ class SettingsScreen extends ConsumerWidget {
                         .updateLanguage(value);
                   }
                 },
-                hint: const Text('Izaberite jezik'),
+                hint: Text(locale!.choseLanguage),
                 isExpanded: true, // Makes dropdown take full width
                 menuMaxHeight: 300, // Limits dropdown height
                 borderRadius: BorderRadius.circular(8),
@@ -95,11 +100,12 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(localSettingsProvider);
+    final locale = AppLocalizations.of(context);
 
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Settings'),
+        title: Text(locale!.settings),
       ),
       body: _buildSettingsContent(context, ref, settings),
     );

@@ -9,6 +9,7 @@ import 'package:etf_oglasi/core/service/api/study_program_service.dart';
 import 'package:etf_oglasi/core/service/api/teacher_service.dart';
 import 'package:etf_oglasi/core/util/service_locator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ClassScheduleSettingsWidget extends StatefulWidget {
   const ClassScheduleSettingsWidget({super.key});
@@ -93,6 +94,8 @@ class _ClassScheduleSettingsWidgetState
     List<DropdownMenuItem<String>> Function(List<T>) itemBuilder,
     void Function(String?) onChanged,
   ) {
+    final locale = AppLocalizations.of(context);
+
     final colorScheme = Theme.of(context).colorScheme;
     return FutureBuilder<List<T>>(
       future: future,
@@ -103,7 +106,7 @@ class _ClassScheduleSettingsWidgetState
         if (snapshot.hasError ||
             snapshot.data == null ||
             snapshot.data!.isEmpty) {
-          return const Text('No data available');
+          return Text(locale!.noData);
         }
         final items = itemBuilder(snapshot.data!);
         return DropdownButton<String>(
@@ -115,7 +118,7 @@ class _ClassScheduleSettingsWidgetState
           focusColor: colorScheme.primaryContainer,
           items: items.isNotEmpty
               ? items
-              : [const DropdownMenuItem(child: Text('No options'))],
+              : [DropdownMenuItem(child: Text(locale!.noData))],
           onChanged: onChanged,
         );
       },
@@ -161,6 +164,7 @@ class _ClassScheduleSettingsWidgetState
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
@@ -188,9 +192,9 @@ class _ClassScheduleSettingsWidgetState
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'Select Schedule Parameters',
-                              style: TextStyle(
+                            Text(
+                              locale!.selectSchedule,
+                              style: const TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                             if (_errorMessage != null) ...[
@@ -201,7 +205,7 @@ class _ClassScheduleSettingsWidgetState
                             const SizedBox(height: 16),
                             _buildDropdown<Teacher>(
                               _teachers,
-                              'Select Teacher',
+                              locale.teacher,
                               _selectedTeacherId,
                               _buildTeacherItems,
                               (value) {
@@ -219,7 +223,7 @@ class _ClassScheduleSettingsWidgetState
                             const SizedBox(height: 16),
                             _buildDropdown<Room>(
                               _rooms,
-                              'Select Room',
+                              locale.room,
                               _selectedRoomId,
                               _buildRoomItems,
                               (value) {
@@ -237,7 +241,7 @@ class _ClassScheduleSettingsWidgetState
                             const SizedBox(height: 16),
                             _buildDropdown<StudyProgram>(
                               _studyPrograms,
-                              'Select Study Program',
+                              locale.studyProgram,
                               _selectedStudyProgramId,
                               _buildStudyProgramItems,
                               (value) {
@@ -254,7 +258,7 @@ class _ClassScheduleSettingsWidgetState
                             const SizedBox(height: 16),
                             _buildDropdown<Major>(
                               _majors,
-                              'Select Major',
+                              locale.year,
                               _selectedMajorId,
                               _buildMajorItems,
                               (value) {
@@ -274,12 +278,12 @@ class _ClassScheduleSettingsWidgetState
                               children: [
                                 TextButton(
                                   onPressed: () => Navigator.pop(context),
-                                  child: const Text('Set as default'),
+                                  child: Text(locale.save),
                                 ),
                                 const SizedBox(width: 16),
                                 TextButton(
                                   onPressed: () => Navigator.pop(context),
-                                  child: const Text('Cancel'),
+                                  child: Text(locale.cancel),
                                 ),
                                 const SizedBox(width: 16),
                                 ElevatedButton(
@@ -287,7 +291,7 @@ class _ClassScheduleSettingsWidgetState
                                       ? () =>
                                           Navigator.pop(context, _generatedUrl)
                                       : null,
-                                  child: const Text('Select'),
+                                  child: Text(locale.select),
                                 ),
                               ],
                             ),

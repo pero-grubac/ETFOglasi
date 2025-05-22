@@ -10,8 +10,17 @@ class LocaleNotifier extends StateNotifier<Locale> {
   }
 }
 
+Locale parseLocale(String localeString) {
+  final parts = localeString.split('-');
+  if (parts.length == 2) {
+    return Locale.fromSubtags(languageCode: parts[0], scriptCode: parts[1]);
+  } else {
+    return Locale(localeString);
+  }
+}
+
 final localeProvider = StateNotifierProvider<LocaleNotifier, Locale>((ref) {
   final localSettings = ref.watch(localSettingsProvider);
-  final locale = Locale(localSettings.language);
+  final locale = parseLocale(localSettings.language);
   return LocaleNotifier(locale);
 });

@@ -3,6 +3,7 @@ import 'package:etf_oglasi/features/home/data/model/category.dart';
 import 'package:etf_oglasi/features/schedule/data/model/schedule.dart';
 import 'package:etf_oglasi/features/schedule/data/service/schedule_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ScheduleScreen extends StatefulWidget {
   static const id = 'schedule_screen';
@@ -148,9 +149,11 @@ class _ScheduleScreenState extends State<ScheduleScreen>
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final locale = AppLocalizations.of(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Raspored'),
+        title: Text(locale!.schedule),
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -166,12 +169,12 @@ class _ScheduleScreenState extends State<ScheduleScreen>
                 _assetsFuture = _loadData(_url);
               });
             },
-            tooltip: 'Osvježi',
+            tooltip: locale.refresh,
           ),
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: _showSettingsDialog,
-            tooltip: 'Podešavanja',
+            tooltip: locale.settings,
           ),
         ],
         bottom: TabBar(
@@ -182,12 +185,12 @@ class _ScheduleScreenState extends State<ScheduleScreen>
           unselectedLabelStyle: const TextStyle(fontSize: 14),
           labelPadding:
               const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
-          tabs: const [
-            Tab(text: 'Ponedjeljak'),
-            Tab(text: 'Utorak'),
-            Tab(text: 'Srijeda'),
-            Tab(text: 'Četvrtak'),
-            Tab(text: 'Petak'),
+          tabs: [
+            Tab(text: locale.monday),
+            Tab(text: locale.tuesday),
+            Tab(text: locale.wednesday),
+            Tab(text: locale.thursday),
+            Tab(text: locale.friday),
           ],
         ),
       ),
@@ -208,7 +211,7 @@ class _ScheduleScreenState extends State<ScheduleScreen>
                     _buildScheduleList(_schedule.friday),
                   ],
                 )
-              : const Center(child: Text('Nema rasporeda'));
+              : Center(child: Text(locale.noSchedule));
         },
       ),
     );

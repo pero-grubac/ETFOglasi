@@ -5,6 +5,7 @@ import 'package:etf_oglasi/core/ui/theme/theme_constants.dart';
 import 'package:etf_oglasi/core/util/service_locator.dart';
 import 'package:etf_oglasi/features/home/presentation/screen/home_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -37,6 +38,9 @@ class MyApp extends ConsumerWidget {
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: themeMode,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: locale,
       home: const HomeScreen(),
       onGenerateRoute: Routes.generateRoute,
     );

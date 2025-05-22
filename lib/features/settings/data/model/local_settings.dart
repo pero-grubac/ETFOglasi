@@ -3,10 +3,10 @@ import 'dart:convert';
 class LocalSettings {
   static const darkMode = 'dark';
   static const lightMode = 'light';
-  static const srLatLang = 'sr-lat';
-  static const srLatName = 'Srpski latinica';
-  static const srCyrLang = 'sr-cyr';
-  static const srCyrName = 'Srpski ćirilica';
+  static const srLatLang = 'sr-Latn';
+  static const srLatName = 'Latinica';
+  static const srCyrLang = 'sr-Cyrl';
+  static const srCyrName = 'Ћирилица';
   final String language;
   final String themeMode;
 

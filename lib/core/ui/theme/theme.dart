@@ -92,7 +92,7 @@ class AppTheme {
         backgroundColor: colorScheme.primary,
         foregroundColor: colorScheme.onPrimary,
         iconTheme: IconThemeData(color: colorScheme.onPrimary),
-        titleTextStyle: GoogleFonts.lato(
+        titleTextStyle: GoogleFonts.notoSans(
           fontSize: 20,
           fontWeight: FontWeight.bold,
           color: colorScheme.onPrimary,
