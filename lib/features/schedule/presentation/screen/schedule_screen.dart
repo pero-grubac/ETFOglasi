@@ -186,11 +186,11 @@ class _ScheduleScreenState extends State<ScheduleScreen>
           labelPadding:
               const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
           tabs: [
-            Tab(text: locale.monday),
-            Tab(text: locale.tuesday),
-            Tab(text: locale.wednesday),
-            Tab(text: locale.thursday),
-            Tab(text: locale.friday),
+            Tab(child: FittedBox(child: Text(locale.monday))),
+            Tab(child: FittedBox(child: Text(locale.tuesday))),
+            Tab(child: FittedBox(child: Text(locale.wednesday))),
+            Tab(child: FittedBox(child: Text(locale.thursday))),
+            Tab(child: FittedBox(child: Text(locale.friday))),
           ],
         ),
       ),
