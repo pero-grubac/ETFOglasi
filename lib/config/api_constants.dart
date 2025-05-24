@@ -51,3 +51,7 @@ String getScheduleByRoomUrl(String roomId) {
 String getScheduleByTeacherUrl(String teacherId) {
   return _baseApiUrl + _schedule + _scheduleByTeacher + teacherId;
 }
+
+String getRoomScheduleUrl(String roomId, String date) {
+  return '$_baseApiUrl$_schedule$roomId/$date';
+}

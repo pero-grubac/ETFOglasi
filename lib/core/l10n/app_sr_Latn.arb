@@ -31,5 +31,7 @@
   "save": "Sačuvaj",
   "cancel": "Otkaži",
   "select": "Izaberi",
-  "noNotifications": "Nema obavještenja"
+  "noNotifications": "Nema obavještenja",
+  "selectDate": "Izaberite datum",
+  "date": "Datum"
 }

@@ -28,15 +28,25 @@ class ScheduleService {
       final List<dynamic> items = row;
 
       final time = items[0] as String?;
-
       if (time == null) continue;
+      final timeParts = time.split(':');
+      if (timeParts.length != 2) continue;
+      final hour = int.tryParse(timeParts[0]);
+      if (hour == null) continue;
+      if (hour < 8 || hour >= 22) continue;
 
       final subjects = items.sublist(1, 6); // samo pon-pet
 
       if (subjects.length >= 5) {
         final cleanSubjects = subjects.map((subject) {
           if (subject == null) return null;
-          return (subject as String).replaceAll('<br /> --- <br />', '\n');
+          if (subject is String) {
+            if (subject.contains('<br />')) {
+              return subject.replaceAll('<br /> --- <br />', '\n');
+            }
+            return subject;
+          }
+          return null;
         }).toList();
 
         monday.add((time, cleanSubjects[0]));
