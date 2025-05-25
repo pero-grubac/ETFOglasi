@@ -7,7 +7,7 @@ import 'package:etf_oglasi/core/service/api/major_service.dart';
 import 'package:etf_oglasi/core/service/api/room_service.dart';
 import 'package:etf_oglasi/core/service/api/study_program_service.dart';
 import 'package:etf_oglasi/core/service/api/teacher_service.dart';
-import 'package:etf_oglasi/core/util/service_locator.dart';
+import 'package:etf_oglasi/core/util/dependency_injection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 

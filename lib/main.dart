@@ -2,7 +2,7 @@ import 'package:etf_oglasi/core/navigation/routes.dart';
 import 'package:etf_oglasi/core/service/provider/locale_notifier.dart';
 import 'package:etf_oglasi/core/service/provider/theme_notifier.dart';
 import 'package:etf_oglasi/core/ui/theme/theme_constants.dart';
-import 'package:etf_oglasi/core/util/service_locator.dart';
+import 'package:etf_oglasi/core/util/dependency_injection.dart';
 import 'package:etf_oglasi/features/home/presentation/screen/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';

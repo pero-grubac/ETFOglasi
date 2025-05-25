@@ -1,9 +1,33 @@
+import 'dart:convert';
+
+class ScheduleEntry {
+  final String time;
+  final String? subject;
+
+  ScheduleEntry({required this.time, this.subject});
+
+  Map<String, dynamic> toMap() {
+    return {
+      'time': time,
+      'subject': subject,
+    };
+  }
+
+  factory ScheduleEntry.fromMap(Map<String, dynamic> map) {
+    return ScheduleEntry(
+      time: map['time'] as String,
+      subject: map['subject'] as String?,
+    );
+  }
+}
+
 class Schedule {
-  final List<(String, String?)> monday;
-  final List<(String, String?)> tuesday;
-  final List<(String, String?)> wednesday;
-  final List<(String, String?)> thursday;
-  final List<(String, String?)> friday;
+  static const String dbName = 'schedule';
+  final List<ScheduleEntry> monday;
+  final List<ScheduleEntry> tuesday;
+  final List<ScheduleEntry> wednesday;
+  final List<ScheduleEntry> thursday;
+  final List<ScheduleEntry> friday;
 
   Schedule({
     required this.monday,
@@ -14,11 +38,9 @@ class Schedule {
   });
 
   void sort() {
-    monday.sort((a, b) => parseTime(a.$1).compareTo(parseTime(b.$1)));
-    tuesday.sort((a, b) => parseTime(a.$1).compareTo(parseTime(b.$1)));
-    wednesday.sort((a, b) => parseTime(a.$1).compareTo(parseTime(b.$1)));
-    thursday.sort((a, b) => parseTime(a.$1).compareTo(parseTime(b.$1)));
-    friday.sort((a, b) => parseTime(a.$1).compareTo(parseTime(b.$1)));
+    for (var day in [monday, tuesday, wednesday, thursday, friday]) {
+      day.sort((a, b) => parseTime(a.time).compareTo(parseTime(b.time)));
+    }
   }
 
   Duration parseTime(String time) {
@@ -26,5 +48,38 @@ class Schedule {
     final hours = int.parse(parts[0]);
     final min = int.parse(parts[1]);
     return Duration(hours: hours, minutes: min);
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'data': jsonEncode({
+        'monday': monday.map((e) => e.toMap()).toList(),
+        'tuesday': tuesday.map((e) => e.toMap()).toList(),
+        'wednesday': wednesday.map((e) => e.toMap()).toList(),
+        'thursday': thursday.map((e) => e.toMap()).toList(),
+        'friday': friday.map((e) => e.toMap()).toList(),
+      }),
+    };
+  }
+
+  factory Schedule.fromMap(Map<String, dynamic> map) {
+    final data = jsonDecode(map['data'] as String) as Map<String, dynamic>;
+    return Schedule(
+      monday: (data['monday'] as List<dynamic>)
+          .map((e) => ScheduleEntry.fromMap(e as Map<String, dynamic>))
+          .toList(),
+      tuesday: (data['tuesday'] as List<dynamic>)
+          .map((e) => ScheduleEntry.fromMap(e as Map<String, dynamic>))
+          .toList(),
+      wednesday: (data['wednesday'] as List<dynamic>)
+          .map((e) => ScheduleEntry.fromMap(e as Map<String, dynamic>))
+          .toList(),
+      thursday: (data['thursday'] as List<dynamic>)
+          .map((e) => ScheduleEntry.fromMap(e as Map<String, dynamic>))
+          .toList(),
+      friday: (data['friday'] as List<dynamic>)
+          .map((e) => ScheduleEntry.fromMap(e as Map<String, dynamic>))
+          .toList(),
+    );
   }
 }

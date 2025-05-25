@@ -1,5 +1,6 @@
 import 'package:etf_oglasi/config/api_constants.dart';
 import 'package:etf_oglasi/core/navigation/routes.dart';
+import 'package:etf_oglasi/core/util/format_date.dart';
 import 'package:etf_oglasi/features/schedule/presentation/widget/class_schedule_settings_widget.dart';
 import 'package:etf_oglasi/features/schedule/presentation/widget/room_schedule_settings_widget.dart';
 import 'package:flutter/material.dart';
@@ -58,8 +59,8 @@ List<Category> buildAvailableCategories(AppLocalizations locale) {
       title: locale.hallSchedule,
       url: getRoomScheduleUrl(
         "1",
-        '2025-05-19',
-      ), //DateFormat('yyyy-MM-dd').format(DateTime.now())
+        formatDate(getMondayOfWeek(DateTime.now())),
+      ),
       settingsWidget: const RoomScheduleSettingsWidget(),
       screenId: Routes.scheduleScreen,
     ),

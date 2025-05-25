@@ -17,11 +17,11 @@ class ScheduleService {
   }
 
   Schedule _transformData(List<dynamic> data) {
-    final monday = <(String, String?)>[];
-    final tuesday = <(String, String?)>[];
-    final wednesday = <(String, String?)>[];
-    final thursday = <(String, String?)>[];
-    final friday = <(String, String?)>[];
+    final List<ScheduleEntry> monday = [];
+    final List<ScheduleEntry> tuesday = [];
+    final List<ScheduleEntry> wednesday = [];
+    final List<ScheduleEntry> thursday = [];
+    final List<ScheduleEntry> friday = [];
 
     for (final row in data) {
       if (row == null || row.isEmpty) continue;
@@ -49,11 +49,11 @@ class ScheduleService {
           return null;
         }).toList();
 
-        monday.add((time, cleanSubjects[0]));
-        tuesday.add((time, cleanSubjects[1]));
-        wednesday.add((time, cleanSubjects[2]));
-        thursday.add((time, cleanSubjects[3]));
-        friday.add((time, cleanSubjects[4]));
+        monday.add(ScheduleEntry(time: time, subject: cleanSubjects[0]));
+        tuesday.add(ScheduleEntry(time: time, subject: cleanSubjects[1]));
+        wednesday.add(ScheduleEntry(time: time, subject: cleanSubjects[2]));
+        thursday.add(ScheduleEntry(time: time, subject: cleanSubjects[3]));
+        friday.add(ScheduleEntry(time: time, subject: cleanSubjects[4]));
       }
     }
 

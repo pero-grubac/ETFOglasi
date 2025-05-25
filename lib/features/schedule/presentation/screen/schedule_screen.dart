@@ -1,11 +1,12 @@
-import 'package:etf_oglasi/core/util/service_locator.dart';
+import 'package:etf_oglasi/core/util/dependency_injection.dart';
 import 'package:etf_oglasi/features/home/data/model/category.dart';
 import 'package:etf_oglasi/features/schedule/data/model/schedule.dart';
 import 'package:etf_oglasi/features/schedule/data/service/schedule_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ScheduleScreen extends StatefulWidget {
+class ScheduleScreen extends ConsumerStatefulWidget {
   static const id = 'schedule_screen';
   const ScheduleScreen({
     super.key,
@@ -15,16 +16,16 @@ class ScheduleScreen extends StatefulWidget {
   final Category category;
   final Widget settingsWidget;
   @override
-  State<ScheduleScreen> createState() => _ScheduleScreenState();
+  ConsumerState<ScheduleScreen> createState() => _ScheduleScreenState();
 }
 
-class _ScheduleScreenState extends State<ScheduleScreen>
+class _ScheduleScreenState extends ConsumerState<ScheduleScreen>
     with SingleTickerProviderStateMixin {
   late Schedule _schedule;
   late TabController _tabController;
-  final ScheduleService _service = getIt<ScheduleService>();
+  late ScheduleService _service;
   final ScrollController _scrollController = ScrollController();
-  late Future<void> _assetsFuture;
+  late Future<void> _scheduleFuture;
   late String _url;
 /*
 * TODO
@@ -38,9 +39,9 @@ class _ScheduleScreenState extends State<ScheduleScreen>
   @override
   void initState() {
     super.initState();
-    // iz baze ucitaj url za raspored ako nema  ucitaj getScheduleUrl(widget.category.urlId, widget.category.urlId)
+    _service = ref.read(scheduleServiceProvider);
     _url = widget.category.url;
-    _assetsFuture = _loadData(_url);
+    _scheduleFuture = _loadData(_url);
     _tabController = TabController(length: 5, vsync: this);
     _setInitialTab();
   }
@@ -73,22 +74,40 @@ class _ScheduleScreenState extends State<ScheduleScreen>
     }
   }
 
+  List<ScheduleEntry> _getCurrentDaySchedule() {
+    switch (_tabController.index) {
+      case 0:
+        return _schedule.monday;
+      case 1:
+        return _schedule.tuesday;
+      case 2:
+        return _schedule.wednesday;
+      case 3:
+        return _schedule.thursday;
+      case 4:
+        return _schedule.friday;
+      default:
+        return _schedule.monday;
+    }
+  }
+
   void _scrollToCurrentHour() {
     final now = DateTime.now();
     final currentTime = Duration(hours: now.hour, minutes: now.minute);
-    for (int i = 0; i < _schedule.tuesday.length; i++) {
-      final time = _schedule.parseTime(_schedule.tuesday[i].$1);
+    final daySchedule = _getCurrentDaySchedule();
+    for (int i = 0; i < daySchedule.length; i++) {
+      final time = _schedule.parseTime(daySchedule[i].time);
       if (time <= currentTime &&
-          (i + 1 >= _schedule.tuesday.length ||
-              _schedule.parseTime(_schedule.tuesday[i + 1].$1) > currentTime)) {
+          (i + 1 >= daySchedule.length ||
+              _schedule.parseTime(daySchedule[i + 1].time) > currentTime)) {
         _scrollController.jumpTo(_scrollController.position.maxScrollExtent *
-            (i / _schedule.tuesday.length));
+            (i / daySchedule.length));
         break;
       }
     }
   }
 
-  Widget _buildScheduleList(List<(String, String?)> daySchedule) {
+  Widget _buildScheduleList(List<ScheduleEntry> daySchedule) {
     final now = DateTime.now();
     final currentTime = Duration(hours: now.hour, minutes: now.minute);
     final colorScheme = Theme.of(context).colorScheme;
@@ -96,23 +115,23 @@ class _ScheduleScreenState extends State<ScheduleScreen>
       controller: _scrollController,
       itemCount: daySchedule.length,
       itemBuilder: (context, index) {
-        final (timeStr, subject) = daySchedule[index];
-        final time = _schedule.parseTime(timeStr);
+        final entry = daySchedule[index];
+        final time = _schedule.parseTime(entry.time);
         final isCurrentHour = time <= currentTime &&
             (index + 1 >= daySchedule.length ||
-                _schedule.parseTime(daySchedule[index + 1].$1) > currentTime);
+                _schedule.parseTime(daySchedule[index + 1].time) > currentTime);
 
         return Column(
           children: [
             ListTile(
               title: Text(
-                timeStr,
+                entry.time,
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
-              subtitle: subject != null
+              subtitle: entry.subject != null
                   ? Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: subject
+                      children: entry.subject!
                           .split('\n')
                           .map((s) => Text(s.trim()))
                           .toList(),
@@ -141,7 +160,7 @@ class _ScheduleScreenState extends State<ScheduleScreen>
     if (selectedUrl != null) {
       setState(() {
         _url = selectedUrl;
-        _assetsFuture = _loadData(_url);
+        _scheduleFuture = _loadData(_url);
       });
     }
   }
@@ -166,7 +185,7 @@ class _ScheduleScreenState extends State<ScheduleScreen>
             icon: const Icon(Icons.refresh),
             onPressed: () {
               setState(() {
-                _assetsFuture = _loadData(_url);
+                _scheduleFuture = _loadData(_url);
               });
             },
             tooltip: locale.refresh,
@@ -195,7 +214,7 @@ class _ScheduleScreenState extends State<ScheduleScreen>
         ),
       ),
       body: FutureBuilder<void>(
-        future: _assetsFuture,
+        future: _scheduleFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -215,5 +234,12 @@ class _ScheduleScreenState extends State<ScheduleScreen>
         },
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    _scrollController.dispose();
+    super.dispose();
   }
 }

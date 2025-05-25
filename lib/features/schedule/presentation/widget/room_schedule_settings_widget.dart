@@ -1,11 +1,11 @@
 import 'package:etf_oglasi/core/model/api/room.dart';
 import 'package:etf_oglasi/core/service/api/room_service.dart';
-import 'package:etf_oglasi/core/util/service_locator.dart';
+import 'package:etf_oglasi/core/util/dependency_injection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../config/api_constants.dart';
+import '../../../../core/util/format_date.dart';
 
 class RoomScheduleSettingsWidget extends StatefulWidget {
   const RoomScheduleSettingsWidget({super.key});
@@ -36,11 +36,11 @@ class _RoomScheduleSettingsWidgetState
       final roomsFuture = _roomService.fetchRooms();
       setState(() {
         _rooms = roomsFuture;
-        _selectedDate = _getMondayOfWeek(DateTime.now());
+        _selectedDate = getMondayOfWeek(DateTime.now());
         _generatedUrl = _selectedRoomId != null
             ? getRoomScheduleUrl(
                 _selectedRoomId!,
-                _formatDate(_selectedDate!),
+                formatDate(_selectedDate!),
               )
             : null;
         _isLoading = false;
@@ -100,16 +100,6 @@ class _RoomScheduleSettingsWidgetState
     );
   }
 
-  String _formatDate(DateTime date) {
-    return DateFormat('yyyy-MM-dd').format(date);
-  }
-
-  DateTime _getMondayOfWeek(DateTime date) {
-    final int dayOfWeek = date.weekday;
-    final int daysToSubtract = dayOfWeek - 1;
-    return date.subtract(Duration(days: daysToSubtract));
-  }
-
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -119,11 +109,11 @@ class _RoomScheduleSettingsWidgetState
     );
     if (picked != null && picked != _selectedDate) {
       setState(() {
-        _selectedDate = _getMondayOfWeek(picked);
+        _selectedDate = getMondayOfWeek(picked);
         _generatedUrl = _selectedRoomId != null
             ? getRoomScheduleUrl(
                 _selectedRoomId!,
-                _formatDate(_selectedDate!),
+                formatDate(_selectedDate!),
               )
             : null;
       });
@@ -187,7 +177,7 @@ class _RoomScheduleSettingsWidgetState
                                   if (_selectedDate != null && value != null) {
                                     _generatedUrl = getRoomScheduleUrl(
                                       value,
-                                      _formatDate(_selectedDate!),
+                                      formatDate(_selectedDate!),
                                     );
                                   } else {
                                     _generatedUrl = null;
@@ -207,7 +197,7 @@ class _RoomScheduleSettingsWidgetState
                                 Expanded(
                                   child: Text(
                                     _selectedDate != null
-                                        ? _formatDate(_selectedDate!)
+                                        ? formatDate(_selectedDate!)
                                         : locale.selectDate,
                                     style: TextStyle(
                                       color: _selectedDate != null

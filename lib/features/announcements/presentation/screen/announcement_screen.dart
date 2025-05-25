@@ -1,5 +1,5 @@
 import 'package:etf_oglasi/core/model/api/announcement.dart';
-import 'package:etf_oglasi/core/util/service_locator.dart';
+import 'package:etf_oglasi/core/util/dependency_injection.dart';
 import 'package:etf_oglasi/features/announcements/data/service/announcement_service.dart';
 import 'package:etf_oglasi/features/announcements/presentation/widget/announcement_card.dart';
 import 'package:etf_oglasi/features/announcements/presentation/widget/api_error_widget.dart';
