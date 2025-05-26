@@ -6,24 +6,26 @@ import 'package:etf_oglasi/features/announcements/presentation/widget/api_error_
 import 'package:etf_oglasi/features/announcements/presentation/widget/no_data_widget.dart';
 import 'package:etf_oglasi/features/home/data/model/category.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class AnnouncementScreen extends StatefulWidget {
+class AnnouncementScreen extends ConsumerStatefulWidget {
   static const id = 'announcement_screen';
 
   const AnnouncementScreen({super.key, required this.category});
   final Category category;
 
   @override
-  State<AnnouncementScreen> createState() => _AnnouncementScreenState();
+  ConsumerState<AnnouncementScreen> createState() => _AnnouncementScreenState();
 }
 
-class _AnnouncementScreenState extends State<AnnouncementScreen> {
+class _AnnouncementScreenState extends ConsumerState<AnnouncementScreen> {
   late Future<List<Announcement>> _data;
-  final AnnouncementService announcementService = getIt<AnnouncementService>();
+  late AnnouncementService announcementService;
 
   @override
   void initState() {
     super.initState();
+    announcementService = ref.read(announcementServiceProvider);
     _data = _loadItems();
   }
 

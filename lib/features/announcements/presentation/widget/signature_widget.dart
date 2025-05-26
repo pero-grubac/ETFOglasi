@@ -1,5 +1,5 @@
-import 'package:etf_oglasi/features/announcements/constants/strings.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SignatureWidget extends StatelessWidget {
   final String? signature;
@@ -9,9 +9,10 @@ class SignatureWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context);
     if (signature == null) return const SizedBox.shrink();
     return Text(
-      '${AnnouncementStrings.signature}: $signature',
+      '${locale?.signature}: $signature',
       style: style,
     );
   }

@@ -3,21 +3,22 @@ import 'package:etf_oglasi/core/service/api/room_service.dart';
 import 'package:etf_oglasi/core/util/dependency_injection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../config/api_constants.dart';
 import '../../../../core/util/format_date.dart';
 
-class RoomScheduleSettingsWidget extends StatefulWidget {
+class RoomScheduleSettingsWidget extends ConsumerStatefulWidget {
   const RoomScheduleSettingsWidget({super.key});
 
   @override
-  State<RoomScheduleSettingsWidget> createState() =>
+  ConsumerState<RoomScheduleSettingsWidget> createState() =>
       _RoomScheduleSettingsWidgetState();
 }
 
 class _RoomScheduleSettingsWidgetState
-    extends State<RoomScheduleSettingsWidget> {
-  final RoomService _roomService = getIt<RoomService>();
+    extends ConsumerState<RoomScheduleSettingsWidget> {
+  late RoomService _roomService;
   late Future<List<Room>> _rooms;
   bool _isLoading = true;
   String? _selectedRoomId;
@@ -28,6 +29,7 @@ class _RoomScheduleSettingsWidgetState
   @override
   void initState() {
     super.initState();
+    _roomService = ref.read(roomServiceProvider);
     _initializeData();
   }
 

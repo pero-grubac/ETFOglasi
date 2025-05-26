@@ -33,5 +33,7 @@
   "select": "Изабери",
   "noNotifications": "Нема обавјештења",
   "selectDate": "Изаберите датум",
-  "date": "Датум"
+  "date": "Датум",
+  "attachment": "Прилог",
+  "signature": "Потпис"
 }

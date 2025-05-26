@@ -8,30 +8,6 @@ import 'package:etf_oglasi/features/announcements/data/service/announcement_serv
 import 'package:etf_oglasi/features/schedule/data/repository/schedule_repository.dart';
 import 'package:etf_oglasi/features/schedule/data/service/schedule_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:get_it/get_it.dart';
-
-final getIt = GetIt.instance;
-void setUpLocator() {
-  // core
-  getIt.registerLazySingleton<ApiService>(() => ApiService());
-
-  // service
-  getIt.registerLazySingleton<MajorService>(
-    () => MajorService(service: getIt<ApiService>()),
-  );
-  getIt.registerLazySingleton<RoomService>(
-    () => RoomService(service: getIt<ApiService>()),
-  );
-  getIt.registerLazySingleton<StudyProgramService>(
-    () => StudyProgramService(service: getIt<ApiService>()),
-  );
-  getIt.registerLazySingleton<TeacherService>(
-    () => TeacherService(service: getIt<ApiService>()),
-  );
-  getIt.registerLazySingleton<AnnouncementService>(
-    () => AnnouncementService(service: getIt<ApiService>()),
-  );
-}
 
 // Core service
 final apiServiceProvider = Provider<ApiService>((ref) {
@@ -41,6 +17,26 @@ final apiServiceProvider = Provider<ApiService>((ref) {
 // Services
 final scheduleServiceProvider = Provider<ScheduleService>((ref) {
   return ScheduleService(service: ref.read(apiServiceProvider));
+});
+
+final announcementServiceProvider = Provider<AnnouncementService>((ref) {
+  return AnnouncementService(service: ref.read(apiServiceProvider));
+});
+
+final teacherServiceProvider = Provider<TeacherService>((ref) {
+  return TeacherService(service: ref.read(apiServiceProvider));
+});
+
+final studyProgramProvider = Provider<StudyProgramService>((ref) {
+  return StudyProgramService(service: ref.read(apiServiceProvider));
+});
+
+final roomServiceProvider = Provider<RoomService>((ref) {
+  return RoomService(service: ref.read(apiServiceProvider));
+});
+
+final majorServiceProvider = Provider<MajorService>((ref) {
+  return MajorService(service: ref.read(apiServiceProvider));
 });
 
 // Database

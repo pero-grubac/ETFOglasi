@@ -2,25 +2,32 @@ import 'dart:io';
 
 import 'package:etf_oglasi/core/model/api/announcement.dart';
 import 'package:etf_oglasi/core/util/dependency_injection.dart';
-import 'package:etf_oglasi/features/announcements/constants/strings.dart';
 import 'package:etf_oglasi/features/announcements/data/service/announcement_service.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-class AttachmentWidget extends StatefulWidget {
+class AttachmentWidget extends ConsumerStatefulWidget {
   final Announcement announcement;
 
   const AttachmentWidget({super.key, required this.announcement});
 
   @override
-  State<AttachmentWidget> createState() => _AttachmentWidgetState();
+  ConsumerState<AttachmentWidget> createState() => _AttachmentWidgetState();
 }
 
-class _AttachmentWidgetState extends State<AttachmentWidget> {
+class _AttachmentWidgetState extends ConsumerState<AttachmentWidget> {
   bool _isDownloading = false;
-  final announcementService = getIt<AnnouncementService>();
+  late AnnouncementService _announcementService;
+  @override
+  void initState() {
+    super.initState();
+    _announcementService = ref.read(announcementServiceProvider);
+  }
+
   void _showSnackBar(
     String message, {
     String? actionLabel,
@@ -89,7 +96,7 @@ class _AttachmentWidgetState extends State<AttachmentWidget> {
 
         final prilog = widget.announcement.oglasPrilozi.first;
 
-        final downloadPath = await announcementService.download(
+        final downloadPath = await _announcementService.download(
             widget.announcement.id.toString(),
             selectedDirectory,
             prilog.originalniNaziv);
@@ -151,15 +158,19 @@ class _AttachmentWidgetState extends State<AttachmentWidget> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final locale = AppLocalizations.of(context);
     return InkWell(
       onTap: _isDownloading ? null : _handleDownload,
       child: Row(
         children: [
           _isDownloading
-              ? const SizedBox(
+              ? SizedBox(
                   width: 16,
                   height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: theme.colorScheme.onSurface,
+                  ),
                 )
               : Icon(
                   Icons.attach_file,
@@ -168,7 +179,7 @@ class _AttachmentWidgetState extends State<AttachmentWidget> {
                 ),
           const SizedBox(width: 4),
           Text(
-            AnnouncementStrings.attachment,
+            locale!.attachment,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurface,
               decoration: TextDecoration.underline,

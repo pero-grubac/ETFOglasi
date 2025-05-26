@@ -33,5 +33,7 @@
   "select": "Izaberi",
   "noNotifications": "Nema obavještenja",
   "selectDate": "Izaberite datum",
-  "date": "Datum"
+  "date": "Datum",
+  "attachment": "Prilog",
+  "signature": "Potpis"
 }

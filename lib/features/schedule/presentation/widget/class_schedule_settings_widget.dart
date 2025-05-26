@@ -10,21 +10,22 @@ import 'package:etf_oglasi/core/service/api/teacher_service.dart';
 import 'package:etf_oglasi/core/util/dependency_injection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ClassScheduleSettingsWidget extends StatefulWidget {
+class ClassScheduleSettingsWidget extends ConsumerStatefulWidget {
   const ClassScheduleSettingsWidget({super.key});
 
   @override
-  State<ClassScheduleSettingsWidget> createState() =>
+  ConsumerState<ClassScheduleSettingsWidget> createState() =>
       _ClassScheduleSettingsWidgetState();
 }
 
 class _ClassScheduleSettingsWidgetState
-    extends State<ClassScheduleSettingsWidget> {
-  final TeacherService _teacherService = getIt<TeacherService>();
-  final RoomService _roomService = getIt<RoomService>();
-  final StudyProgramService _studyProgramService = getIt<StudyProgramService>();
-  final MajorService _majorService = getIt<MajorService>();
+    extends ConsumerState<ClassScheduleSettingsWidget> {
+  late TeacherService _teacherService;
+  late RoomService _roomService;
+  late StudyProgramService _studyProgramService;
+  late MajorService _majorService;
 
   late Future<List<Teacher>> _teachers;
   late Future<List<Room>> _rooms;
@@ -41,6 +42,10 @@ class _ClassScheduleSettingsWidgetState
   @override
   void initState() {
     super.initState();
+    _roomService = ref.read(roomServiceProvider);
+    _teacherService = ref.read(teacherServiceProvider);
+    _studyProgramService = ref.read(studyProgramProvider);
+    _majorService = ref.read(majorServiceProvider);
     _initializeData();
   }
 
