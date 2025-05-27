@@ -26,7 +26,6 @@ class _ClassScheduleSettingsWidgetState
   late RoomService _roomService;
   late StudyProgramService _studyProgramService;
   late MajorService _majorService;
-
   late Future<List<Teacher>> _teachers;
   late Future<List<Room>> _rooms;
   late Future<List<StudyProgram>> _studyPrograms;
@@ -283,20 +282,27 @@ class _ClassScheduleSettingsWidgetState
                               children: [
                                 TextButton(
                                   onPressed: () => Navigator.pop(context),
-                                  child: Text(locale.save),
-                                ),
-                                const SizedBox(width: 16),
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
                                   child: Text(locale.cancel),
                                 ),
                                 const SizedBox(width: 16),
                                 ElevatedButton(
                                   onPressed: _generatedUrl != null
-                                      ? () =>
-                                          Navigator.pop(context, _generatedUrl)
+                                      ? () => Navigator.pop(context, {
+                                            'url': _generatedUrl,
+                                            'isSave': false
+                                          })
                                       : null,
                                   child: Text(locale.select),
+                                ),
+                                const SizedBox(width: 16),
+                                ElevatedButton(
+                                  onPressed: _generatedUrl != null
+                                      ? () => Navigator.pop(context, {
+                                            'url': _generatedUrl,
+                                            'isSave': true
+                                          })
+                                      : null,
+                                  child: Text(locale.save),
                                 ),
                               ],
                             ),

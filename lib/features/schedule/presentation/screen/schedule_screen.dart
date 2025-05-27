@@ -1,6 +1,7 @@
 import 'package:etf_oglasi/core/util/dependency_injection.dart';
 import 'package:etf_oglasi/features/home/data/model/category.dart';
 import 'package:etf_oglasi/features/schedule/data/model/schedule.dart';
+import 'package:etf_oglasi/features/schedule/data/repository/schedule_repository.dart';
 import 'package:etf_oglasi/features/schedule/data/service/schedule_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -26,6 +27,8 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen>
   late ScheduleService _service;
   final ScrollController _scrollController = ScrollController();
   late Future<void> _scheduleFuture;
+  late ScheduleRepository _scheduleRepository;
+
   late String _url;
 /*
 * TODO
@@ -40,19 +43,52 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen>
   void initState() {
     super.initState();
     _service = ref.read(scheduleServiceProvider);
+    _scheduleRepository = ref.read(scheduleRepositoryProvider);
+    // TODO provjeri da li postoji u podesavanjim room url ako ima njega koristi inace defaultni
     _url = widget.category.url;
     _scheduleFuture = _loadData(_url);
     _tabController = TabController(length: 5, vsync: this);
+
     _setInitialTab();
+  }
+
+  Future<void> _fetchData(String url) async {
+    try {
+      final fetchedSchedule = await _service.fetchSchedule(url);
+      setState(() {
+        _schedule = fetchedSchedule;
+      });
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollToCurrentHour();
+      });
+    } catch (e) {
+      setState(() {
+        _schedule = Schedule(
+          monday: [],
+          tuesday: [],
+          wednesday: [],
+          thursday: [],
+          friday: [],
+        );
+      });
+    }
   }
 
   Future<void> _loadData(String url) async {
     try {
-      _schedule = await _service.fetchSchedule(url);
-      setState(() {});
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _scrollToCurrentHour();
-      });
+      final cachedSchedule = await _scheduleRepository.findScheduleById(url);
+      if (cachedSchedule != null) {
+        setState(() {
+          _schedule = cachedSchedule;
+        });
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _scrollToCurrentHour();
+        });
+      } else {
+        await _fetchData(url);
+        await _scheduleRepository.saveSchedule(url, _schedule);
+      }
     } catch (e) {
       setState(() {
         _schedule = Schedule(
@@ -152,16 +188,21 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen>
   }
 
   void _showSettingsDialog() async {
-    final selectedUrl = await showDialog<String>(
+    final result = await showDialog<Map<String, dynamic>>(
       context: context,
       builder: (context) => widget.settingsWidget,
     );
-
-    if (selectedUrl != null) {
+    if (result != null) {
+      final selectedUrl = result['url'] as String;
+      final isSave = result['isSave'] as bool;
       setState(() {
         _url = selectedUrl;
         _scheduleFuture = _loadData(_url);
       });
+      if (isSave) {
+        await _scheduleFuture;
+        await _scheduleRepository.saveSchedule(selectedUrl, _schedule);
+      }
     }
   }
 
@@ -185,7 +226,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen>
             icon: const Icon(Icons.refresh),
             onPressed: () {
               setState(() {
-                _scheduleFuture = _loadData(_url);
+                _scheduleFuture = _fetchData(_url);
               });
             },
             tooltip: locale.refresh,

@@ -23,7 +23,7 @@ class DatabaseHelper {
             await tr.execute('''
             CREATE TABLE ${Schedule.dbName}(
             id TEXT PRIMARY KEY,
-            data TEXT NOT NULL,
+            data TEXT NOT NULL
             )
             ''');
           },
