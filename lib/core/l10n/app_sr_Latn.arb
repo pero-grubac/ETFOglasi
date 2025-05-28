@@ -35,5 +35,6 @@
   "selectDate": "Izaberite datum",
   "date": "Datum",
   "attachment": "Prilog",
-  "signature": "Potpis"
+  "signature": "Potpis",
+  "theme": "Tema"
 }

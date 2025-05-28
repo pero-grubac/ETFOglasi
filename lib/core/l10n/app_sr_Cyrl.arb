@@ -35,5 +35,6 @@
   "selectDate": "Изаберите датум",
   "date": "Датум",
   "attachment": "Прилог",
-  "signature": "Потпис"
+  "signature": "Потпис",
+  "theme": "Тема"
 }

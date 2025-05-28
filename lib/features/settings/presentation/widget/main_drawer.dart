@@ -42,7 +42,7 @@ class MainDrawer extends StatelessWidget {
               size: 26,
               color: theme.colorScheme.primary,
             ),
-            title: Text(locale!.settings),
+            title: Text(locale.settings),
             onTap: () {
               Navigator.of(context).pushNamed(SettingsScreen.id);
             },

@@ -1,3 +1,4 @@
+import 'package:etf_oglasi/features/schedule/presentation/widget/class_schedule_settings_widget.dart';
 import 'package:etf_oglasi/features/settings/service/local_settings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -35,6 +36,7 @@ class SettingsScreen extends ConsumerWidget {
                     color: Theme.of(context).colorScheme.primary,
                   ),
                   const SizedBox(width: 8),
+                  Text(locale!.theme),
                 ],
               ),
               value: isDarkMode,
@@ -53,7 +55,7 @@ class SettingsScreen extends ConsumerWidget {
                   const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: DropdownButtonFormField<String>(
                 decoration: InputDecoration(
-                  labelText: locale?.language,
+                  labelText: locale.language,
                   border: const OutlineInputBorder(),
                 ),
                 style: TextStyle(
@@ -83,7 +85,7 @@ class SettingsScreen extends ConsumerWidget {
                         .updateLanguage(value);
                   }
                 },
-                hint: Text(locale!.choseLanguage),
+                hint: Text(locale.choseLanguage),
                 isExpanded: true, // Makes dropdown take full width
                 menuMaxHeight: 300, // Limits dropdown height
                 borderRadius: BorderRadius.circular(8),
@@ -91,10 +93,30 @@ class SettingsScreen extends ConsumerWidget {
                 icon: const Icon(Icons.arrow_drop_down),
               ),
             ),
+            const SizedBox(height: 20),
+            TextButton(
+              onPressed: () => _showSettingsDialog(context),
+              child: Text(locale.classSchedule),
+            ),
+            const SizedBox(height: 20),
+            const Text('raspored'),
           ],
         ),
       ),
     );
+  }
+
+  void _showSettingsDialog(BuildContext context) async {
+    final result = await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (context) => const ClassScheduleSettingsWidget(
+        isSelect: false,
+      ),
+    );
+    if (result != null) {
+      final selectedUrl = result['url'] as String;
+      final isSave = result['isSave'] as bool;
+    }
   }
 
   @override

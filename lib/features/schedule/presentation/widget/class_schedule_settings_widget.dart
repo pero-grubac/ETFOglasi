@@ -13,8 +13,11 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ClassScheduleSettingsWidget extends ConsumerStatefulWidget {
-  const ClassScheduleSettingsWidget({super.key});
-
+  const ClassScheduleSettingsWidget({
+    super.key,
+    this.isSelect = true,
+  });
+  final bool isSelect;
   @override
   ConsumerState<ClassScheduleSettingsWidget> createState() =>
       _ClassScheduleSettingsWidgetState();
@@ -284,16 +287,18 @@ class _ClassScheduleSettingsWidgetState
                                   onPressed: () => Navigator.pop(context),
                                   child: Text(locale.cancel),
                                 ),
-                                const SizedBox(width: 16),
-                                ElevatedButton(
-                                  onPressed: _generatedUrl != null
-                                      ? () => Navigator.pop(context, {
-                                            'url': _generatedUrl,
-                                            'isSave': false
-                                          })
-                                      : null,
-                                  child: Text(locale.select),
-                                ),
+                                if (widget.isSelect) ...[
+                                  const SizedBox(width: 16),
+                                  ElevatedButton(
+                                    onPressed: _generatedUrl != null
+                                        ? () => Navigator.pop(context, {
+                                              'url': _generatedUrl,
+                                              'isSave': false
+                                            })
+                                        : null,
+                                    child: Text(locale.select),
+                                  ),
+                                ],
                                 const SizedBox(width: 16),
                                 ElevatedButton(
                                   onPressed: _generatedUrl != null

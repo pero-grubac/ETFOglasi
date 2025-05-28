@@ -1,3 +1,4 @@
+import 'package:etf_oglasi/core/service/provider/class_schedule_url_notifier.dart';
 import 'package:etf_oglasi/core/service/provider/locale_notifier.dart';
 import 'package:etf_oglasi/core/service/provider/theme_notifier.dart';
 import 'package:etf_oglasi/features/settings/data/model/local_settings.dart';
@@ -19,8 +20,12 @@ class LocalSettingsNotifier extends StateNotifier<LocalSettings> {
     final prefs = await SharedPreferences.getInstance();
     final themeMode = prefs.getString('themeMode') ?? LocalSettings.lightMode;
     final language = prefs.getString('language') ?? LocalSettings.srLatLang;
-
-    state = LocalSettings(themeMode: themeMode, language: language);
+    final String? classScheduleUrl = prefs.getString('classScheduleUrl');
+    state = LocalSettings(
+      themeMode: themeMode,
+      language: language,
+      classScheduleUrl: classScheduleUrl,
+    );
 
     final themeModeEnum =
         themeMode == LocalSettings.darkMode ? ThemeMode.dark : ThemeMode.light;
@@ -47,10 +52,22 @@ class LocalSettingsNotifier extends StateNotifier<LocalSettings> {
     ref.read(localeProvider.notifier).updateLocale(locale);
   }
 
+  void updateClassScheduleURL(String url) {
+    state = LocalSettings(
+      language: state.language,
+      themeMode: state.themeMode,
+      classScheduleUrl: url,
+    );
+    ref.read(classScheduleURLProvider.notifier).updateUrl(url);
+  }
+
   Future<void> _saveSettings() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('themeMode', state.themeMode);
     await prefs.setString('language', state.language);
+    if (state.classScheduleUrl != null) {
+      await prefs.setString('classScheduleUrl', state.classScheduleUrl!);
+    }
   }
 }
 
