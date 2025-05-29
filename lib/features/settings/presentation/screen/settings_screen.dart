@@ -95,7 +95,10 @@ class SettingsScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 20),
             TextButton(
-              onPressed: () => _showSettingsDialog(context),
+              onPressed: () => _showSettingsDialog(
+                context,
+                ref,
+              ),
               child: Text(locale.classSchedule),
             ),
             const SizedBox(height: 20),
@@ -106,7 +109,7 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  void _showSettingsDialog(BuildContext context) async {
+  void _showSettingsDialog(BuildContext context, WidgetRef ref) async {
     final result = await showDialog<Map<String, dynamic>>(
       context: context,
       builder: (context) => const ClassScheduleSettingsWidget(
@@ -116,6 +119,9 @@ class SettingsScreen extends ConsumerWidget {
     if (result != null) {
       final selectedUrl = result['url'] as String;
       final isSave = result['isSave'] as bool;
+      ref
+          .read(localSettingsProvider.notifier)
+          .updateClassScheduleURL(selectedUrl);
     }
   }
 

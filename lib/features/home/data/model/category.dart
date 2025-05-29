@@ -50,7 +50,7 @@ List<Category> buildAvailableCategories(AppLocalizations locale) {
     Category(
       id: 5,
       title: locale.classSchedule,
-      url: getScheduleUrl("1", "1"),
+      url: "classScheduleUrl",
       settingsWidget: const ClassScheduleSettingsWidget(),
       screenId: Routes.scheduleScreen,
     ),
