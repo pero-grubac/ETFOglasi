@@ -1,8 +1,12 @@
-import 'package:etf_oglasi/core/service/provider/class_schedule_url_notifier.dart';
-import 'package:etf_oglasi/core/service/provider/locale_notifier.dart';
-import 'package:etf_oglasi/core/service/provider/room_schedule_url_notifier.dart';
-import 'package:etf_oglasi/core/service/provider/theme_notifier.dart';
-import 'package:etf_oglasi/features/settings/data/model/local_settings.dart';
+import 'dart:convert';
+
+import 'package:etf_oglasi/features/schedule/service/class_schedule_url_notifier.dart';
+import 'package:etf_oglasi/features/schedule/service/room_schedule_url_notifier.dart';
+import 'package:etf_oglasi/features/settings/model/local_settings.dart';
+import 'package:etf_oglasi/features/settings/model/notification_time_setting.dart';
+import 'package:etf_oglasi/features/settings/service/locale_notifier.dart';
+import 'package:etf_oglasi/features/settings/service/notifications_time_notifier.dart';
+import 'package:etf_oglasi/features/settings/service/theme_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,6 +17,7 @@ class LocalSettingsNotifier extends StateNotifier<LocalSettings> {
       : super(LocalSettings(
           language: LocalSettings.srLatLang,
           themeMode: LocalSettings.darkMode,
+          notificationTimeSettings: {},
         )) {
     loadSettings();
   }
@@ -23,11 +28,28 @@ class LocalSettingsNotifier extends StateNotifier<LocalSettings> {
     final language = prefs.getString('language') ?? LocalSettings.srLatLang;
     final String? classScheduleUrl = prefs.getString('classScheduleUrl');
     final String? roomScheduleId = prefs.getString('roomScheduleId');
+    final String? settingsJson = prefs.getString('notificationTimeSettings');
+
+    final notificationTimeSettingsJson =
+        prefs.getString('notificationTimeSettings');
+    Map<String, NotificationTimeSetting> notificationTimeSettings = {};
+    if (notificationTimeSettingsJson != null) {
+      final decoded =
+          json.decode(notificationTimeSettingsJson) as Map<String, dynamic>;
+      notificationTimeSettings = decoded.map(
+        (key, value) => MapEntry(
+          key,
+          NotificationTimeSetting.fromMap(value),
+        ),
+      );
+    }
+
     state = LocalSettings(
       themeMode: themeMode,
       language: language,
       classScheduleUrl: classScheduleUrl,
       roomScheduleId: roomScheduleId,
+      notificationTimeSettings: notificationTimeSettings,
     );
 
     final themeModeEnum =
@@ -44,6 +66,7 @@ class LocalSettingsNotifier extends StateNotifier<LocalSettings> {
       language: state.language,
       classScheduleUrl: state.classScheduleUrl,
       roomScheduleId: state.roomScheduleId,
+      notificationTimeSettings: state.notificationTimeSettings,
     );
     _saveSettings();
 
@@ -58,6 +81,7 @@ class LocalSettingsNotifier extends StateNotifier<LocalSettings> {
       language: language,
       classScheduleUrl: state.classScheduleUrl,
       roomScheduleId: state.roomScheduleId,
+      notificationTimeSettings: state.notificationTimeSettings,
     );
     _saveSettings();
 
@@ -65,11 +89,27 @@ class LocalSettingsNotifier extends StateNotifier<LocalSettings> {
     ref.read(localeProvider.notifier).updateLocale(locale);
   }
 
+  void updateNotificationsTimeSettings(
+      Map<String, NotificationTimeSetting> map) {
+    state = LocalSettings(
+      language: state.language,
+      themeMode: state.themeMode,
+      classScheduleUrl: state.classScheduleUrl,
+      roomScheduleId: state.roomScheduleId,
+      notificationTimeSettings: map,
+    );
+    _saveSettings();
+    ref
+        .read(notificationsTimeNotifierProvider.notifier)
+        .updateNotificationsTime(map);
+  }
+
   void updateClassScheduleURL(String url) {
     state = LocalSettings(
       language: state.language,
       themeMode: state.themeMode,
       classScheduleUrl: url,
+      notificationTimeSettings: state.notificationTimeSettings,
     );
     _saveSettings();
     ref.read(classScheduleURLProvider.notifier).updateUrl(url);
@@ -81,6 +121,7 @@ class LocalSettingsNotifier extends StateNotifier<LocalSettings> {
       themeMode: state.themeMode,
       classScheduleUrl: state.classScheduleUrl,
       roomScheduleId: id,
+      notificationTimeSettings: state.notificationTimeSettings,
     );
     _saveSettings();
     ref.read(roomScheduleURLProvider.notifier).updateId(id);
@@ -96,6 +137,15 @@ class LocalSettingsNotifier extends StateNotifier<LocalSettings> {
     if (state.roomScheduleId != null) {
       await prefs.setString('roomScheduleId', state.roomScheduleId!);
     }
+    final settingsMap = state.notificationTimeSettings.map(
+      (key, value) => MapEntry(key, value.toMap()),
+    );
+    await prefs.setString(
+      'notificationTimeSettings',
+      json.encode(state.notificationTimeSettings.map(
+        (key, value) => MapEntry(key, value.toMap()),
+      )),
+    );
   }
 }
 

@@ -1,8 +1,8 @@
 import 'package:etf_oglasi/core/navigation/routes.dart';
-import 'package:etf_oglasi/core/service/provider/locale_notifier.dart';
-import 'package:etf_oglasi/core/service/provider/theme_notifier.dart';
 import 'package:etf_oglasi/core/ui/theme/theme_constants.dart';
-import 'package:etf_oglasi/features/home/presentation/screen/home_screen.dart';
+import 'package:etf_oglasi/features/home/screen/home_screen.dart';
+import 'package:etf_oglasi/features/settings/service/locale_notifier.dart';
+import 'package:etf_oglasi/features/settings/service/theme_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

@@ -1,4 +1,4 @@
-import 'package:etf_oglasi/features/schedule/data/model/schedule.dart';
+import 'package:etf_oglasi/features/schedule/model/schedule.dart';
 import 'package:path/path.dart' as path;
 import 'package:sqflite/sqflite.dart' as sql;
 import 'package:sqflite/sqlite_api.dart' as sql_api;
