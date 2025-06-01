@@ -30,7 +30,7 @@ class _AnnouncementScreenState extends ConsumerState<AnnouncementScreen> {
   }
 
   Future<List<Announcement>> _loadItems() async {
-    return await announcementService.fetchAnnouncements(widget.category.url);
+    return await announcementService.fetchAnnouncements(widget.category.url!);
   }
 
   @override

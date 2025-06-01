@@ -8,6 +8,7 @@ import 'package:etf_oglasi/core/service/api/room_service.dart';
 import 'package:etf_oglasi/core/service/api/study_program_service.dart';
 import 'package:etf_oglasi/core/service/api/teacher_service.dart';
 import 'package:etf_oglasi/core/util/dependency_injection.dart';
+import 'package:etf_oglasi/features/schedule/data/model/schedule_result.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,6 +19,8 @@ class ClassScheduleSettingsWidget extends ConsumerStatefulWidget {
     this.isSelect = true,
   });
   final bool isSelect;
+  static const String classScheduleUrl = "classScheduleUrl";
+
   @override
   ConsumerState<ClassScheduleSettingsWidget> createState() =>
       _ClassScheduleSettingsWidgetState();
@@ -72,7 +75,7 @@ class _ClassScheduleSettingsWidgetState
       });
     } catch (e) {
       setState(() {
-        _errorMessage = 'Failed to load initial data: $e';
+        _errorMessage = 'Failed to load initial data';
         _teachers = Future.value([]);
         _rooms = Future.value([]);
         _studyPrograms = Future.value([]);
@@ -88,7 +91,7 @@ class _ClassScheduleSettingsWidgetState
       setState(() => _selectedMajorId = null);
     } catch (e) {
       setState(() {
-        _errorMessage = 'Failed to load majors: $e';
+        _errorMessage = 'Failed to load majors';
         _majors = Future.value([]);
       });
     }
@@ -283,31 +286,43 @@ class _ClassScheduleSettingsWidgetState
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: Text(locale.cancel),
+                                Flexible(
+                                  child: ElevatedButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: Text(locale.cancel),
+                                  ),
                                 ),
                                 if (widget.isSelect) ...[
                                   const SizedBox(width: 16),
-                                  ElevatedButton(
-                                    onPressed: _generatedUrl != null
-                                        ? () => Navigator.pop(context, {
-                                              'url': _generatedUrl,
-                                              'isSave': false
-                                            })
-                                        : null,
-                                    child: Text(locale.select),
+                                  Flexible(
+                                    child: ElevatedButton(
+                                      onPressed: _generatedUrl != null
+                                          ? () => Navigator.pop(
+                                                context,
+                                                ScheduleResult(
+                                                  url: _generatedUrl!,
+                                                  isSave: false,
+                                                ),
+                                              )
+                                          : null,
+                                      child: Text(locale.select),
+                                    ),
                                   ),
                                 ],
                                 const SizedBox(width: 16),
-                                ElevatedButton(
-                                  onPressed: _generatedUrl != null
-                                      ? () => Navigator.pop(context, {
-                                            'url': _generatedUrl,
-                                            'isSave': true
-                                          })
-                                      : null,
-                                  child: Text(locale.save),
+                                Flexible(
+                                  child: ElevatedButton(
+                                    onPressed: _generatedUrl != null
+                                        ? () => Navigator.pop(
+                                              context,
+                                              ScheduleResult(
+                                                url: _generatedUrl!,
+                                                isSave: true,
+                                              ),
+                                            )
+                                        : null,
+                                    child: Text(locale.save),
+                                  ),
                                 ),
                               ],
                             ),

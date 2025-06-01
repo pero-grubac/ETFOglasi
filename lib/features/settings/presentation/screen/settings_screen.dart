@@ -1,4 +1,6 @@
+import 'package:etf_oglasi/features/schedule/data/model/schedule_result.dart';
 import 'package:etf_oglasi/features/schedule/presentation/widget/class_schedule_settings_widget.dart';
+import 'package:etf_oglasi/features/schedule/presentation/widget/room_schedule_settings_widget.dart';
 import 'package:etf_oglasi/features/settings/service/local_settings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -98,30 +100,45 @@ class SettingsScreen extends ConsumerWidget {
               onPressed: () => _showSettingsDialog(
                 context,
                 ref,
+                true,
               ),
               child: Text(locale.classSchedule),
             ),
             const SizedBox(height: 20),
-            const Text('raspored'),
+            TextButton(
+              onPressed: () => _showSettingsDialog(
+                context,
+                ref,
+                false,
+              ),
+              child: Text(locale.hallSchedule),
+            ),
           ],
         ),
       ),
     );
   }
 
-  void _showSettingsDialog(BuildContext context, WidgetRef ref) async {
-    final result = await showDialog<Map<String, dynamic>>(
+  void _showSettingsDialog(
+      BuildContext context, WidgetRef ref, bool isClassSchedule) async {
+    final Widget dialogWidget = isClassSchedule
+        ? const ClassScheduleSettingsWidget(isSelect: false)
+        : const RoomScheduleSettingsWidget(isSelect: false);
+
+    final ScheduleResult? result = await showDialog<ScheduleResult>(
       context: context,
-      builder: (context) => const ClassScheduleSettingsWidget(
-        isSelect: false,
-      ),
+      builder: (context) => dialogWidget,
     );
+
     if (result != null) {
-      final selectedUrl = result['url'] as String;
-      final isSave = result['isSave'] as bool;
-      ref
-          .read(localSettingsProvider.notifier)
-          .updateClassScheduleURL(selectedUrl);
+      final selectedUrl = result.url;
+      final settingsNotifier = ref.read(localSettingsProvider.notifier);
+
+      if (isClassSchedule) {
+        settingsNotifier.updateClassScheduleURL(selectedUrl);
+      } else {
+        settingsNotifier.updateRoomScheduleId(selectedUrl);
+      }
     }
   }
 

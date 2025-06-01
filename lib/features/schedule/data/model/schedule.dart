@@ -62,6 +62,21 @@ class Schedule {
     };
   }
 
+  bool isEmpty() {
+    if (monday.isNotEmpty ||
+        tuesday.isNotEmpty ||
+        wednesday.isNotEmpty ||
+        thursday.isNotEmpty ||
+        friday.isNotEmpty) {
+      return false;
+    }
+    return true;
+  }
+
+  bool isNotEmpty() {
+    return !isEmpty();
+  }
+
   factory Schedule.fromMap(Map<String, dynamic> map) {
     final data = jsonDecode(map['data'] as String) as Map<String, dynamic>;
     return Schedule(

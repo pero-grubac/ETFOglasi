@@ -1,8 +1,13 @@
+import 'package:etf_oglasi/config/api_constants.dart';
 import 'package:etf_oglasi/core/util/dependency_injection.dart';
+import 'package:etf_oglasi/core/util/format_date.dart';
 import 'package:etf_oglasi/features/home/data/model/category.dart';
 import 'package:etf_oglasi/features/schedule/data/model/schedule.dart';
+import 'package:etf_oglasi/features/schedule/data/model/schedule_result.dart';
 import 'package:etf_oglasi/features/schedule/data/repository/schedule_repository.dart';
 import 'package:etf_oglasi/features/schedule/data/service/schedule_service.dart';
+import 'package:etf_oglasi/features/schedule/presentation/widget/class_schedule_settings_widget.dart';
+import 'package:etf_oglasi/features/schedule/presentation/widget/room_schedule_settings_widget.dart';
 import 'package:etf_oglasi/features/settings/service/local_settings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -37,23 +42,32 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen>
   late ScheduleRepository _scheduleRepository;
 
   late String? _url;
-/*
-* TODO
-*  Schedule settings widget
-* Load Data po tome
-* Dugme persist data i persist url
-* If persist data dont call api
-* cached data valid?
-*/
 
   @override
   void initState() {
     super.initState();
     _service = ref.read(scheduleServiceProvider);
     _scheduleRepository = ref.read(scheduleRepositoryProvider);
-    // TODO provjeri da li postoji u podesavanjim room url ako ima njega koristi inace defaultni
-
-    _url = ref.read(localSettingsProvider).classScheduleUrl;
+    switch (widget.category.url) {
+      case ClassScheduleSettingsWidget.classScheduleUrl:
+        _url = ref.read(localSettingsProvider).classScheduleUrl;
+        break;
+      case RoomScheduleSettingsWidget.roomScheduleId:
+        {
+          final String? id = ref.read(localSettingsProvider).roomScheduleId;
+          if (id != null) {
+            _url = getRoomScheduleUrl(
+              id,
+              formatDate(getMondayOfWeek(DateTime.now())),
+            );
+          } else {
+            _url = null;
+          }
+          break;
+        }
+      default:
+        _url = widget.category.url;
+    }
     _scheduleFuture = _loadData(_url);
     _tabController = TabController(length: 5, vsync: this);
 
@@ -138,16 +152,58 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen>
   }
 
   void _scrollToCurrentHour() {
+    if (!_scrollController.hasClients) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollToCurrentHour();
+      });
+      return;
+    }
+
     final now = DateTime.now();
     final currentTime = Duration(hours: now.hour, minutes: now.minute);
     final daySchedule = _getCurrentDaySchedule();
+
+    if (daySchedule.isEmpty) {
+      return;
+    }
+
+    // Find the earliest and latest times in the schedule
+    Duration? earliestTime;
+    Duration? latestTime;
+    for (var entry in daySchedule) {
+      final time = _schedule.parseTime(entry.time);
+      if (earliestTime == null || time < earliestTime) {
+        earliestTime = time;
+      }
+      if (latestTime == null || time > latestTime) {
+        latestTime = time;
+      }
+    }
+
+    // If current time is before the earliest time, scroll to the first entry
+    if (earliestTime != null && currentTime < earliestTime) {
+      _scrollController.jumpTo(0.0);
+      return;
+    }
+
+    // If current time is after the latest time, scroll to the last entry
+    if (latestTime != null && currentTime > latestTime) {
+      _scrollController.jumpTo(
+        _scrollController.position.maxScrollExtent *
+            ((daySchedule.length - 1) / daySchedule.length),
+      );
+      return;
+    }
+
+    // Scroll to the current hour within the schedule
     for (int i = 0; i < daySchedule.length; i++) {
       final time = _schedule.parseTime(daySchedule[i].time);
       if (time <= currentTime &&
           (i + 1 >= daySchedule.length ||
               _schedule.parseTime(daySchedule[i + 1].time) > currentTime)) {
-        _scrollController.jumpTo(_scrollController.position.maxScrollExtent *
-            (i / daySchedule.length));
+        _scrollController.jumpTo(
+          _scrollController.position.maxScrollExtent * (i / daySchedule.length),
+        );
         break;
       }
     }
@@ -157,15 +213,39 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen>
     final now = DateTime.now();
     final currentTime = Duration(hours: now.hour, minutes: now.minute);
     final colorScheme = Theme.of(context).colorScheme;
+
+    Duration? earliestTime;
+    Duration? latestTime;
+    for (var entry in daySchedule) {
+      final time = _schedule.parseTime(entry.time);
+      if (earliestTime == null || time < earliestTime) {
+        earliestTime = time;
+      }
+      if (latestTime == null || time > latestTime) {
+        latestTime = time;
+      }
+    }
+
     return ListView.builder(
       controller: _scrollController,
       itemCount: daySchedule.length,
       itemBuilder: (context, index) {
         final entry = daySchedule[index];
         final time = _schedule.parseTime(entry.time);
-        final isCurrentHour = time <= currentTime &&
+        bool isCurrentHour = false;
+
+        if (earliestTime != null && currentTime < earliestTime && index == 0) {
+          isCurrentHour = true;
+        } else if (latestTime != null &&
+            currentTime > latestTime &&
+            index == daySchedule.length - 1) {
+          isCurrentHour = true;
+        } else if (time <= currentTime &&
             (index + 1 >= daySchedule.length ||
-                _schedule.parseTime(daySchedule[index + 1].time) > currentTime);
+                _schedule.parseTime(daySchedule[index + 1].time) >
+                    currentTime)) {
+          isCurrentHour = true;
+        }
 
         return Column(
           children: [
@@ -198,24 +278,41 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen>
   }
 
   void _showSettingsDialog() async {
-    final result = await showDialog<Map<String, dynamic>>(
+    final result = await showDialog<ScheduleResult>(
       context: context,
       builder: (context) => widget.settingsWidget,
     );
     if (result != null) {
-      final selectedUrl = result['url'] as String;
-      final isSave = result['isSave'] as bool;
+      final selectedUrl = result.url;
+      final isSave = result.isSave;
       setState(() {
-        _url = selectedUrl;
-        _scheduleFuture = _loadData(_url);
+        if (isSave) {
+          switch (widget.category.url) {
+            case ClassScheduleSettingsWidget.classScheduleUrl:
+              _url = selectedUrl;
+              ref
+                  .read(localSettingsProvider.notifier)
+                  .updateClassScheduleURL(selectedUrl);
+              break;
+            case RoomScheduleSettingsWidget.roomScheduleId:
+              {
+                _url = getRoomScheduleUrl(
+                  selectedUrl,
+                  formatDate(getMondayOfWeek(DateTime.now())),
+                );
+                ref
+                    .read(localSettingsProvider.notifier)
+                    .updateRoomScheduleId(selectedUrl);
+                break;
+              }
+            default:
+              _url = widget.category.url;
+          }
+          _scheduleFuture = _loadData(_url);
+        } else {
+          _fetchData(selectedUrl);
+        }
       });
-      if (isSave) {
-        await _scheduleFuture;
-        await _scheduleRepository.saveSchedule(selectedUrl, _schedule);
-        ref
-            .read(localSettingsProvider.notifier)
-            .updateClassScheduleURL(selectedUrl);
-      }
     }
   }
 
@@ -240,7 +337,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen>
             onPressed: () {
               setState(() {
                 if (_url != null) {
-                  _scheduleFuture = _fetchData(_url!);
+                  _scheduleFuture = _loadData(_url!);
                 }
               });
             },

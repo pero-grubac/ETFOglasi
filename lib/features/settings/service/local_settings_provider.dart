@@ -1,5 +1,6 @@
 import 'package:etf_oglasi/core/service/provider/class_schedule_url_notifier.dart';
 import 'package:etf_oglasi/core/service/provider/locale_notifier.dart';
+import 'package:etf_oglasi/core/service/provider/room_schedule_url_notifier.dart';
 import 'package:etf_oglasi/core/service/provider/theme_notifier.dart';
 import 'package:etf_oglasi/features/settings/data/model/local_settings.dart';
 import 'package:flutter/material.dart';
@@ -21,10 +22,12 @@ class LocalSettingsNotifier extends StateNotifier<LocalSettings> {
     final themeMode = prefs.getString('themeMode') ?? LocalSettings.lightMode;
     final language = prefs.getString('language') ?? LocalSettings.srLatLang;
     final String? classScheduleUrl = prefs.getString('classScheduleUrl');
+    final String? roomScheduleId = prefs.getString('roomScheduleId');
     state = LocalSettings(
       themeMode: themeMode,
       language: language,
       classScheduleUrl: classScheduleUrl,
+      roomScheduleId: roomScheduleId,
     );
 
     final themeModeEnum =
@@ -36,7 +39,12 @@ class LocalSettingsNotifier extends StateNotifier<LocalSettings> {
   }
 
   void updateTheme(String themeMode) {
-    state = LocalSettings(themeMode: themeMode, language: state.language);
+    state = LocalSettings(
+      themeMode: themeMode,
+      language: state.language,
+      classScheduleUrl: state.classScheduleUrl,
+      roomScheduleId: state.roomScheduleId,
+    );
     _saveSettings();
 
     final themeModeEnum =
@@ -45,7 +53,12 @@ class LocalSettingsNotifier extends StateNotifier<LocalSettings> {
   }
 
   void updateLanguage(String language) {
-    state = LocalSettings(themeMode: state.themeMode, language: language);
+    state = LocalSettings(
+      themeMode: state.themeMode,
+      language: language,
+      classScheduleUrl: state.classScheduleUrl,
+      roomScheduleId: state.roomScheduleId,
+    );
     _saveSettings();
 
     final locale = parseLocale(language);
@@ -58,7 +71,19 @@ class LocalSettingsNotifier extends StateNotifier<LocalSettings> {
       themeMode: state.themeMode,
       classScheduleUrl: url,
     );
+    _saveSettings();
     ref.read(classScheduleURLProvider.notifier).updateUrl(url);
+  }
+
+  void updateRoomScheduleId(String id) {
+    state = LocalSettings(
+      language: state.language,
+      themeMode: state.themeMode,
+      classScheduleUrl: state.classScheduleUrl,
+      roomScheduleId: id,
+    );
+    _saveSettings();
+    ref.read(roomScheduleURLProvider.notifier).updateId(id);
   }
 
   Future<void> _saveSettings() async {
@@ -67,6 +92,9 @@ class LocalSettingsNotifier extends StateNotifier<LocalSettings> {
     await prefs.setString('language', state.language);
     if (state.classScheduleUrl != null) {
       await prefs.setString('classScheduleUrl', state.classScheduleUrl!);
+    }
+    if (state.roomScheduleId != null) {
+      await prefs.setString('roomScheduleId', state.roomScheduleId!);
     }
   }
 }

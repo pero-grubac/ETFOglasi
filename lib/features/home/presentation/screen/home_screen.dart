@@ -3,16 +3,18 @@ import 'package:etf_oglasi/features/home/presentation/widget/category_grid_item.
 import 'package:etf_oglasi/features/settings/presentation/widget/main_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final locale = AppLocalizations.of(context);
 
-    final categories = List<Category>.from(buildAvailableCategories(locale!))
+    final categories = buildAvailableCategories(locale!, ref).toList()
       ..sort((a, b) => a.id.compareTo(b.id));
+
     final categoryWidgets =
         categories.map((cat) => CategoryGridItem(category: cat)).toList();
 

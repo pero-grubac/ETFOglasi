@@ -1,6 +1,7 @@
 import 'package:etf_oglasi/core/model/api/room.dart';
 import 'package:etf_oglasi/core/service/api/room_service.dart';
 import 'package:etf_oglasi/core/util/dependency_injection.dart';
+import 'package:etf_oglasi/features/schedule/data/model/schedule_result.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,8 +10,14 @@ import '../../../../config/api_constants.dart';
 import '../../../../core/util/format_date.dart';
 
 class RoomScheduleSettingsWidget extends ConsumerStatefulWidget {
-  const RoomScheduleSettingsWidget({super.key});
-
+  const RoomScheduleSettingsWidget({
+    super.key,
+    this.isSelect = true,
+    this.shouldDatePick = true,
+  });
+  final bool isSelect;
+  final bool shouldDatePick;
+  static const String roomScheduleId = "roomScheduleId";
   @override
   ConsumerState<RoomScheduleSettingsWidget> createState() =>
       _RoomScheduleSettingsWidgetState();
@@ -176,64 +183,90 @@ class _RoomScheduleSettingsWidgetState
                               (value) {
                                 setDialogState(() {
                                   _selectedRoomId = value;
-                                  if (_selectedDate != null && value != null) {
-                                    _generatedUrl = getRoomScheduleUrl(
-                                      value,
-                                      formatDate(_selectedDate!),
-                                    );
+                                  if (widget.isSelect) {
+                                    if (_selectedDate != null &&
+                                        value != null) {
+                                      _generatedUrl = getRoomScheduleUrl(
+                                        value,
+                                        formatDate(_selectedDate!),
+                                      );
+                                    }
                                   } else {
-                                    _generatedUrl = null;
+                                    _generatedUrl = _selectedRoomId;
                                   }
                                 });
                               },
                             ),
-                            const SizedBox(height: 16),
-                            Text(
-                              locale.date,
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    _selectedDate != null
-                                        ? formatDate(_selectedDate!)
-                                        : locale.selectDate,
-                                    style: TextStyle(
-                                      color: _selectedDate != null
-                                          ? colorScheme.onSurface
-                                          : colorScheme.onSurfaceVariant,
+                            if (widget.isSelect) ...[
+                              const SizedBox(height: 16),
+                              Text(
+                                locale.date,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      _selectedDate != null
+                                          ? formatDate(_selectedDate!)
+                                          : locale.selectDate,
+                                      style: TextStyle(
+                                        color: _selectedDate != null
+                                            ? colorScheme.onSurface
+                                            : colorScheme.onSurfaceVariant,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                TextButton(
-                                  onPressed: () => _selectDate(context),
-                                  child: Text(locale.selectDate),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 24),
+                                  TextButton(
+                                    onPressed: () => _selectDate(context),
+                                    child: Text(locale.selectDate),
+                                  ),
+                                ],
+                              ),
+                            ],
+                            const SizedBox(height: 16),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: Text(locale.save),
+                                Flexible(
+                                  child: ElevatedButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: Text(locale.cancel),
+                                  ),
                                 ),
                                 const SizedBox(width: 16),
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: Text(locale.cancel),
-                                ),
+                                if (widget.isSelect) ...[
+                                  Flexible(
+                                    child: ElevatedButton(
+                                      onPressed: _generatedUrl != null
+                                          ? () => Navigator.pop(
+                                                context,
+                                                ScheduleResult(
+                                                  url: _generatedUrl!,
+                                                  isSave: false,
+                                                ),
+                                              )
+                                          : null,
+                                      child: Text(locale.select),
+                                    ),
+                                  ),
+                                ],
                                 const SizedBox(width: 16),
-                                ElevatedButton(
-                                  onPressed: _generatedUrl != null
-                                      ? () =>
-                                          Navigator.pop(context, _generatedUrl)
-                                      : null,
-                                  child: Text(locale.select),
+                                Flexible(
+                                  child: ElevatedButton(
+                                    onPressed: _selectedRoomId != null
+                                        ? () => Navigator.pop(
+                                              context,
+                                              ScheduleResult(
+                                                url: _selectedRoomId!,
+                                                isSave: true,
+                                              ),
+                                            )
+                                        : null,
+                                    child: Text(locale.save),
+                                  ),
                                 ),
                               ],
                             )

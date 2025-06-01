@@ -1,15 +1,15 @@
 import 'package:etf_oglasi/config/api_constants.dart';
 import 'package:etf_oglasi/core/navigation/routes.dart';
-import 'package:etf_oglasi/core/util/format_date.dart';
 import 'package:etf_oglasi/features/schedule/presentation/widget/class_schedule_settings_widget.dart';
 import 'package:etf_oglasi/features/schedule/presentation/widget/room_schedule_settings_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class Category {
   final int id;
   final String title;
-  final String url;
+  final String? url;
   final String screenId;
   final Widget? settingsWidget;
   const Category({
@@ -21,7 +21,8 @@ class Category {
   });
 }
 
-List<Category> buildAvailableCategories(AppLocalizations locale) {
+List<Category> buildAvailableCategories(
+    AppLocalizations locale, WidgetRef ref) {
   return [
     Category(
       id: 1,
@@ -50,17 +51,14 @@ List<Category> buildAvailableCategories(AppLocalizations locale) {
     Category(
       id: 5,
       title: locale.classSchedule,
-      url: "classScheduleUrl",
+      url: ClassScheduleSettingsWidget.classScheduleUrl,
       settingsWidget: const ClassScheduleSettingsWidget(),
       screenId: Routes.scheduleScreen,
     ),
     Category(
       id: 6,
       title: locale.hallSchedule,
-      url: getRoomScheduleUrl(
-        "1",
-        formatDate(getMondayOfWeek(DateTime.now())),
-      ),
+      url: RoomScheduleSettingsWidget.roomScheduleId,
       settingsWidget: const RoomScheduleSettingsWidget(),
       screenId: Routes.scheduleScreen,
     ),

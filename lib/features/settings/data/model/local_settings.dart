@@ -10,11 +10,12 @@ class LocalSettings {
   final String language;
   final String themeMode;
   final String? classScheduleUrl;
-
+  final String? roomScheduleId;
   LocalSettings({
     required this.language,
     required this.themeMode,
     this.classScheduleUrl,
+    this.roomScheduleId,
   });
 
   Map<String, dynamic> toMap() {
@@ -22,6 +23,7 @@ class LocalSettings {
       'language': language,
       'themeMode': themeMode,
       'classScheduleUrl': classScheduleUrl,
+      'roomScheduleId': roomScheduleId,
     };
   }
 
@@ -29,10 +31,12 @@ class LocalSettings {
     final themeMode = map['themeMode'] as String? ?? lightMode;
     final language = map['language'] as String? ?? srLatLang;
     final classScheduleUrl = map['classScheduleUrl'] as String?;
+    final roomScheduleId = map['roomScheduleId'] as String?;
     return LocalSettings(
       themeMode: themeMode == darkMode ? darkMode : lightMode,
       language: language == srCyrLang ? srCyrLang : srLatLang,
       classScheduleUrl: classScheduleUrl,
+      roomScheduleId: roomScheduleId,
     );
   }
   String toJson() => json.encode(toMap());
