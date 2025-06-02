@@ -4,6 +4,7 @@ import 'package:etf_oglasi/core/service/major_service.dart';
 import 'package:etf_oglasi/core/service/room_service.dart';
 import 'package:etf_oglasi/core/service/study_program_service.dart';
 import 'package:etf_oglasi/core/service/teacher_service.dart';
+import 'package:etf_oglasi/features/announcements/repository/announcement_repository.dart';
 import 'package:etf_oglasi/features/announcements/service/announcement_service.dart';
 import 'package:etf_oglasi/features/schedule/repository/schedule_repository.dart';
 import 'package:etf_oglasi/features/schedule/service/schedule_service.dart';
@@ -47,4 +48,8 @@ final databaseHelperProvider = Provider<DatabaseHelper>((ref) {
 // Repository
 final scheduleRepositoryProvider = Provider<ScheduleRepository>((ref) {
   return ScheduleRepository(dbHelper: ref.read(databaseHelperProvider));
+});
+
+final announcementRepositoryProvider = Provider<AnnouncementRepository>((ref) {
+  return AnnouncementRepository(dbHelper: ref.read(databaseHelperProvider));
 });

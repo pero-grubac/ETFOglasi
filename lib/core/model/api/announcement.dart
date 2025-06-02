@@ -1,8 +1,10 @@
 import 'package:json_annotation/json_annotation.dart';
+
 part 'announcement.g.dart';
 
 @JsonSerializable()
 class Announcement {
+  static const String dbName = 'announcement';
   final int id;
   final String naslov;
   final String? uvod;

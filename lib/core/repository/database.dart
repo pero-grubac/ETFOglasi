@@ -1,3 +1,4 @@
+import 'package:etf_oglasi/core/model/api/announcement.dart';
 import 'package:etf_oglasi/features/schedule/model/schedule.dart';
 import 'package:path/path.dart' as path;
 import 'package:sqflite/sqflite.dart' as sql;
@@ -22,6 +23,13 @@ class DatabaseHelper {
           (tr) async {
             await tr.execute('''
             CREATE TABLE ${Schedule.dbName}(
+            id TEXT PRIMARY KEY,
+            data TEXT NOT NULL
+            )
+            ''');
+
+            await tr.execute('''
+            CREATE TABLE ${Announcement.dbName}(
             id TEXT PRIMARY KEY,
             data TEXT NOT NULL
             )
