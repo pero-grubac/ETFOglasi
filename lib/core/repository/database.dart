@@ -37,7 +37,17 @@ class DatabaseHelper {
           },
         );
       },
-      version: 1,
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) {
+          await db.execute('''
+            CREATE TABLE ${Announcement.dbName}(
+              id TEXT PRIMARY KEY,
+              data TEXT NOT NULL
+            )
+          ''');
+        }
+      },
+      version: 2,
     );
     return _database!;
   }

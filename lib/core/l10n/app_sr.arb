@@ -36,5 +36,19 @@
   "date": "Datum",
   "attachment": "Prilog",
   "signature": "Potpis",
-  "theme": "Tema"
+  "theme": "Tema",
+  "minDurationError": "Minimalna dužina je {minutes} minuta",
+  "@minDurationError": {
+    "description": "Poruka o grešci za minimalnu dužinu notifikacije",
+    "placeholders": {
+      "minutes": {}
+    }
+  },
+  "minDurationSet": "Dužina postavljena na {minutes} minuta zbog minimalnog zahtjeva",
+  "@minDurationSet": {
+    "description": "Poruka kada je dužina automatski postavljena na minimum",
+    "placeholders": {
+      "minutes": {}
+    }
+  }
 }

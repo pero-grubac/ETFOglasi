@@ -28,7 +28,6 @@ class LocalSettingsNotifier extends StateNotifier<LocalSettings> {
     final language = prefs.getString('language') ?? LocalSettings.srLatLang;
     final String? classScheduleUrl = prefs.getString('classScheduleUrl');
     final String? roomScheduleId = prefs.getString('roomScheduleId');
-    final String? settingsJson = prefs.getString('notificationTimeSettings');
 
     final notificationTimeSettingsJson =
         prefs.getString('notificationTimeSettings');

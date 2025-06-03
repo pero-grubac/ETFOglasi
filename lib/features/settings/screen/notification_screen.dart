@@ -5,20 +5,39 @@ import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class NotificationScreen extends ConsumerWidget {
+class NotificationScreen extends ConsumerStatefulWidget {
   static const id = 'notification_screen';
+  const NotificationScreen({super.key});
+
+  @override
+  ConsumerState<NotificationScreen> createState() => _NotificationScreenState();
+}
+
+class _NotificationScreenState extends ConsumerState<NotificationScreen> {
   static const _actions = [
     'first_year',
     'second_year',
     'third_year',
     'fourth_year'
   ];
-  const NotificationScreen({super.key});
+  static const int _minMinutes = 15;
+
+  late Map<String, NotificationTimeSetting> _tempSettings;
+
+  @override
+  void initState() {
+    super.initState();
+    _tempSettings = Map<String, NotificationTimeSetting>.from(
+      ref.read(localSettingsProvider).notificationTimeSettings,
+    );
+  }
+
   Widget _buildTimeField(
     String label,
     int initialValue,
     void Function(int) onChanged, {
     required int max,
+    bool hasError = false,
   }) {
     final controller = TextEditingController(text: initialValue.toString());
     return SizedBox(
@@ -33,8 +52,24 @@ class NotificationScreen extends ConsumerWidget {
         ],
         decoration: InputDecoration(
           labelText: label,
-          helperText: 'max $max',
+          hintText: 'max $max', // Show max as hint instead of helperText
           counterText: '',
+          border: OutlineInputBorder(
+            borderSide: BorderSide(
+              color: hasError ? Colors.red : Colors.grey,
+            ),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(
+              color: hasError ? Colors.red : Colors.grey,
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(
+              color:
+                  hasError ? Colors.red : Theme.of(context).colorScheme.primary,
+            ),
+          ),
         ),
         onChanged: (value) {
           final parsed = int.tryParse(value) ?? 0;
@@ -45,56 +80,92 @@ class NotificationScreen extends ConsumerWidget {
     );
   }
 
-  void _updateTime(WidgetRef ref, String key,
-      {int? days, int? hours, int? minutes}) {
+  void _saveSettings(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     final notifier = ref.read(localSettingsProvider.notifier);
-    final current = ref
-            .read(localSettingsProvider)
-            .notificationTimeSettings[key] ??
-        NotificationTimeSetting(enabled: true, days: 0, hours: 0, minutes: 0);
+    final updated = Map<String, NotificationTimeSetting>.from(_tempSettings);
 
-    final updated = Map<String, NotificationTimeSetting>.from(
-        ref.read(localSettingsProvider).notificationTimeSettings);
-
-    int newDays = days ?? current.days;
-    int newHours = hours ?? current.hours;
-    int newMinutes = minutes ?? current.minutes;
-    if (newDays == 0 && newHours == 0 && newMinutes == 0) {
-      newDays = 1;
+    bool hasInvalidDuration = false;
+    for (final entry in updated.entries) {
+      final key = entry.key;
+      final setting = entry.value;
+      if (setting.enabled) {
+        final totalMinutes =
+            setting.days * 24 * 60 + setting.hours * 60 + setting.minutes;
+        if (totalMinutes < _minMinutes) {
+          updated[key] = NotificationTimeSetting(
+            enabled: setting.enabled,
+            days: 0,
+            hours: 0,
+            minutes: _minMinutes,
+          );
+          hasInvalidDuration = true;
+        }
+      }
     }
 
-    updated[key] = NotificationTimeSetting(
-      enabled: current.enabled,
-      days: newDays,
-      hours: newHours,
-      minutes: newMinutes,
-    );
     notifier.updateNotificationsTimeSettings(updated);
+
+    if (hasInvalidDuration) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(locale.minDurationSet(_minMinutes)),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  void _updateTempTime(String key, {int? days, int? hours, int? minutes}) {
+    final current = _tempSettings[key] ??
+        NotificationTimeSetting(enabled: false, days: 0, hours: 0, minutes: 0);
+
+    setState(() {
+      _tempSettings[key] = NotificationTimeSetting(
+        enabled: current.enabled,
+        days: days ?? current.days,
+        hours: hours ?? current.hours,
+        minutes: minutes ?? current.minutes,
+      );
+    });
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final settings = ref.watch(localSettingsProvider);
-    final notifier = ref.read(localSettingsProvider.notifier);
-
-    final locale = AppLocalizations.of(context);
+  Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text(locale!.notifications),
+        title: Text(locale.notifications),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.save),
+            onPressed: () => _saveSettings(context),
+            tooltip: locale.save,
+          ),
+        ],
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: _actions.length,
         itemBuilder: (context, index) {
           final key = _actions[index];
-          final setting = settings.notificationTimeSettings[key];
+          final setting = _tempSettings[key] ??
+              NotificationTimeSetting(
+                enabled: false,
+                days: 0,
+                hours: 0,
+                minutes: 0,
+              );
 
-          final isEnabled = setting?.enabled ?? false;
-          final days = setting?.days ?? 0;
-          final hours = setting?.hours ?? 0;
-          final minutes = setting?.minutes ?? 0;
+          final isEnabled = setting.enabled;
+          final days = setting.days;
+          final hours = setting.hours;
+          final minutes = setting.minutes;
+
+          final totalMinutes = days * 24 * 60 + hours * 60 + minutes;
+          final hasError = isEnabled && totalMinutes < _minMinutes;
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -111,46 +182,69 @@ class NotificationScreen extends ConsumerWidget {
                 ),
                 value: isEnabled,
                 onChanged: (value) {
-                  final updated = Map<String, NotificationTimeSetting>.from(
-                      settings.notificationTimeSettings);
-                  int newDays = value ? days : 0;
-                  int newHours = value ? hours : 0;
-                  int newMinutes = value ? minutes : 0;
-                  if (value &&
-                      newDays == 0 &&
-                      newHours == 0 &&
-                      newMinutes == 0) {
-                    newDays = 1; // default fallback
-                  }
-
-                  updated[key] = NotificationTimeSetting(
-                    enabled: value,
-                    days: newDays,
-                    hours: newHours,
-                    minutes: newMinutes,
-                  );
-                  notifier.updateNotificationsTimeSettings(updated);
+                  setState(() {
+                    int newDays = value ? days : 0;
+                    int newHours = value ? hours : 0;
+                    int newMinutes = value ? minutes : 0;
+                    if (value &&
+                        newDays == 0 &&
+                        newHours == 0 &&
+                        newMinutes == 0) {
+                      newMinutes = _minMinutes;
+                    }
+                    _tempSettings[key] = NotificationTimeSetting(
+                      enabled: value,
+                      days: newDays,
+                      hours: newHours,
+                      minutes: newMinutes,
+                    );
+                  });
                 },
               ),
-              if (isEnabled)
+              if (isEnabled) ...[
                 Padding(
-                  padding: const EdgeInsets.only(left: 16.0, bottom: 16),
+                  padding: const EdgeInsets.only(left: 16.0),
                   child: Row(
                     children: [
-                      _buildTimeField("d", days, (val) {
-                        _updateTime(ref, key, days: val);
-                      }, max: 99),
+                      _buildTimeField(
+                        "d",
+                        days,
+                        (val) => _updateTempTime(key, days: val),
+                        max: 99,
+                        hasError: hasError,
+                      ),
                       const SizedBox(width: 8),
-                      _buildTimeField("h", hours, (val) {
-                        _updateTime(ref, key, hours: val);
-                      }, max: 23),
+                      _buildTimeField(
+                        "h",
+                        hours,
+                        (val) => _updateTempTime(key, hours: val),
+                        max: 23,
+                        hasError: hasError,
+                      ),
                       const SizedBox(width: 8),
-                      _buildTimeField("min", minutes, (val) {
-                        _updateTime(ref, key, minutes: val);
-                      }, max: 59),
+                      _buildTimeField(
+                        "min",
+                        minutes,
+                        (val) => _updateTempTime(key, minutes: val),
+                        max: 59,
+                        hasError: hasError,
+                      ),
                     ],
                   ),
-                )
+                ),
+                if (hasError)
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        left: 16.0, top: 4.0, bottom: 16.0),
+                    child: Text(
+                      locale.minDurationError(_minMinutes),
+                      style: const TextStyle(
+                        color: Colors.red,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+              ],
             ],
           );
         },

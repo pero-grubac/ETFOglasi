@@ -36,5 +36,19 @@
   "date": "Датум",
   "attachment": "Прилог",
   "signature": "Потпис",
-  "theme": "Тема"
+  "theme": "Тема",
+  "minDurationError": "Минимална дужина је {minutes} минута",
+  "@minDurationError": {
+    "description": "Порука о грешци за минималну дужину нотификације",
+    "placeholders": {
+      "minutes": {}
+    }
+  },
+  "minDurationSet":"Дужина постављена на {minutes} минута због минималног захтјева",
+  "@minDurationSet": {
+    "description": "Дужина постављена на {minutes} минута због минималног захтјева",
+    "placeholders": {
+      "minutes": {}
+    }
+  }
 }

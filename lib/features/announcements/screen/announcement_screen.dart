@@ -1,6 +1,7 @@
 import 'package:etf_oglasi/core/model/api/announcement.dart';
 import 'package:etf_oglasi/core/model/category.dart';
 import 'package:etf_oglasi/core/util/dependency_injection.dart';
+import 'package:etf_oglasi/features/announcements/repository/announcement_repository.dart';
 import 'package:etf_oglasi/features/announcements/service/announcement_service.dart';
 import 'package:etf_oglasi/features/announcements/widget/announcement_card.dart';
 import 'package:etf_oglasi/features/announcements/widget/api_error_widget.dart';
@@ -20,17 +21,36 @@ class AnnouncementScreen extends ConsumerStatefulWidget {
 
 class _AnnouncementScreenState extends ConsumerState<AnnouncementScreen> {
   late Future<List<Announcement>> _data;
-  late AnnouncementService announcementService;
-
+  late AnnouncementService _announcementService;
+  late AnnouncementRepository _announcementRepository;
+  bool _isRefreshing = false;
   @override
   void initState() {
     super.initState();
-    announcementService = ref.read(announcementServiceProvider);
-    _data = _loadItems();
+    _announcementService = ref.read(announcementServiceProvider);
+    _announcementRepository = ref.read(announcementRepositoryProvider);
+    _loadItems();
   }
 
-  Future<List<Announcement>> _loadItems() async {
-    return await announcementService.fetchAnnouncements(widget.category.url!);
+  Future<void> _loadItems() async {
+    if (_isRefreshing) {
+      setState(() {
+        _isRefreshing = true;
+      });
+    }
+
+    _data = _announcementService.fetchAnnouncements(widget.category.url!);
+    try {
+      final announcements = await _data;
+      await _announcementRepository.saveAnnouncements(
+          widget.category.url!, announcements);
+    } finally {
+      if (_isRefreshing) {
+        setState(() {
+          _isRefreshing = false;
+        });
+      }
+    }
   }
 
   @override
@@ -51,7 +71,7 @@ class _AnnouncementScreenState extends ConsumerState<AnnouncementScreen> {
             icon: const Icon(Icons.refresh),
             onPressed: () {
               setState(() {
-                _data = _loadItems();
+                _loadItems();
               });
             },
             tooltip: 'Osvježi',
@@ -61,7 +81,8 @@ class _AnnouncementScreenState extends ConsumerState<AnnouncementScreen> {
       body: FutureBuilder(
           future: _data,
           builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
+            if (snapshot.connectionState == ConnectionState.waiting &&
+                !_isRefreshing) {
               return Center(
                 child: CircularProgressIndicator(
                   valueColor:
@@ -73,7 +94,7 @@ class _AnnouncementScreenState extends ConsumerState<AnnouncementScreen> {
               return ApiErrorWidget(
                 onRetry: () {
                   setState(() {
-                    _data = _loadItems();
+                    _loadItems();
                   });
                 },
               );
