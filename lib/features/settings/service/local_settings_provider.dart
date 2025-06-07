@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:etf_oglasi/features/announcements/service/announcement_workmanager.dart';
 import 'package:etf_oglasi/features/schedule/service/class_schedule_url_notifier.dart';
 import 'package:etf_oglasi/features/schedule/service/room_schedule_url_notifier.dart';
 import 'package:etf_oglasi/features/settings/model/local_settings.dart';
@@ -50,6 +51,8 @@ class LocalSettingsNotifier extends StateNotifier<LocalSettings> {
       roomScheduleId: roomScheduleId,
       notificationTimeSettings: notificationTimeSettings,
     );
+    await AnnouncementWorkManager.registerPeriodicTasks(
+        notificationTimeSettings);
 
     final themeModeEnum =
         themeMode == LocalSettings.darkMode ? ThemeMode.dark : ThemeMode.light;
@@ -101,6 +104,7 @@ class LocalSettingsNotifier extends StateNotifier<LocalSettings> {
     ref
         .read(notificationsTimeNotifierProvider.notifier)
         .updateNotificationsTime(map);
+    AnnouncementWorkManager.registerPeriodicTasks(map);
   }
 
   void updateClassScheduleURL(String url) {

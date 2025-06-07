@@ -2,8 +2,9 @@ import 'package:etf_oglasi/core/model/category.dart';
 import 'package:etf_oglasi/features/home/widget/category_grid_item.dart';
 import 'package:etf_oglasi/features/settings/widget/main_drawer.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../core/gen/app_localizations.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});

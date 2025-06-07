@@ -2,8 +2,9 @@ import 'package:etf_oglasi/features/settings/model/notification_time_setting.dar
 import 'package:etf_oglasi/features/settings/service/local_settings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../core/gen/app_localizations.dart';
 
 class NotificationScreen extends ConsumerStatefulWidget {
   static const id = 'notification_screen';
@@ -109,7 +110,7 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
     if (hasInvalidDuration) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(locale.minDurationSet(_minMinutes)),
+          content: Text(locale.minDurationSet(minutes: _minMinutes)),
           duration: const Duration(seconds: 2),
         ),
       );
@@ -237,7 +238,7 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                     padding: const EdgeInsets.only(
                         left: 16.0, top: 4.0, bottom: 16.0),
                     child: Text(
-                      locale.minDurationError(_minMinutes),
+                      locale.minDurationError(minutes: _minMinutes),
                       style: const TextStyle(
                         color: Colors.red,
                         fontSize: 12,

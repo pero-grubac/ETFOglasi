@@ -4,8 +4,9 @@ import 'package:etf_oglasi/features/schedule/widget/room_schedule_settings_widge
 import 'package:etf_oglasi/features/settings/model/local_settings.dart';
 import 'package:etf_oglasi/features/settings/service/local_settings_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../core/gen/app_localizations.dart';
 
 class SettingsScreen extends ConsumerWidget {
   static const id = 'settings_screen';

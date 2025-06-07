@@ -1,8 +1,8 @@
 import 'package:etf_oglasi/core/ui/theme/drawer_header_theme.dart';
 import 'package:etf_oglasi/features/settings/screen/notification_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import '../../../core/gen/app_localizations.dart';
 import '../screen/settings_screen.dart';
 
 class MainDrawer extends StatelessWidget {

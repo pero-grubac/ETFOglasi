@@ -1,3 +1,9 @@
 arb-dir: lib/core/l10n
-template-arb-file: app_sr_Latn.arb
+template-arb-file: intl_sr.arb
 output-localization-file: app_localizations.dart
+synthetic-package: false
+output-dir: lib/core/gen
+output-class: AppLocalizations
+nullable-getter: false
+untranslated-messages-file: untranslated_messages.txt
+use-named-parameters: true

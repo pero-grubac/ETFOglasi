@@ -3,8 +3,9 @@ import 'package:etf_oglasi/core/navigation/routes.dart';
 import 'package:etf_oglasi/features/schedule/widget/class_schedule_settings_widget.dart';
 import 'package:etf_oglasi/features/schedule/widget/room_schedule_settings_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../gen/app_localizations.dart';
 
 class Category {
   final int id;

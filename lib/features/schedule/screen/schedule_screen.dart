@@ -10,8 +10,9 @@ import 'package:etf_oglasi/features/schedule/widget/class_schedule_settings_widg
 import 'package:etf_oglasi/features/schedule/widget/room_schedule_settings_widget.dart';
 import 'package:etf_oglasi/features/settings/service/local_settings_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../core/gen/app_localizations.dart';
 
 class ScheduleScreen extends ConsumerStatefulWidget {
   static const id = 'schedule_screen';
