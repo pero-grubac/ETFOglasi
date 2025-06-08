@@ -50,5 +50,6 @@
     "placeholders": {
       "minutes": {}
     }
-  }
+  },
+  "notAllowedNotification": "Нисте омогућили нотификације."
 }

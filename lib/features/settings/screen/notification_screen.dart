@@ -2,7 +2,9 @@ import 'package:etf_oglasi/features/settings/model/notification_time_setting.dar
 import 'package:etf_oglasi/features/settings/service/local_settings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/gen/app_localizations.dart';
 
@@ -31,6 +33,34 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
     _tempSettings = Map<String, NotificationTimeSetting>.from(
       ref.read(localSettingsProvider).notificationTimeSettings,
     );
+    _askNotificationPermissionIfNeeded();
+  }
+
+  Future<void> _askNotificationPermissionIfNeeded() async {
+    final prefs = await SharedPreferences.getInstance();
+    final hasAsked = prefs.getBool('hasAskedNotificationPermission') ?? false;
+    if (!hasAsked) {
+      // Android 13+ permission handling:
+      final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+          FlutterLocalNotificationsPlugin();
+
+      final bool? granted = await flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>()
+          ?.requestNotificationsPermission();
+
+      if (granted != null && !granted) {
+        if (mounted) {
+          final locale = AppLocalizations.of(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(locale.notAllowedNotification),
+            ),
+          );
+        }
+      }
+      await prefs.setBool('hasAskedNotificationPermission', true);
+    }
   }
 
   Widget _buildTimeField(
@@ -82,7 +112,7 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
   }
 
   void _saveSettings(BuildContext context) {
-    final locale = AppLocalizations.of(context)!;
+    final locale = AppLocalizations.of(context);
     final notifier = ref.read(localSettingsProvider.notifier);
     final updated = Map<String, NotificationTimeSetting>.from(_tempSettings);
 

@@ -6,7 +6,7 @@ import 'package:etf_oglasi/features/schedule/service/room_schedule_url_notifier.
 import 'package:etf_oglasi/features/settings/model/local_settings.dart';
 import 'package:etf_oglasi/features/settings/model/notification_time_setting.dart';
 import 'package:etf_oglasi/features/settings/service/locale_notifier.dart';
-import 'package:etf_oglasi/features/settings/service/notifications_time_notifier.dart';
+import 'package:etf_oglasi/features/settings/service/notifications_time_provider.dart';
 import 'package:etf_oglasi/features/settings/service/theme_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

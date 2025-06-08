@@ -334,6 +334,12 @@ abstract class AppLocalizations {
   /// In sr, this message translates to:
   /// **'Dužina postavljena na {minutes} minuta zbog minimalnog zahtjeva'**
   String minDurationSet({required Object minutes});
+
+  /// No description provided for @notAllowedNotification.
+  ///
+  /// In sr, this message translates to:
+  /// **'Niste omogućili notifikacije.'**
+  String get notAllowedNotification;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

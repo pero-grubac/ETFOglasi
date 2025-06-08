@@ -131,6 +131,9 @@ class AppLocalizationsSr extends AppLocalizations {
   String minDurationSet({required Object minutes}) {
     return 'Dužina postavljena na $minutes minuta zbog minimalnog zahtjeva';
   }
+
+  @override
+  String get notAllowedNotification => 'Niste omogućili notifikacije.';
 }
 
 /// The translations for Serbian, using the Cyrillic script (`sr_Cyrl`).
@@ -260,6 +263,9 @@ class AppLocalizationsSrCyrl extends AppLocalizationsSr {
   String minDurationSet({required Object minutes}) {
     return 'Дужина постављена на $minutes минута због минималног захтјева';
   }
+
+  @override
+  String get notAllowedNotification => 'Нисте омогућили нотификације.';
 }
 
 /// The translations for Serbian, using the Latin script (`sr_Latn`).
@@ -389,4 +395,7 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String minDurationSet({required Object minutes}) {
     return 'Dužina postavljena na $minutes minuta zbog minimalnog zahtjeva';
   }
+
+  @override
+  String get notAllowedNotification => 'Niste omogućili notifikacije.';
 }
