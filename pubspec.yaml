@@ -30,6 +30,8 @@ dependencies:
   path_provider: ^2.1.5
   workmanager: ^0.6.0
   flutter_local_notifications: ^19.2.1
+  flutter_launcher_icons: ^0.14.3
+  flutter_native_splash: ^2.4.6
 
 dev_dependencies:
   flutter_test:
@@ -41,6 +43,23 @@ dev_dependencies:
 flutter:
   generate: true
   uses-material-design: true
+  assets:
+    - assets/images/
 
 flutter_intl:
   enabled: false
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path_android: "assets/images/etf_icon.png"
+
+flutter_native_splash:
+  color: "#003366"
+  image: assets/images/etf_splash.png
+  branding: null
+  color_dark: "#003366"
+  image_dark: assets/images/etf_splash.png
+  android: true
+  ios: false
+

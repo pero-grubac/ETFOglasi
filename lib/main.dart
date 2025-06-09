@@ -5,6 +5,7 @@ import 'package:etf_oglasi/features/home/screen/home_screen.dart';
 import 'package:etf_oglasi/features/settings/service/locale_notifier.dart';
 import 'package:etf_oglasi/features/settings/service/theme_notifier.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -12,13 +13,14 @@ import 'core/gen/app_localizations.dart';
 import 'features/settings/service/local_settings_provider.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await SharedPreferences.getInstance();
   await AnnouncementWorkManager.initialize();
 
   final container = ProviderContainer();
   await container.read(localSettingsProvider.notifier).loadSettings();
-
+  FlutterNativeSplash.remove();
   runApp(UncontrolledProviderScope(
     container: container,
     child: const MyApp(),
