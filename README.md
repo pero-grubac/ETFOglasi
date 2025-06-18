@@ -10,7 +10,10 @@
   <img src="https://img.shields.io/badge/Riverpod-State_Management-success?logo=dart" />
   <img src="https://img.shields.io/badge/Notifications-Enabled-orange?logo=android" />
   <img src="https://img.shields.io/badge/Offline-Support-green?logo=sqlite" />
+  <img src="https://img.shields.io/badge/Language-Srpski-red" />
+  <img src="https://img.shields.io/badge/Theme-Light_&_Dark-informational" />
 </p>
+
 
 <hr>
 
