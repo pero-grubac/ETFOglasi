@@ -11,10 +11,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AnnouncementScreen extends ConsumerStatefulWidget {
   static const id = 'announcement_screen';
-
   const AnnouncementScreen({super.key, required this.category});
   final Category category;
-
   @override
   ConsumerState<AnnouncementScreen> createState() => _AnnouncementScreenState();
 }
@@ -23,21 +21,17 @@ class _AnnouncementScreenState extends ConsumerState<AnnouncementScreen> {
   late Future<List<Announcement>> _data;
   late AnnouncementService _announcementService;
   late AnnouncementRepository _announcementRepository;
-  bool _isRefreshing = false;
   @override
   void initState() {
     super.initState();
     _announcementService = ref.read(announcementServiceProvider);
     _announcementRepository = ref.read(announcementRepositoryProvider);
+    _data = Future.value([]);
     _loadItems();
   }
 
   Future<void> _loadItems() async {
-    if (_isRefreshing) {
-      setState(() {
-        _isRefreshing = true;
-      });
-    }
+    setState(() {});
 
     _data = _announcementService.fetchAnnouncements(widget.category.url!);
     try {
@@ -45,11 +39,7 @@ class _AnnouncementScreenState extends ConsumerState<AnnouncementScreen> {
       await _announcementRepository.saveAnnouncements(
           widget.category.url!, announcements);
     } finally {
-      if (_isRefreshing) {
-        setState(() {
-          _isRefreshing = false;
-        });
-      }
+      setState(() {});
     }
   }
 
@@ -69,11 +59,7 @@ class _AnnouncementScreenState extends ConsumerState<AnnouncementScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () {
-              setState(() {
-                _loadItems();
-              });
-            },
+            onPressed: _loadItems,
             tooltip: 'Osvježi',
           ),
         ],
@@ -81,8 +67,7 @@ class _AnnouncementScreenState extends ConsumerState<AnnouncementScreen> {
       body: FutureBuilder(
           future: _data,
           builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting &&
-                !_isRefreshing) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(
                 child: CircularProgressIndicator(
                   valueColor:
@@ -92,14 +77,10 @@ class _AnnouncementScreenState extends ConsumerState<AnnouncementScreen> {
             }
             if (snapshot.hasError) {
               return ApiErrorWidget(
-                onRetry: () {
-                  setState(() {
-                    _loadItems();
-                  });
-                },
+                onRetry: _loadItems,
               );
             }
-            if (snapshot.data!.isEmpty) {
+            if (!snapshot.hasData || snapshot.data!.isEmpty) {
               return const NoDataWidget();
             }
             return ListView.builder(

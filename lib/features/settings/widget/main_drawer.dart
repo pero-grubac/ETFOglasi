@@ -59,7 +59,7 @@ class MainDrawer extends StatelessWidget {
               Navigator.of(context).pushNamed(NotificationScreen.id);
             },
           ),
-          ListTile(
+          /* ListTile(
             leading: Icon(
               Icons.schedule,
               size: 26,
@@ -67,7 +67,7 @@ class MainDrawer extends StatelessWidget {
             ),
             title: Text(locale.schedule),
             onTap: () {},
-          ),
+          ),*/
         ],
       ),
     );

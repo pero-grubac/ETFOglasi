@@ -70,7 +70,7 @@ Future<void> fetchAndCompareAnnouncements({
       body: body,
     );
   }
-
+  // TODO
   // Save new list to DB (overwrite)
   // await repository.saveAnnouncements(url, apiAnnouncements);
 }

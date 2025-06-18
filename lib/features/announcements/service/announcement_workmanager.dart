@@ -61,7 +61,6 @@ void callbackDispatcher() {
       await notificationsPlugin.initialize(initializationSettings);
 
       final language = prefs.getString('language') ?? LocalSettings.srLatLang;
-      print('lang ' + language);
       try {
         await fetchAndCompareAnnouncements(
           url: url,
