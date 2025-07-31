@@ -63,6 +63,3 @@
     <td><img src="screenshots/notification.png" alt="System notification" width="180"/></td>
   </tr>
 </table>
-
-<h2>📜 License</h2>
-ETFOglasi © 2025 by Pero Grubač is licensed under Creative Commons Attribution-ShareAlike 4.0 International License.
