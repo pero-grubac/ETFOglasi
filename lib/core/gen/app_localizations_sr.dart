@@ -138,7 +138,7 @@ class AppLocalizationsSr extends AppLocalizations {
 
 /// The translations for Serbian, using the Cyrillic script (`sr_Cyrl`).
 class AppLocalizationsSrCyrl extends AppLocalizationsSr {
-  AppLocalizationsSrCyrl(): super('sr_Cyrl');
+  AppLocalizationsSrCyrl() : super('sr_Cyrl');
 
   @override
   String get settings => 'Подешавања';
@@ -270,7 +270,7 @@ class AppLocalizationsSrCyrl extends AppLocalizationsSr {
 
 /// The translations for Serbian, using the Latin script (`sr_Latn`).
 class AppLocalizationsSrLatn extends AppLocalizationsSr {
-  AppLocalizationsSrLatn(): super('sr_Latn');
+  AppLocalizationsSrLatn() : super('sr_Latn');
 
   @override
   String get settings => 'Podešavanja';

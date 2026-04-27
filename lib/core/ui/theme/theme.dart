@@ -98,7 +98,7 @@ class AppTheme {
           color: colorScheme.onPrimary,
         ),
       ),
-      tabBarTheme: TabBarTheme(
+      tabBarTheme: TabBarThemeData(
         labelColor: colorScheme.onPrimary,
         unselectedLabelColor: colorScheme.onSurface,
         labelStyle: GoogleFonts.roboto(fontSize: 14),
@@ -109,7 +109,7 @@ class AppTheme {
           color: colorScheme.primary,
         ),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: colorScheme.secondaryContainer,
         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
@@ -122,7 +122,9 @@ class AppTheme {
           foregroundColor: colorScheme.onPrimary,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+          minimumSize: Size.zero,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         ),
       ),
       textTheme: GoogleFonts.robotoTextTheme().copyWith(
@@ -152,7 +154,7 @@ class AppTheme {
           borderSide: BorderSide(color: colorScheme.onSurface.withOpacity(0.5)),
         ),
       ),
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         backgroundColor: colorScheme.surface,
         contentTextStyle: TextStyle(color: colorScheme.onSurface),
         titleTextStyle: TextStyle(

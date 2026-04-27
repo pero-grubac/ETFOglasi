@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "org.unibl.etf.etf_oglasi"
-    compileSdk = 35
+    compileSdk = 36
     ndkVersion = "26.1.10909125"
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
         kotlinOptions {

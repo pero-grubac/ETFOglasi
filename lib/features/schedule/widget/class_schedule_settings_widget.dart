@@ -19,6 +19,7 @@ class ClassScheduleSettingsWidget extends ConsumerStatefulWidget {
     super.key,
     this.isSelect = true,
   });
+
   final bool isSelect;
   static const String classScheduleUrl = "classScheduleUrl";
 
@@ -284,46 +285,58 @@ class _ClassScheduleSettingsWidgetState
                               },
                             ),
                             const SizedBox(height: 16),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
+                            Wrap(
+                              alignment: WrapAlignment.end,
+                              spacing: 8,
+                              runSpacing: 8,
                               children: [
-                                Flexible(
-                                  child: ElevatedButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: Text(locale.cancel),
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 6),
+                                    minimumSize: Size.zero,
+                                    tapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
                                   ),
+                                  onPressed: () => Navigator.pop(context),
+                                  child: Text(locale.cancel),
                                 ),
-                                if (widget.isSelect) ...[
-                                  const SizedBox(width: 16),
-                                  Flexible(
-                                    child: ElevatedButton(
-                                      onPressed: _generatedUrl != null
-                                          ? () => Navigator.pop(
-                                                context,
-                                                ScheduleResult(
-                                                  url: _generatedUrl!,
-                                                  isSave: false,
-                                                ),
-                                              )
-                                          : null,
-                                      child: Text(locale.select),
+                                if (widget.isSelect)
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 6),
+                                      minimumSize: Size.zero,
+                                      tapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
                                     ),
-                                  ),
-                                ],
-                                const SizedBox(width: 16),
-                                Flexible(
-                                  child: ElevatedButton(
                                     onPressed: _generatedUrl != null
                                         ? () => Navigator.pop(
                                               context,
                                               ScheduleResult(
-                                                url: _generatedUrl!,
-                                                isSave: true,
-                                              ),
+                                                  url: _generatedUrl!,
+                                                  isSave: false),
                                             )
                                         : null,
-                                    child: Text(locale.save),
+                                    child: Text(locale.select),
                                   ),
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 6),
+                                    minimumSize: Size.zero,
+                                    tapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
+                                  ),
+                                  onPressed: _generatedUrl != null
+                                      ? () => Navigator.pop(
+                                            context,
+                                            ScheduleResult(
+                                                url: _generatedUrl!,
+                                                isSave: true),
+                                          )
+                                      : null,
+                                  child: Text(locale.save),
                                 ),
                               ],
                             ),

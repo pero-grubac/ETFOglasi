@@ -15,9 +15,11 @@ class RoomScheduleSettingsWidget extends ConsumerStatefulWidget {
     this.isSelect = true,
     this.shouldDatePick = true,
   });
+
   final bool isSelect;
   final bool shouldDatePick;
   static const String roomScheduleId = "roomScheduleId";
+
   @override
   ConsumerState<RoomScheduleSettingsWidget> createState() =>
       _RoomScheduleSettingsWidgetState();
@@ -227,46 +229,48 @@ class _RoomScheduleSettingsWidgetState
                               ),
                             ],
                             const SizedBox(height: 16),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
+                            Wrap(
+                              alignment: WrapAlignment.end,
+                              spacing: 8,
+                              runSpacing: 8,
                               children: [
-                                Flexible(
-                                  child: ElevatedButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: Text(locale.cancel),
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                    minimumSize: Size.zero,
+                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                   ),
+                                  onPressed: () => Navigator.pop(context),
+                                  child: Text(locale.cancel),
                                 ),
-                                const SizedBox(width: 16),
-                                if (widget.isSelect) ...[
-                                  Flexible(
-                                    child: ElevatedButton(
-                                      onPressed: _generatedUrl != null
-                                          ? () => Navigator.pop(
-                                                context,
-                                                ScheduleResult(
-                                                  url: _generatedUrl!,
-                                                  isSave: false,
-                                                ),
-                                              )
-                                          : null,
-                                      child: Text(locale.select),
+                                if (widget.isSelect)
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                      minimumSize: Size.zero,
+                                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                     ),
-                                  ),
-                                ],
-                                const SizedBox(width: 16),
-                                Flexible(
-                                  child: ElevatedButton(
-                                    onPressed: _selectedRoomId != null
+                                    onPressed: _generatedUrl != null
                                         ? () => Navigator.pop(
-                                              context,
-                                              ScheduleResult(
-                                                url: _selectedRoomId!,
-                                                isSave: true,
-                                              ),
-                                            )
+                                      context,
+                                      ScheduleResult(url: _generatedUrl!, isSave: false),
+                                    )
                                         : null,
-                                    child: Text(locale.save),
+                                    child: Text(locale.select),
                                   ),
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                    minimumSize: Size.zero,
+                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  ),
+                                  onPressed: _selectedRoomId != null
+                                      ? () => Navigator.pop(
+                                    context,
+                                    ScheduleResult(url: _selectedRoomId!, isSave: true),
+                                  )
+                                      : null,
+                                  child: Text(locale.save),
                                 ),
                               ],
                             )
