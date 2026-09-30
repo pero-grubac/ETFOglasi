@@ -7,11 +7,7 @@ class Teacher {
   final String ime;
   final String uloga;
 
-  Teacher({
-    required this.id,
-    required this.ime,
-    required this.uloga,
-  });
+  Teacher({required this.id, required this.ime, required this.uloga});
   factory Teacher.fromJson(Map<String, dynamic> json) =>
       _$TeacherFromJson(json);
 

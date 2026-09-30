@@ -30,7 +30,9 @@ class CategoryGridItemTheme extends ThemeExtension<CategoryGridItemTheme> {
 
   @override
   CategoryGridItemTheme lerp(
-      ThemeExtension<CategoryGridItemTheme>? other, double t) {
+    ThemeExtension<CategoryGridItemTheme>? other,
+    double t,
+  ) {
     if (other is! CategoryGridItemTheme) return this;
     return CategoryGridItemTheme(
       decoration: BoxDecoration.lerp(decoration, other.decoration, t)!,

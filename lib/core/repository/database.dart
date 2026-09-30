@@ -6,36 +6,47 @@ import 'package:sqflite/sqlite_api.dart' as sql_api;
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
-  static sql_api.Database? _database;
+  static Future<sql_api.Database>? _database;
 
   factory DatabaseHelper() {
     return _instance;
   }
 
   DatabaseHelper._internal();
-  Future<sql_api.Database> getDatabase() async {
-    if (_database != null) return _database!;
+
+  /// Opens the database once; concurrent callers share the same future.
+  Future<sql_api.Database> getDatabase() {
+    return _database ??= _open();
+  }
+
+  Future<sql_api.Database> _open() async {
     final dbPath = await sql.getDatabasesPath();
-    _database = await sql.openDatabase(
+    return sql.openDatabase(
       path.join(dbPath, 'etf.db'),
       onCreate: (db, version) {
-        return db.transaction(
-          (tr) async {
-            await tr.execute('''
+        return db.transaction((tr) async {
+          await tr.execute('''
             CREATE TABLE ${Schedule.dbName}(
             id TEXT PRIMARY KEY,
-            data TEXT NOT NULL
+            data TEXT NOT NULL,
+            updated_at INTEGER
             )
             ''');
 
-            await tr.execute('''
+          await tr.execute('''
             CREATE TABLE ${Announcement.dbName}(
             id TEXT PRIMARY KEY,
             data TEXT NOT NULL
             )
             ''');
-          },
-        );
+
+          await tr.execute('''
+            CREATE TABLE ${Announcement.seenDbName}(
+            id TEXT PRIMARY KEY,
+            ids TEXT NOT NULL
+            )
+            ''');
+        });
       },
       onUpgrade: (db, oldVersion, newVersion) async {
         if (oldVersion < 2) {
@@ -46,16 +57,32 @@ class DatabaseHelper {
             )
           ''');
         }
+        if (oldVersion < 3) {
+          await db.execute(
+            'ALTER TABLE ${Schedule.dbName} ADD COLUMN updated_at INTEGER',
+          );
+          await db.update(Schedule.dbName, {
+            'updated_at': DateTime.now().millisecondsSinceEpoch,
+          });
+        }
+        if (oldVersion < 4) {
+          await db.execute('''
+            CREATE TABLE ${Announcement.seenDbName}(
+              id TEXT PRIMARY KEY,
+              ids TEXT NOT NULL
+            )
+          ''');
+        }
       },
-      version: 2,
+      version: 4,
     );
-    return _database!;
   }
 
   Future<void> closeDatabase() async {
-    if (_database != null) {
-      await _database!.close();
+    final database = _database;
+    if (database != null) {
       _database = null;
+      await (await database).close();
     }
   }
 }

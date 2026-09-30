@@ -1,10 +1,10 @@
+import 'package:etf_oglasi/features/announcements/service/announcement_notifier.dart';
 import 'package:etf_oglasi/features/settings/model/notification_time_setting.dart';
 import 'package:etf_oglasi/features/settings/service/local_settings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../../core/gen/app_localizations.dart';
 
@@ -17,13 +17,7 @@ class NotificationScreen extends ConsumerStatefulWidget {
 }
 
 class _NotificationScreenState extends ConsumerState<NotificationScreen> {
-  static const _actions = [
-    'first_year',
-    'second_year',
-    'third_year',
-    'fourth_year'
-  ];
-  static const int _minMinutes = 15;
+  static const int _minMinutes = NotificationTimeSetting.minMinutes;
 
   late Map<String, NotificationTimeSetting> _tempSettings;
 
@@ -33,137 +27,80 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
     _tempSettings = Map<String, NotificationTimeSetting>.from(
       ref.read(localSettingsProvider).notificationTimeSettings,
     );
-    _askNotificationPermissionIfNeeded();
   }
 
-  Future<void> _askNotificationPermissionIfNeeded() async {
-    final prefs = await SharedPreferences.getInstance();
-    final hasAsked = prefs.getBool('hasAskedNotificationPermission') ?? false;
-    if (!hasAsked) {
-      // Android 13+ permission handling:
-      final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-          FlutterLocalNotificationsPlugin();
-
-      final bool? granted = await flutterLocalNotificationsPlugin
-          .resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>()
-          ?.requestNotificationsPermission();
-
-      if (granted != null && !granted) {
-        if (mounted) {
-          final locale = AppLocalizations.of(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(locale.notAllowedNotification),
-            ),
-          );
-        }
-      }
-      await prefs.setBool('hasAskedNotificationPermission', true);
+  /// Requests the notification permission when needed. Returns whether
+  /// notifications can be shown.
+  Future<bool> _ensureNotificationPermission() async {
+    var status = await Permission.notification.status;
+    if (status.isGranted) return true;
+    if (!status.isPermanentlyDenied) {
+      status = await Permission.notification.request();
+      if (status.isGranted) return true;
     }
-  }
-
-  Widget _buildTimeField(
-    String label,
-    int initialValue,
-    void Function(int) onChanged, {
-    required int max,
-    bool hasError = false,
-  }) {
-    final controller = TextEditingController(text: initialValue.toString());
-    return SizedBox(
-      width: 70,
-      child: TextField(
-        controller: controller,
-        maxLength: 3,
-        keyboardType: TextInputType.number,
-        inputFormatters: [
-          FilteringTextInputFormatter.digitsOnly,
-          LengthLimitingTextInputFormatter(3),
-        ],
-        decoration: InputDecoration(
-          labelText: label,
-          hintText: 'max $max', // Show max as hint instead of helperText
-          counterText: '',
-          border: OutlineInputBorder(
-            borderSide: BorderSide(
-              color: hasError ? Colors.red : Colors.grey,
-            ),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-              color: hasError ? Colors.red : Colors.grey,
-            ),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-              color:
-                  hasError ? Colors.red : Theme.of(context).colorScheme.primary,
-            ),
+    if (mounted) {
+      final locale = AppLocalizations.of(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(locale.notAllowedNotification),
+          action: SnackBarAction(
+            label: locale.openSettings,
+            onPressed: openAppSettings,
           ),
         ),
-        onChanged: (value) {
-          final parsed = int.tryParse(value) ?? 0;
-          final clamped = parsed.clamp(0, max);
-          onChanged(clamped);
-        },
+      );
+    }
+    return false;
+  }
+
+  Future<void> _saveSettings() async {
+    final locale = AppLocalizations.of(context);
+    final updated = <String, NotificationTimeSetting>{};
+
+    var hasInvalidDuration = false;
+    for (final entry in _tempSettings.entries) {
+      final setting = entry.value;
+      if (setting.enabled && setting.totalMinutes < _minMinutes) {
+        updated[entry.key] = setting.copyWith(
+          days: 0,
+          hours: 0,
+          minutes: _minMinutes,
+        );
+        hasInvalidDuration = true;
+      } else {
+        updated[entry.key] = setting;
+      }
+    }
+
+    if (updated.values.any((s) => s.enabled)) {
+      await _ensureNotificationPermission();
+    }
+    await ref
+        .read(localSettingsProvider.notifier)
+        .updateNotificationsTimeSettings(updated);
+    if (!mounted) return;
+
+    setState(() => _tempSettings = Map.of(updated));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          hasInvalidDuration
+              ? locale.minDurationSet(minutes: _minMinutes)
+              : locale.settingsSaved,
+        ),
+        duration: const Duration(seconds: 2),
       ),
     );
   }
 
-  void _saveSettings(BuildContext context) {
-    final locale = AppLocalizations.of(context);
-    final notifier = ref.read(localSettingsProvider.notifier);
-    final updated = Map<String, NotificationTimeSetting>.from(_tempSettings);
-
-    bool hasInvalidDuration = false;
-    for (final entry in updated.entries) {
-      final key = entry.key;
-      final setting = entry.value;
-      if (setting.enabled) {
-        final totalMinutes =
-            setting.days * 24 * 60 + setting.hours * 60 + setting.minutes;
-        if (totalMinutes < _minMinutes) {
-          updated[key] = NotificationTimeSetting(
-            enabled: setting.enabled,
-            days: 0,
-            hours: 0,
-            minutes: _minMinutes,
-          );
-          hasInvalidDuration = true;
-        }
-      }
-    }
-
-    notifier.updateNotificationsTimeSettings(updated);
-
-    if (hasInvalidDuration) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(locale.minDurationSet(minutes: _minMinutes)),
-          duration: const Duration(seconds: 2),
-        ),
-      );
-    }
-  }
-
-  void _updateTempTime(String key, {int? days, int? hours, int? minutes}) {
-    final current = _tempSettings[key] ??
-        NotificationTimeSetting(enabled: false, days: 0, hours: 0, minutes: 0);
-
-    setState(() {
-      _tempSettings[key] = NotificationTimeSetting(
-        enabled: current.enabled,
-        days: days ?? current.days,
-        hours: hours ?? current.hours,
-        minutes: minutes ?? current.minutes,
-      );
-    });
+  void _updateSetting(String key, NotificationTimeSetting setting) {
+    setState(() => _tempSettings[key] = setting);
   }
 
   @override
   Widget build(BuildContext context) {
-    final locale = AppLocalizations.of(context)!;
+    final locale = AppLocalizations.of(context);
+    final keys = notificationBoardIds.keys.toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -172,93 +109,71 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.save),
-            onPressed: () => _saveSettings(context),
+            onPressed: _saveSettings,
             tooltip: locale.save,
           ),
         ],
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
-        itemCount: _actions.length,
+        itemCount: keys.length,
         itemBuilder: (context, index) {
-          final key = _actions[index];
-          final setting = _tempSettings[key] ??
-              NotificationTimeSetting(
-                enabled: false,
-                days: 0,
-                hours: 0,
-                minutes: 0,
-              );
-
-          final isEnabled = setting.enabled;
-          final days = setting.days;
-          final hours = setting.hours;
-          final minutes = setting.minutes;
-
-          final totalMinutes = days * 24 * 60 + hours * 60 + minutes;
-          final hasError = isEnabled && totalMinutes < _minMinutes;
+          final key = keys[index];
+          final setting =
+              _tempSettings[key] ?? NotificationTimeSetting.disabled;
+          final hasError =
+              setting.enabled && setting.totalMinutes < _minMinutes;
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SwitchListTile(
-                title: Text(
-                  switch (key) {
-                    'first_year' => locale.firstYear,
-                    'second_year' => locale.secondYear,
-                    'third_year' => locale.thirdYear,
-                    'fourth_year' => locale.fourthYear,
-                    _ => key,
-                  },
-                ),
-                value: isEnabled,
+                title: Text(notificationBoardTitle(locale, key)),
+                value: setting.enabled,
                 onChanged: (value) {
-                  setState(() {
-                    int newDays = value ? days : 0;
-                    int newHours = value ? hours : 0;
-                    int newMinutes = value ? minutes : 0;
-                    if (value &&
-                        newDays == 0 &&
-                        newHours == 0 &&
-                        newMinutes == 0) {
-                      newMinutes = _minMinutes;
-                    }
-                    _tempSettings[key] = NotificationTimeSetting(
-                      enabled: value,
-                      days: newDays,
-                      hours: newHours,
-                      minutes: newMinutes,
-                    );
-                  });
+                  _updateSetting(
+                    key,
+                    value
+                        ? setting.copyWith(
+                            enabled: true,
+                            minutes: setting.totalMinutes == 0
+                                ? _minMinutes
+                                : setting.minutes,
+                          )
+                        : NotificationTimeSetting.disabled,
+                  );
+                  if (value) _ensureNotificationPermission();
                 },
               ),
-              if (isEnabled) ...[
+              if (setting.enabled) ...[
                 Padding(
                   padding: const EdgeInsets.only(left: 16.0),
                   child: Row(
+                    spacing: 8,
                     children: [
-                      _buildTimeField(
-                        "d",
-                        days,
-                        (val) => _updateTempTime(key, days: val),
+                      _TimeField(
+                        label: locale.daysShort,
+                        value: setting.days,
                         max: 99,
                         hasError: hasError,
+                        onChanged: (val) =>
+                            _updateSetting(key, setting.copyWith(days: val)),
                       ),
-                      const SizedBox(width: 8),
-                      _buildTimeField(
-                        "h",
-                        hours,
-                        (val) => _updateTempTime(key, hours: val),
+                      _TimeField(
+                        label: locale.hoursShort,
+                        value: setting.hours,
                         max: 23,
                         hasError: hasError,
+                        onChanged: (val) =>
+                            _updateSetting(key, setting.copyWith(hours: val)),
                       ),
-                      const SizedBox(width: 8),
-                      _buildTimeField(
-                        "min",
-                        minutes,
-                        (val) => _updateTempTime(key, minutes: val),
+                      _TimeField(
+                        label: locale.minutesShort,
+                        value: setting.minutes,
                         max: 59,
                         hasError: hasError,
+                        onChanged: (val) =>
+                            _updateSetting(key, setting.copyWith(minutes: val)),
                       ),
                     ],
                   ),
@@ -266,11 +181,14 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                 if (hasError)
                   Padding(
                     padding: const EdgeInsets.only(
-                        left: 16.0, top: 4.0, bottom: 16.0),
+                      left: 16.0,
+                      top: 4.0,
+                      bottom: 16.0,
+                    ),
                     child: Text(
                       locale.minDurationError(minutes: _minMinutes),
-                      style: const TextStyle(
-                        color: Colors.red,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
                         fontSize: 12,
                       ),
                     ),
@@ -278,6 +196,86 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
               ],
             ],
           );
+        },
+      ),
+    );
+  }
+}
+
+/// Numeric input that keeps its own controller, so the cursor isn't reset
+/// when the parent rebuilds.
+class _TimeField extends StatefulWidget {
+  const _TimeField({
+    required this.label,
+    required this.value,
+    required this.max,
+    required this.onChanged,
+    this.hasError = false,
+  });
+
+  final String label;
+  final int value;
+  final int max;
+  final bool hasError;
+  final ValueChanged<int> onChanged;
+
+  @override
+  State<_TimeField> createState() => _TimeFieldState();
+}
+
+class _TimeFieldState extends State<_TimeField> {
+  late final TextEditingController _controller = TextEditingController(
+    text: widget.value.toString(),
+  );
+
+  @override
+  void didUpdateWidget(covariant _TimeField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Sync when the value was changed from outside (e.g. clamped or reset),
+    // but not while the text already represents it (e.g. an empty field).
+    if ((int.tryParse(_controller.text) ?? 0) != widget.value) {
+      _controller.text = widget.value.toString();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final borderColor = widget.hasError
+        ? colorScheme.error
+        : colorScheme.outline;
+    return SizedBox(
+      width: 70,
+      child: TextField(
+        controller: _controller,
+        maxLength: 3,
+        keyboardType: TextInputType.number,
+        inputFormatters: [
+          FilteringTextInputFormatter.digitsOnly,
+          LengthLimitingTextInputFormatter(3),
+        ],
+        decoration: InputDecoration(
+          labelText: widget.label,
+          hintText: 'max ${widget.max}',
+          counterText: '',
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: borderColor),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(
+              color: widget.hasError ? colorScheme.error : colorScheme.primary,
+            ),
+          ),
+        ),
+        onChanged: (value) {
+          final parsed = int.tryParse(value) ?? 0;
+          widget.onChanged(parsed.clamp(0, widget.max));
         },
       ),
     );

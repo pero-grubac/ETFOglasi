@@ -24,13 +24,17 @@
 ## ✨ Features
 
 - 📢 Browse categorized announcements with attachment download support
+- 🔍 Search announcements (ignores case, diacritics and Latin/Cyrillic script)
+- 🆕 "New" badges and unseen counts per board
+- 📤 Share or copy an announcement
 - 📅 View weekly and daily class schedules with current hour highlight
-- 🔔 Schedule personalized push notifications with user-defined timers
+- 🗓️ Browse room schedules week by week
+- 🔔 Schedule personalized push notifications with user-defined timers for every board; tapping one opens the board
 - 📦 Offline caching of announcements and schedules via SQLite
 - 🌐 Remote API fetching with automatic fallback to local storage
 - ⚙️ User-defined default schedule preferences — by professor, room, study program, or year
-- 🌙 Light and dark theme support
-- 🌍 Multi-language support (Serbian / English)
+- 🌙 Light, dark and system theme
+- 🌍 Serbian in Latin and Cyrillic script
 
 ---
 
@@ -39,18 +43,18 @@
 | Technology            | Usage                                             |
 | --------------------- | ------------------------------------------------- |
 | Flutter / Dart        | Cross-platform mobile framework                   |
-| Riverpod              | State management with StateNotifier               |
+| Riverpod              | State management with Notifier / AsyncNotifier    |
 | SQLite (sqflite)      | Offline caching of announcements and schedules    |
 | WorkManager           | Background API checks and notification scheduling |
 | SharedPreferences     | Theme, locale, and timer preferences              |
-| Flutter Localizations | SR / EN language support                          |
+| Flutter Localizations | Serbian Latin / Cyrillic localization             |
 
 ---
 
 ## 🏗️ Architecture
 
 - Modular `/features` structure — announcements, schedules, settings
-- Riverpod providers and `StateNotifier` for state control
+- Riverpod providers (`Notifier`, `AsyncNotifier`, `FutureProvider`) for state control
 - Repository pattern abstracting API and database logic
 - Automatic fallback to local data when offline
 - Periodic background sync configured by user-defined timers
@@ -61,7 +65,7 @@
 
 ### Prerequisites
 
-- Flutter SDK `>=3.4.3`
+- Flutter SDK `>=3.35.0`
 - Android Studio with Android SDK
 - Physical Android device or emulator (Android 8.0+)
 
@@ -76,13 +80,32 @@ cd ETFOglasi
 
 ```bash
 flutter pub get
-flutter pub run build_runner build --delete-conflicting-outputs
+dart run build_runner build --delete-conflicting-outputs
 ```
 
 ### 3. Run the app
 
 ```bash
 flutter run
+```
+
+### 4. Run checks
+
+```bash
+flutter analyze
+flutter test
+```
+
+### Release signing
+
+Release builds are signed with the key described in `android/key.properties`
+(not committed). Without that file they fall back to the debug key.
+
+```properties
+storePassword=<store password>
+keyPassword=<key password>
+keyAlias=<alias>
+storeFile=<absolute path to the .jks file>
 ```
 
 ---

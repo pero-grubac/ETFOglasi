@@ -6,10 +6,7 @@ class Room {
   final int id;
   final String naziv;
 
-  Room({
-    required this.id,
-    required this.naziv,
-  });
+  Room({required this.id, required this.naziv});
 
   factory Room.fromJson(Map<String, dynamic> json) => _$RoomFromJson(json);
 

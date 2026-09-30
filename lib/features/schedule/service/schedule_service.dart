@@ -6,65 +6,60 @@ class ScheduleService {
 
   ScheduleService({required this.service});
 
-  Future<Schedule> fetchSchedule(String url) async {
-    return await service.fetchData<Schedule>(
+  Future<Schedule> fetchSchedule(String url) {
+    return service.fetchData<Schedule>(
       url: url,
-      fromJson: (json) {
-        final List<dynamic> data = json;
-        return _transformData(data);
-      },
+      fromJson: (json) => parseScheduleRows(json as List<dynamic>),
     );
   }
+}
 
-  Schedule _transformData(List<dynamic> data) {
-    final List<ScheduleEntry> monday = [];
-    final List<ScheduleEntry> tuesday = [];
-    final List<ScheduleEntry> wednesday = [];
-    final List<ScheduleEntry> thursday = [];
-    final List<ScheduleEntry> friday = [];
+// Endpoints may return all 24 hours (e.g. room schedule by date); only the
+// teaching hours are shown.
+const int _firstHour = 8;
+const int _lastHourExclusive = 22;
 
-    for (final row in data) {
-      if (row == null || row.isEmpty) continue;
-      final List<dynamic> items = row;
+final RegExp _separator = RegExp(r'\s*<br\s*/?>\s*(?:---\s*<br\s*/?>\s*)?');
+const Map<String, String> _entities = {
+  '&nbsp;': ' ',
+  '&quot;': '"',
+  '&#39;': "'",
+  '&lt;': '<',
+  '&gt;': '>',
+  '&amp;': '&', // must be last
+};
 
-      final time = items[0] as String?;
-      if (time == null) continue;
-      final timeParts = time.split(':');
-      if (timeParts.length != 2) continue;
-      final hour = int.tryParse(timeParts[0]);
-      if (hour == null) continue;
-      if (hour < 8 || hour >= 22) continue;
+String? cleanSubject(dynamic subject) {
+  if (subject is! String) return null;
+  var text = subject.replaceAll(_separator, '\n');
+  _entities.forEach((entity, value) => text = text.replaceAll(entity, value));
+  text = text.trim();
+  return text.isEmpty ? null : text;
+}
 
-      final subjects = items.sublist(1, 6); // samo pon-pet
+/// Converts API rows `[time, mon, tue, wed, thu, fri, sat, sun]` into a
+/// Monday–Friday [Schedule]. Malformed rows are skipped.
+Schedule parseScheduleRows(List<dynamic> rows) {
+  final schedule = Schedule.empty();
 
-      if (subjects.length >= 5) {
-        final cleanSubjects = subjects.map((subject) {
-          if (subject == null) return null;
-          if (subject is String) {
-            if (subject.contains('<br />')) {
-              return subject.replaceAll('<br /> --- <br />', '\n');
-            }
-            return subject;
-          }
-          return null;
-        }).toList();
+  for (final row in rows) {
+    if (row is! List || row.length < 6) continue;
 
-        monday.add(ScheduleEntry(time: time, subject: cleanSubjects[0]));
-        tuesday.add(ScheduleEntry(time: time, subject: cleanSubjects[1]));
-        wednesday.add(ScheduleEntry(time: time, subject: cleanSubjects[2]));
-        thursday.add(ScheduleEntry(time: time, subject: cleanSubjects[3]));
-        friday.add(ScheduleEntry(time: time, subject: cleanSubjects[4]));
-      }
+    final time = row[0];
+    if (time is! String) continue;
+    final timeParts = time.split(':');
+    if (timeParts.length != 2) continue;
+    final hour = int.tryParse(timeParts[0]);
+    if (hour == null || int.tryParse(timeParts[1]) == null) continue;
+    if (hour < _firstHour || hour >= _lastHourExclusive) continue;
+
+    for (var day = 0; day < 5; day++) {
+      schedule.days[day].add(
+        ScheduleEntry(time: time, subject: cleanSubject(row[day + 1])),
+      );
     }
-
-    final schedule = Schedule(
-      monday: monday,
-      tuesday: tuesday,
-      wednesday: wednesday,
-      thursday: thursday,
-      friday: friday,
-    );
-    schedule.sort();
-    return schedule;
   }
+
+  schedule.sort();
+  return schedule;
 }

@@ -27,11 +27,9 @@ class MainDrawer extends StatelessWidget {
                   size: 48,
                   color: theme.colorScheme.onPrimary,
                 ),
-                const SizedBox(
-                  width: 18,
-                ),
+                const SizedBox(width: 18),
                 Text(
-                  locale!.appTitle,
+                  locale.appTitle,
                   style: TextStyle(color: theme.colorScheme.onPrimary),
                 ),
               ],
@@ -45,7 +43,9 @@ class MainDrawer extends StatelessWidget {
             ),
             title: Text(locale.settings),
             onTap: () {
-              Navigator.of(context).pushNamed(SettingsScreen.id);
+              Navigator.of(context)
+                ..pop()
+                ..pushNamed(SettingsScreen.id);
             },
           ),
           ListTile(
@@ -56,18 +56,11 @@ class MainDrawer extends StatelessWidget {
             ),
             title: Text(locale.notifications),
             onTap: () {
-              Navigator.of(context).pushNamed(NotificationScreen.id);
+              Navigator.of(context)
+                ..pop()
+                ..pushNamed(NotificationScreen.id);
             },
           ),
-          /* ListTile(
-            leading: Icon(
-              Icons.schedule,
-              size: 26,
-              color: theme.colorScheme.primary,
-            ),
-            title: Text(locale.schedule),
-            onTap: () {},
-          ),*/
         ],
       ),
     );

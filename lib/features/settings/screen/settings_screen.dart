@@ -12,147 +12,151 @@ class SettingsScreen extends ConsumerWidget {
   static const id = 'settings_screen';
 
   const SettingsScreen({super.key});
-  Widget _buildSettingsContent(
+
+  static const _languageOptions = [
+    (name: LocalSettings.srLatName, value: LocalSettings.srLatLang),
+    (name: LocalSettings.srCyrName, value: LocalSettings.srCyrLang),
+  ];
+
+  Future<void> _showScheduleDialog(
     BuildContext context,
     WidgetRef ref,
-    LocalSettings settings,
-  ) {
-    final locale = AppLocalizations.of(context);
-    final isDarkMode = settings.themeMode == LocalSettings.darkMode;
-
-    final languageOptions = [
-      {'name': LocalSettings.srLatName, 'value': LocalSettings.srLatLang},
-      {'name': LocalSettings.srCyrName, 'value': LocalSettings.srCyrLang},
-    ];
-
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 600),
-        child: Column(
-          children: [
-            SwitchListTile(
-              title: Row(
-                children: [
-                  Icon(
-                    isDarkMode ? Icons.nightlight_round : Icons.wb_sunny,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(locale!.theme),
-                ],
-              ),
-              value: isDarkMode,
-              activeColor: Theme.of(context).colorScheme.secondary,
-              activeTrackColor: Theme.of(context).colorScheme.primary,
-              onChanged: (value) {
-                final themeMode =
-                    value ? LocalSettings.darkMode : LocalSettings.lightMode;
-                ref.read(localSettingsProvider.notifier).updateTheme(themeMode);
-              },
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
-            ),
-            const SizedBox(height: 20),
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              child: DropdownButtonFormField<String>(
-                decoration: InputDecoration(
-                  labelText: locale.language,
-                  border: const OutlineInputBorder(),
-                ),
-                style: TextStyle(
-                  color: Theme.of(context).textTheme.titleLarge!.color,
-                ),
-                value: settings.language,
-                items: languageOptions.map((lang) {
-                  return DropdownMenuItem<String>(
-                    value: lang['value'],
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.language,
-                          size: 20,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(lang['name']!),
-                      ],
-                    ),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  if (value != null) {
-                    ref
-                        .read(localSettingsProvider.notifier)
-                        .updateLanguage(value);
-                  }
-                },
-                hint: Text(locale.choseLanguage),
-                isExpanded: true, // Makes dropdown take full width
-                menuMaxHeight: 300, // Limits dropdown height
-                borderRadius: BorderRadius.circular(8),
-                dropdownColor: Theme.of(context).colorScheme.surface,
-                icon: const Icon(Icons.arrow_drop_down),
-              ),
-            ),
-            const SizedBox(height: 20),
-            TextButton(
-              onPressed: () => _showSettingsDialog(
-                context,
-                ref,
-                true,
-              ),
-              child: Text(locale.classSchedule),
-            ),
-            const SizedBox(height: 20),
-            TextButton(
-              onPressed: () => _showSettingsDialog(
-                context,
-                ref,
-                false,
-              ),
-              child: Text(locale.hallSchedule),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showSettingsDialog(
-      BuildContext context, WidgetRef ref, bool isClassSchedule) async {
-    final Widget dialogWidget = isClassSchedule
-        ? const ClassScheduleSettingsWidget(isSelect: false)
-        : const RoomScheduleSettingsWidget(isSelect: false);
-
-    final ScheduleResult? result = await showDialog<ScheduleResult>(
+    bool isClassSchedule,
+  ) async {
+    final result = await showDialog<ScheduleResult>(
       context: context,
-      builder: (context) => dialogWidget,
+      builder: (context) => isClassSchedule
+          ? const ClassScheduleSettingsWidget(isSelect: false)
+          : const RoomScheduleSettingsWidget(isSelect: false),
     );
+    if (result == null || !context.mounted) return;
 
-    if (result != null) {
-      final selectedUrl = result.url;
-      final settingsNotifier = ref.read(localSettingsProvider.notifier);
-
-      if (isClassSchedule) {
-        settingsNotifier.updateClassScheduleURL(selectedUrl);
-      } else {
-        settingsNotifier.updateRoomScheduleId(selectedUrl);
-      }
+    final settingsNotifier = ref.read(localSettingsProvider.notifier);
+    if (isClassSchedule) {
+      settingsNotifier.updateClassScheduleURL(result.url);
+    } else {
+      settingsNotifier.updateRoomScheduleId(result.url);
     }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(AppLocalizations.of(context).settingsSaved)),
+    );
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(localSettingsProvider);
     final locale = AppLocalizations.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text(locale!.settings),
+      appBar: AppBar(centerTitle: true, title: Text(locale.settings)),
+      body: SingleChildScrollView(
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: Column(
+              spacing: 20,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 8,
+                    children: [
+                      Text(
+                        locale.theme,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      SizedBox(
+                        width: double.infinity,
+                        child: SegmentedButton<ThemeMode>(
+                          segments: [
+                            ButtonSegment(
+                              value: ThemeMode.light,
+                              icon: const Icon(Icons.wb_sunny),
+                              label: Text(locale.themeLight),
+                            ),
+                            ButtonSegment(
+                              value: ThemeMode.dark,
+                              icon: const Icon(Icons.nightlight_round),
+                              label: Text(locale.themeDark),
+                            ),
+                            ButtonSegment(
+                              value: ThemeMode.system,
+                              icon: const Icon(Icons.brightness_auto),
+                              label: Text(locale.themeSystem),
+                            ),
+                          ],
+                          selected: {settings.themeMode},
+                          showSelectedIcon: false,
+                          onSelectionChanged: (selection) => ref
+                              .read(localSettingsProvider.notifier)
+                              .updateTheme(selection.single),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 8.0,
+                  ),
+                  child: DropdownButtonFormField<String>(
+                    decoration: InputDecoration(
+                      labelText: locale.language,
+                      border: const OutlineInputBorder(),
+                    ),
+                    style: TextStyle(
+                      color: Theme.of(context).textTheme.titleLarge!.color,
+                    ),
+                    initialValue: settings.language,
+                    items: [
+                      for (final lang in _languageOptions)
+                        DropdownMenuItem<String>(
+                          value: lang.value,
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.language,
+                                size: 20,
+                                color: colorScheme.primary,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(lang.name),
+                            ],
+                          ),
+                        ),
+                    ],
+                    onChanged: (value) {
+                      if (value != null) {
+                        ref
+                            .read(localSettingsProvider.notifier)
+                            .updateLanguage(value);
+                      }
+                    },
+                    hint: Text(locale.choseLanguage),
+                    isExpanded: true,
+                    menuMaxHeight: 300,
+                    borderRadius: BorderRadius.circular(8),
+                    dropdownColor: colorScheme.surface,
+                    icon: const Icon(Icons.arrow_drop_down),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => _showScheduleDialog(context, ref, true),
+                  child: Text(locale.classSchedule),
+                ),
+                TextButton(
+                  onPressed: () => _showScheduleDialog(context, ref, false),
+                  child: Text(locale.hallSchedule),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
-      body: _buildSettingsContent(context, ref, settings),
     );
   }
 }

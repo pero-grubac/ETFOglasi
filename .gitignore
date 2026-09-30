@@ -46,3 +46,8 @@ app.*.map.json
 coverage/
 *.orig
 *.rej
+# Android native build output
+.cxx/
+
+# Local planning notes
+plan.md

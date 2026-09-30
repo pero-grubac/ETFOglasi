@@ -1,96 +1,185 @@
 import 'package:etf_oglasi/core/model/api/announcement.dart';
 import 'package:etf_oglasi/core/model/category.dart';
-import 'package:etf_oglasi/core/util/dependency_injection.dart';
-import 'package:etf_oglasi/features/announcements/repository/announcement_repository.dart';
-import 'package:etf_oglasi/features/announcements/service/announcement_service.dart';
+import 'package:etf_oglasi/core/ui/widget/api_error_widget.dart';
+import 'package:etf_oglasi/core/ui/widget/no_data_widget.dart';
+import 'package:etf_oglasi/core/ui/widget/offline_banner.dart';
+import 'package:etf_oglasi/core/util/text_search.dart';
+import 'package:etf_oglasi/features/announcements/service/announcements_provider.dart';
 import 'package:etf_oglasi/features/announcements/widget/announcement_card.dart';
-import 'package:etf_oglasi/features/announcements/widget/api_error_widget.dart';
-import 'package:etf_oglasi/features/announcements/widget/no_data_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../core/gen/app_localizations.dart';
 
 class AnnouncementScreen extends ConsumerStatefulWidget {
   static const id = 'announcement_screen';
   const AnnouncementScreen({super.key, required this.category});
   final Category category;
+
   @override
   ConsumerState<AnnouncementScreen> createState() => _AnnouncementScreenState();
 }
 
 class _AnnouncementScreenState extends ConsumerState<AnnouncementScreen> {
-  late Future<List<Announcement>> _data;
-  late AnnouncementService _announcementService;
-  late AnnouncementRepository _announcementRepository;
+  final TextEditingController _searchController = TextEditingController();
+  bool _isSearching = false;
+  String _query = '';
+
+  /// New announcements found during this visit. Kept across refreshes, which
+  /// mark everything as seen.
+  final Set<int> _newIds = {};
+
+  AutoDisposeFutureProvider<AnnouncementsResult> get _provider =>
+      announcementsProvider(widget.category.announcementsUrl!);
+
   @override
   void initState() {
     super.initState();
-    _announcementService = ref.read(announcementServiceProvider);
-    _announcementRepository = ref.read(announcementRepositoryProvider);
-    _data = Future.value([]);
-    _loadItems();
+    ref.listenManual(_provider, (_, next) {
+      final newIds = next.valueOrNull?.newIds;
+      if (newIds != null && newIds.isNotEmpty) {
+        setState(() => _newIds.addAll(newIds));
+      }
+    }, fireImmediately: true);
   }
 
-  Future<void> _loadItems() async {
-    setState(() {});
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
-    _data = _announcementService.fetchAnnouncements(widget.category.url!);
+  Future<void> _refresh() async {
     try {
-      final announcements = await _data;
-      await _announcementRepository.saveAnnouncements(
-          widget.category.url!, announcements);
-    } finally {
-      setState(() {});
+      ref.invalidate(_provider);
+      await ref.read(_provider.future);
+    } catch (_) {
+      // The error is shown by the error state.
     }
+  }
+
+  void _setSearching(bool searching) {
+    setState(() {
+      _isSearching = searching;
+      if (!searching) {
+        _searchController.clear();
+        _query = '';
+      }
+    });
+  }
+
+  List<Announcement> _filter(List<Announcement> announcements) {
+    if (_query.trim().isEmpty) return announcements;
+    return announcements
+        .where(
+          (a) => matchesSearch(_query, [a.naslov, a.uvod, a.sadrzaj, a.potpis]),
+        )
+        .toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.category.title),
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
+    final locale = AppLocalizations.of(context);
+    final data = ref.watch(_provider);
+
+    return PopScope(
+      canPop: !_isSearching,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _setSearching(false);
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: _isSearching
+              ? TextField(
+                  controller: _searchController,
+                  autofocus: true,
+                  cursorColor: Theme.of(context).colorScheme.onPrimary,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: locale.search,
+                    hintStyle: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onPrimary.withValues(alpha: 0.7),
+                    ),
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                  ),
+                  onChanged: (value) => setState(() => _query = value),
+                )
+              : Text(widget.category.title),
+          centerTitle: !_isSearching,
+          actions: [
+            if (_isSearching)
+              IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () => _setSearching(false),
+                tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+              )
+            else ...[
+              IconButton(
+                icon: const Icon(Icons.search),
+                onPressed: () => _setSearching(true),
+                tooltip: locale.search,
+              ),
+              IconButton(
+                icon: const Icon(Icons.refresh),
+                onPressed: data.isLoading ? null : _refresh,
+                tooltip: locale.refresh,
+              ),
+            ],
+          ],
+          bottom: data.isLoading && data.hasValue
+              ? const PreferredSize(
+                  preferredSize: Size.fromHeight(4),
+                  child: LinearProgressIndicator(),
+                )
+              : null,
+        ),
+        body: data.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (_, __) => ApiErrorWidget(onRetry: _refresh),
+          data: (result) {
+            final announcements = _filter(result.announcements);
+            final emptyMessage = result.announcements.isEmpty
+                ? locale.noNotifications
+                : locale.noSearchResults;
+            return RefreshIndicator(
+              onRefresh: _refresh,
+              child: announcements.isEmpty
+                  ? LayoutBuilder(
+                      builder: (context, constraints) => SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: SizedBox(
+                          height: constraints.maxHeight,
+                          child: NoDataWidget(message: emptyMessage),
+                        ),
+                      ),
+                    )
+                  : ListView.builder(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.all(8.0),
+                      itemCount:
+                          announcements.length + (result.fromCache ? 1 : 0),
+                      itemBuilder: (context, index) {
+                        if (result.fromCache) {
+                          if (index == 0) return const OfflineBanner();
+                          index--;
+                        }
+                        final announcement = announcements[index];
+                        return AnnouncementCard(
+                          announcement: announcement,
+                          isNew: _newIds.contains(announcement.id),
+                        );
+                      },
+                    ),
+            );
           },
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadItems,
-            tooltip: 'Osvježi',
-          ),
-        ],
       ),
-      body: FutureBuilder(
-          future: _data,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(
-                child: CircularProgressIndicator(
-                  valueColor:
-                      AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
-                ),
-              );
-            }
-            if (snapshot.hasError) {
-              return ApiErrorWidget(
-                onRetry: _loadItems,
-              );
-            }
-            if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return const NoDataWidget();
-            }
-            return ListView.builder(
-              itemBuilder: (context, index) {
-                return AnnouncementCard(announcement: snapshot.data![index]);
-              },
-              padding: const EdgeInsets.all(8.0),
-              itemCount: snapshot.data!.length,
-            );
-          }),
     );
   }
 }

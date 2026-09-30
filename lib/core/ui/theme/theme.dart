@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'announcement_card_theme.dart';
-import 'box_decoration_theme.dart';
 import 'category_grid_item_theme.dart';
 import 'drawer_header_theme.dart';
 
@@ -18,71 +16,46 @@ class AppTheme {
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: colorScheme.shadow.withOpacity(0.2),
+            color: colorScheme.shadow.withValues(alpha: 0.2),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
         ],
       ),
       padding: const EdgeInsets.all(16),
-      splashColor: colorScheme.primary.withOpacity(0.1),
-      textStyle: GoogleFonts.roboto(
+      splashColor: colorScheme.primary.withValues(alpha: 0.1),
+      foregroundColor: colorScheme.onPrimary,
+      textStyle: TextStyle(
         fontSize: 20,
         fontWeight: FontWeight.bold,
-        color: colorScheme.onSurface,
+        color: colorScheme.onPrimary,
       ),
     );
     final categoryGridItemTheme = CategoryGridItemTheme(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            colorScheme.primary.withOpacity(0.5),
-            colorScheme.primary.withOpacity(0.9),
+            colorScheme.primary,
+            Color.lerp(colorScheme.primary, Colors.black, 0.25)!,
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(8),
         boxShadow: const [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 8,
-            offset: Offset(2, 2),
-          ),
+          BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(2, 2)),
         ],
       ),
       padding: const EdgeInsets.all(16),
-      splashColor: colorScheme.primary.withOpacity(0.3),
-      textStyle: GoogleFonts.roboto(
+      splashColor: colorScheme.primary.withValues(alpha: 0.3),
+      textStyle: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.normal,
         color: colorScheme.onPrimary,
       ),
     );
-    final boxDecorationTheme = CustomBoxDecorationTheme(
-      boxDecoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            colorScheme.primary.withOpacity(0.5),
-            colorScheme.primary.withOpacity(0.9),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: colorScheme.onSurface.withOpacity(0.2),
-            blurRadius: 8,
-            offset: const Offset(2, 2),
-          ),
-        ],
-      ),
-    );
     final drawerHeaderTheme = DrawerHeaderTheme(
-      drawerHeaderDecoration: BoxDecoration(
-        color: colorScheme.primary,
-      ),
+      drawerHeaderDecoration: BoxDecoration(color: colorScheme.primary),
     );
 
     return ThemeData(
@@ -92,7 +65,7 @@ class AppTheme {
         backgroundColor: colorScheme.primary,
         foregroundColor: colorScheme.onPrimary,
         iconTheme: IconThemeData(color: colorScheme.onPrimary),
-        titleTextStyle: GoogleFonts.notoSans(
+        titleTextStyle: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.bold,
           color: colorScheme.onPrimary,
@@ -100,13 +73,16 @@ class AppTheme {
       ),
       tabBarTheme: TabBarThemeData(
         labelColor: colorScheme.onPrimary,
-        unselectedLabelColor: colorScheme.onSurface,
-        labelStyle: GoogleFonts.roboto(fontSize: 14),
-        unselectedLabelStyle: GoogleFonts.roboto(fontSize: 14),
-        labelPadding:
-            const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
-        indicator: BoxDecoration(
-          color: colorScheme.primary,
+        unselectedLabelColor: colorScheme.onPrimary.withValues(alpha: 0.7),
+        labelStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+        unselectedLabelStyle: const TextStyle(fontSize: 14),
+        labelPadding: const EdgeInsets.symmetric(
+          horizontal: 4.0,
+          vertical: 4.0,
+        ),
+        indicatorSize: TabBarIndicatorSize.tab,
+        indicator: UnderlineTabIndicator(
+          borderSide: BorderSide(color: colorScheme.onPrimary, width: 3),
         ),
       ),
       cardTheme: CardThemeData(
@@ -120,26 +96,28 @@ class AppTheme {
         style: ElevatedButton.styleFrom(
           backgroundColor: colorScheme.primary,
           foregroundColor: colorScheme.onPrimary,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+          ),
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
           minimumSize: Size.zero,
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         ),
       ),
-      textTheme: GoogleFonts.robotoTextTheme().copyWith(
-        titleLarge: TextStyle(
-          fontWeight: FontWeight.normal,
-          color: colorScheme.onSurface,
-          fontSize: 18,
-        ),
-        bodyLarge: TextStyle(color: colorScheme.onSurface),
-        bodyMedium: TextStyle(color: colorScheme.onSurface),
-        bodySmall: TextStyle(color: colorScheme.onSurface),
-      ),
+      textTheme: ThemeData(brightness: colorScheme.brightness).textTheme
+          .copyWith(
+            titleLarge: TextStyle(
+              fontWeight: FontWeight.normal,
+              color: colorScheme.onSurface,
+              fontSize: 18,
+            ),
+            bodyLarge: TextStyle(color: colorScheme.onSurface),
+            bodyMedium: TextStyle(color: colorScheme.onSurface),
+            bodySmall: TextStyle(color: colorScheme.onSurface),
+          ),
       inputDecorationTheme: InputDecorationTheme(
         hintStyle: TextStyle(
-          color: colorScheme.onPrimary.withOpacity(0.6),
+          color: colorScheme.onSurface.withValues(alpha: 0.6),
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.0),
@@ -151,7 +129,9 @@ class AppTheme {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.0),
-          borderSide: BorderSide(color: colorScheme.onSurface.withOpacity(0.5)),
+          borderSide: BorderSide(
+            color: colorScheme.onSurface.withValues(alpha: 0.5),
+          ),
         ),
       ),
       dialogTheme: DialogThemeData(
@@ -162,22 +142,24 @@ class AppTheme {
           fontSize: 20,
           fontWeight: FontWeight.bold,
         ),
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0),
+        ),
       ),
       iconTheme: IconThemeData(color: colorScheme.onSurface),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           backgroundColor: colorScheme.primary,
           foregroundColor: colorScheme.onPrimary,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+          ),
         ),
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: colorScheme.primary,
         selectedItemColor: colorScheme.onPrimary,
-        unselectedItemColor: colorScheme.onSurface.withOpacity(0.6),
+        unselectedItemColor: colorScheme.onSurface.withValues(alpha: 0.6),
       ),
       drawerTheme: DrawerThemeData(
         backgroundColor: colorScheme.surface,
@@ -192,11 +174,11 @@ class AppTheme {
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: colorScheme.primary,
         foregroundColor: colorScheme.onPrimary,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.0),
+        ),
       ),
       extensions: <ThemeExtension<dynamic>>[
-        boxDecorationTheme,
         drawerHeaderTheme,
         categoryGridItemTheme,
         announcementCardTheme,

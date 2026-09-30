@@ -5,9 +5,7 @@ class DrawerHeaderTheme extends ThemeExtension<DrawerHeaderTheme> {
   DrawerHeaderTheme({this.drawerHeaderDecoration});
 
   @override
-  DrawerHeaderTheme copyWith({
-    BoxDecoration? drawerHeaderDecoration,
-  }) {
+  DrawerHeaderTheme copyWith({BoxDecoration? drawerHeaderDecoration}) {
     return DrawerHeaderTheme(
       drawerHeaderDecoration:
           drawerHeaderDecoration ?? this.drawerHeaderDecoration,

@@ -5,17 +5,29 @@ import 'package:etf_oglasi/features/settings/screen/notification_screen.dart';
 import 'package:etf_oglasi/features/settings/screen/settings_screen.dart';
 import 'package:flutter/material.dart';
 
+import '../gen/app_localizations.dart';
+
 class Routes {
   static const String announcementScreen = AnnouncementScreen.id;
   static const String scheduleScreen = ScheduleScreen.id;
-  static const String placeholderScreen = '/placeholder';
   static const String settingsScreen = SettingsScreen.id;
   static const String notificationScreen = NotificationScreen.id;
+
+  static String forCategory(Category category) {
+    switch (category.type) {
+      case CategoryType.announcements:
+        return announcementScreen;
+      case CategoryType.classSchedule:
+      case CategoryType.roomSchedule:
+        return scheduleScreen;
+    }
+  }
+
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case announcementScreen:
         final category = settings.arguments as Category?;
-        if (category != null) {
+        if (category != null && category.announcementsUrl != null) {
           return MaterialPageRoute(
             builder: (_) => AnnouncementScreen(category: category),
           );
@@ -23,32 +35,16 @@ class Routes {
         return _errorRoute();
       case scheduleScreen:
         final category = settings.arguments as Category?;
-        if (category != null) {
+        if (category != null && category.type != CategoryType.announcements) {
           return MaterialPageRoute(
-            builder: (_) => ScheduleScreen(
-              category: category,
-              settingsWidget: category.settingsWidget ?? const Placeholder(),
-            ),
+            builder: (_) => ScheduleScreen(category: category),
           );
         }
         return _errorRoute();
       case settingsScreen:
-        return MaterialPageRoute(
-          builder: (_) => const SettingsScreen(),
-        );
+        return MaterialPageRoute(builder: (_) => const SettingsScreen());
       case notificationScreen:
-        return MaterialPageRoute(
-          builder: (_) => const NotificationScreen(),
-        );
-      case placeholderScreen:
-        final category = settings.arguments as Category?;
-        return MaterialPageRoute(
-          builder: (_) => Scaffold(
-            appBar: AppBar(title: Text(category?.title ?? 'Unknown')),
-            body: Center(
-                child: Text('Coming Soon: ${category?.title ?? 'Unknown'}')),
-          ),
-        );
+        return MaterialPageRoute(builder: (_) => const NotificationScreen());
       default:
         return _errorRoute();
     }
@@ -56,10 +52,13 @@ class Routes {
 
   static Route<dynamic> _errorRoute() {
     return MaterialPageRoute(
-      builder: (_) => Scaffold(
-        appBar: AppBar(title: const Text('Error')),
-        body: const Center(child: Text('Route not found')),
-      ),
+      builder: (context) {
+        final locale = AppLocalizations.of(context);
+        return Scaffold(
+          appBar: AppBar(title: Text(locale.error)),
+          body: Center(child: Text(locale.routeNotFound)),
+        );
+      },
     );
   }
 }

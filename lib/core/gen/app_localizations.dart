@@ -62,7 +62,7 @@ import 'app_localizations_sr.dart';
 /// property.
 abstract class AppLocalizations {
   AppLocalizations(String locale)
-      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -85,17 +85,17 @@ abstract class AppLocalizations {
   /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('sr'),
     Locale.fromSubtags(languageCode: 'sr', scriptCode: 'Cyrl'),
-    Locale.fromSubtags(languageCode: 'sr', scriptCode: 'Latn')
+    Locale.fromSubtags(languageCode: 'sr', scriptCode: 'Latn'),
   ];
 
   /// No description provided for @settings.
@@ -245,7 +245,7 @@ abstract class AppLocalizations {
   /// No description provided for @selectSchedule.
   ///
   /// In sr, this message translates to:
-  /// **'Izaberite rasporeda'**
+  /// **'Izaberite raspored'**
   String get selectSchedule;
 
   /// No description provided for @teacher.
@@ -343,6 +343,252 @@ abstract class AppLocalizations {
   /// In sr, this message translates to:
   /// **'Niste omogućili notifikacije.'**
   String get notAllowedNotification;
+
+  /// No description provided for @error.
+  ///
+  /// In sr, this message translates to:
+  /// **'Greška'**
+  String get error;
+
+  /// No description provided for @routeNotFound.
+  ///
+  /// In sr, this message translates to:
+  /// **'Stranica nije pronađena'**
+  String get routeNotFound;
+
+  /// No description provided for @loadingError.
+  ///
+  /// In sr, this message translates to:
+  /// **'Greška prilikom učitavanja podataka'**
+  String get loadingError;
+
+  /// No description provided for @tryAgain.
+  ///
+  /// In sr, this message translates to:
+  /// **'Pokušaj ponovo'**
+  String get tryAgain;
+
+  /// No description provided for @offlineData.
+  ///
+  /// In sr, this message translates to:
+  /// **'Nema konekcije – prikazani su sačuvani podaci'**
+  String get offlineData;
+
+  /// No description provided for @refreshFailed.
+  ///
+  /// In sr, this message translates to:
+  /// **'Osvježavanje nije uspjelo'**
+  String get refreshFailed;
+
+  /// No description provided for @noScheduleSelected.
+  ///
+  /// In sr, this message translates to:
+  /// **'Raspored nije izabran'**
+  String get noScheduleSelected;
+
+  /// No description provided for @showMore.
+  ///
+  /// In sr, this message translates to:
+  /// **'Prikaži više'**
+  String get showMore;
+
+  /// No description provided for @showLess.
+  ///
+  /// In sr, this message translates to:
+  /// **'Prikaži manje'**
+  String get showLess;
+
+  /// No description provided for @createdAt.
+  ///
+  /// In sr, this message translates to:
+  /// **'Kreirano: {date}'**
+  String createdAt({required String date});
+
+  /// No description provided for @expiresAt.
+  ///
+  /// In sr, this message translates to:
+  /// **'Istek: {date}'**
+  String expiresAt({required String date});
+
+  /// No description provided for @chooseDownloadLocation.
+  ///
+  /// In sr, this message translates to:
+  /// **'Izaberite lokaciju za preuzimanje'**
+  String get chooseDownloadLocation;
+
+  /// No description provided for @downloadCancelled.
+  ///
+  /// In sr, this message translates to:
+  /// **'Preuzimanje otkazano'**
+  String get downloadCancelled;
+
+  /// No description provided for @downloadSuccess.
+  ///
+  /// In sr, this message translates to:
+  /// **'Fajl je uspješno preuzet'**
+  String get downloadSuccess;
+
+  /// No description provided for @downloadFailed.
+  ///
+  /// In sr, this message translates to:
+  /// **'Preuzimanje fajla nije uspjelo'**
+  String get downloadFailed;
+
+  /// No description provided for @open.
+  ///
+  /// In sr, this message translates to:
+  /// **'Otvori'**
+  String get open;
+
+  /// No description provided for @openFileFailed.
+  ///
+  /// In sr, this message translates to:
+  /// **'Fajl nije moguće otvoriti'**
+  String get openFileFailed;
+
+  /// No description provided for @downloadFileTitle.
+  ///
+  /// In sr, this message translates to:
+  /// **'Preuzimanje fajla'**
+  String get downloadFileTitle;
+
+  /// No description provided for @downloadFileQuestion.
+  ///
+  /// In sr, this message translates to:
+  /// **'Da li želite da preuzmete fajl „{fileName}”?'**
+  String downloadFileQuestion({required String fileName});
+
+  /// No description provided for @download.
+  ///
+  /// In sr, this message translates to:
+  /// **'Preuzmi'**
+  String get download;
+
+  /// No description provided for @settingsSaved.
+  ///
+  /// In sr, this message translates to:
+  /// **'Podešavanja sačuvana'**
+  String get settingsSaved;
+
+  /// No description provided for @openSettings.
+  ///
+  /// In sr, this message translates to:
+  /// **'Podešavanja'**
+  String get openSettings;
+
+  /// No description provided for @daysShort.
+  ///
+  /// In sr, this message translates to:
+  /// **'d'**
+  String get daysShort;
+
+  /// No description provided for @hoursShort.
+  ///
+  /// In sr, this message translates to:
+  /// **'h'**
+  String get hoursShort;
+
+  /// No description provided for @minutesShort.
+  ///
+  /// In sr, this message translates to:
+  /// **'min'**
+  String get minutesShort;
+
+  /// No description provided for @notificationChannelName.
+  ///
+  /// In sr, this message translates to:
+  /// **'Oglasi'**
+  String get notificationChannelName;
+
+  /// No description provided for @notificationChannelDescription.
+  ///
+  /// In sr, this message translates to:
+  /// **'Obavještenja o novim oglasima'**
+  String get notificationChannelDescription;
+
+  /// Notification title
+  ///
+  /// In sr, this message translates to:
+  /// **'{board}: novi oglasi ({count})'**
+  String newAnnouncementsTitle({required String board, required int count});
+
+  /// No description provided for @search.
+  ///
+  /// In sr, this message translates to:
+  /// **'Pretraga'**
+  String get search;
+
+  /// No description provided for @noSearchResults.
+  ///
+  /// In sr, this message translates to:
+  /// **'Nema rezultata pretrage'**
+  String get noSearchResults;
+
+  /// No description provided for @newBadge.
+  ///
+  /// In sr, this message translates to:
+  /// **'Novo'**
+  String get newBadge;
+
+  /// No description provided for @share.
+  ///
+  /// In sr, this message translates to:
+  /// **'Podijeli'**
+  String get share;
+
+  /// No description provided for @copyText.
+  ///
+  /// In sr, this message translates to:
+  /// **'Kopiraj tekst'**
+  String get copyText;
+
+  /// No description provided for @copied.
+  ///
+  /// In sr, this message translates to:
+  /// **'Tekst je kopiran'**
+  String get copied;
+
+  /// No description provided for @moreOptions.
+  ///
+  /// In sr, this message translates to:
+  /// **'Više opcija'**
+  String get moreOptions;
+
+  /// No description provided for @unseenAnnouncements.
+  ///
+  /// In sr, this message translates to:
+  /// **'Nepročitani oglasi: {count}'**
+  String unseenAnnouncements({required int count});
+
+  /// No description provided for @previousWeek.
+  ///
+  /// In sr, this message translates to:
+  /// **'Prethodna sedmica'**
+  String get previousWeek;
+
+  /// No description provided for @nextWeek.
+  ///
+  /// In sr, this message translates to:
+  /// **'Sljedeća sedmica'**
+  String get nextWeek;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In sr, this message translates to:
+  /// **'Svijetla'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In sr, this message translates to:
+  /// **'Tamna'**
+  String get themeDark;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In sr, this message translates to:
+  /// **'Sistemska'**
+  String get themeSystem;
 }
 
 class _AppLocalizationsDelegate
@@ -384,8 +630,9 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   }
 
   throw FlutterError(
-      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-      'an issue with the localizations generation tool. Please file an issue '
-      'on GitHub with a reproducible sample app and the gen-l10n configuration '
-      'that was used.');
+    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.',
+  );
 }

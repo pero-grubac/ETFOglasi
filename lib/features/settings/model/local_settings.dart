@@ -1,10 +1,10 @@
-import 'dart:convert';
-
 import 'package:etf_oglasi/features/settings/model/notification_time_setting.dart';
+import 'package:flutter/material.dart';
 
 class LocalSettings {
   static const darkMode = 'dark';
   static const lightMode = 'light';
+  static const systemMode = 'system';
 
   static const srLatLang = 'sr-Latn';
   static const srLatName = 'Latinica';
@@ -12,55 +12,65 @@ class LocalSettings {
   static const srCyrLang = 'sr-Cyrl';
   static const srCyrName = 'Ћирилица';
 
+  // SharedPreferences keys (also read by the background worker).
+  static const themeModeKey = 'themeMode';
+  static const languageKey = 'language';
+  static const classScheduleUrlKey = 'classScheduleUrl';
+  static const roomScheduleIdKey = 'roomScheduleId';
+  static const notificationTimeSettingsKey = 'notificationTimeSettings';
+
   final String language;
-  final String themeMode;
+  final ThemeMode themeMode;
   final String? classScheduleUrl;
   final String? roomScheduleId;
   final Map<String, NotificationTimeSetting> notificationTimeSettings;
-  LocalSettings({
-    required this.language,
-    required this.themeMode,
+
+  const LocalSettings({
+    this.language = srLatLang,
+    this.themeMode = ThemeMode.system,
     this.classScheduleUrl,
     this.roomScheduleId,
-    required this.notificationTimeSettings,
+    this.notificationTimeSettings = const {},
   });
 
-  Map<String, dynamic> toMap() {
-    return {
-      'language': language,
-      'themeMode': themeMode,
-      'classScheduleUrl': classScheduleUrl,
-      'roomScheduleId': roomScheduleId,
-      'notificationTimeSettings': notificationTimeSettings.map(
-        (key, value) => MapEntry(key, value.toMap()),
-      ),
-    };
-  }
-
-  factory LocalSettings.fromMap(Map<String, dynamic> map) {
-    final themeMode = map['themeMode'] as String? ?? lightMode;
-    final language = map['language'] as String? ?? srLatLang;
-    final classScheduleUrl = map['classScheduleUrl'] as String?;
-    final roomScheduleId = map['roomScheduleId'] as String?;
-    final notificationTimeSettings = <String, NotificationTimeSetting>{};
-    if (map['notificationTimeSettings'] is Map<String, dynamic>) {
-      (map['notificationTimeSettings'] as Map<String, dynamic>)
-          .forEach((key, value) {
-        if (value is Map<String, dynamic>) {
-          notificationTimeSettings[key] =
-              NotificationTimeSetting.fromMap(value);
-        }
-      });
-    }
+  LocalSettings copyWith({
+    String? language,
+    ThemeMode? themeMode,
+    String? classScheduleUrl,
+    String? roomScheduleId,
+    Map<String, NotificationTimeSetting>? notificationTimeSettings,
+  }) {
     return LocalSettings(
-      themeMode: themeMode == darkMode ? darkMode : lightMode,
-      language: language == srCyrLang ? srCyrLang : srLatLang,
-      classScheduleUrl: classScheduleUrl,
-      roomScheduleId: roomScheduleId,
-      notificationTimeSettings: notificationTimeSettings,
+      language: language ?? this.language,
+      themeMode: themeMode ?? this.themeMode,
+      classScheduleUrl: classScheduleUrl ?? this.classScheduleUrl,
+      roomScheduleId: roomScheduleId ?? this.roomScheduleId,
+      notificationTimeSettings:
+          notificationTimeSettings ?? this.notificationTimeSettings,
     );
   }
-  String toJson() => json.encode(toMap());
-  factory LocalSettings.fromJson(String source) =>
-      LocalSettings.fromMap(json.decode(source));
+
+  static ThemeMode parseThemeMode(String? value) => switch (value) {
+    darkMode => ThemeMode.dark,
+    lightMode => ThemeMode.light,
+    _ => ThemeMode.system,
+  };
+
+  static String themeModeToString(ThemeMode mode) => switch (mode) {
+    ThemeMode.dark => darkMode,
+    ThemeMode.light => lightMode,
+    ThemeMode.system => systemMode,
+  };
+
+  static String parseLanguage(String? value) =>
+      value == srCyrLang ? srCyrLang : srLatLang;
+
+  /// Converts a language tag such as `sr-Latn` to a [Locale].
+  static Locale toLocale(String language) {
+    final parts = language.split('-');
+    if (parts.length == 2) {
+      return Locale.fromSubtags(languageCode: parts[0], scriptCode: parts[1]);
+    }
+    return Locale(language);
+  }
 }

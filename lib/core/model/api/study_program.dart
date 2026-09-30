@@ -7,11 +7,7 @@ class StudyProgram {
   final String name;
   final int extId;
 
-  StudyProgram({
-    required this.epgId,
-    required this.name,
-    required this.extId,
-  });
+  StudyProgram({required this.epgId, required this.name, required this.extId});
 
   factory StudyProgram.fromJson(Map<String, dynamic> json) =>
       _$StudyProgramFromJson(json);

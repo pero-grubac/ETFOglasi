@@ -3,7 +3,7 @@
   "notifications": "Obavještenja",
   "schedule": "Raspored",
   "choseLanguage": "Izaberite jezik",
-  "language" : "Jezik",
+  "language": "Jezik",
   "appTitle": "ETF",
   "firstYear": "Prva godina",
   "secondYear": "Druga godina",
@@ -23,7 +23,7 @@
   "friday": "Petak",
   "noSchedule": "Nema rasporeda",
   "noData": "Nema podataka",
-  "selectSchedule": "Izaberite rasporeda",
+  "selectSchedule": "Izaberite raspored",
   "teacher": "Profesori",
   "room": "Prostorije",
   "studyProgram": "Studijski program",
@@ -51,5 +51,85 @@
       "minutes": {}
     }
   },
-  "notAllowedNotification":"Niste omogućili notifikacije."
+  "notAllowedNotification": "Niste omogućili notifikacije.",
+  "error": "Greška",
+  "routeNotFound": "Stranica nije pronađena",
+  "loadingError": "Greška prilikom učitavanja podataka",
+  "tryAgain": "Pokušaj ponovo",
+  "offlineData": "Nema konekcije – prikazani su sačuvani podaci",
+  "refreshFailed": "Osvježavanje nije uspjelo",
+  "noScheduleSelected": "Raspored nije izabran",
+  "showMore": "Prikaži više",
+  "showLess": "Prikaži manje",
+  "createdAt": "Kreirano: {date}",
+  "@createdAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "expiresAt": "Istek: {date}",
+  "@expiresAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "chooseDownloadLocation": "Izaberite lokaciju za preuzimanje",
+  "downloadCancelled": "Preuzimanje otkazano",
+  "downloadSuccess": "Fajl je uspješno preuzet",
+  "downloadFailed": "Preuzimanje fajla nije uspjelo",
+  "open": "Otvori",
+  "openFileFailed": "Fajl nije moguće otvoriti",
+  "downloadFileTitle": "Preuzimanje fajla",
+  "downloadFileQuestion": "Da li želite da preuzmete fajl „{fileName}”?",
+  "@downloadFileQuestion": {
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      }
+    }
+  },
+  "download": "Preuzmi",
+  "settingsSaved": "Podešavanja sačuvana",
+  "openSettings": "Podešavanja",
+  "daysShort": "d",
+  "hoursShort": "h",
+  "minutesShort": "min",
+  "notificationChannelName": "Oglasi",
+  "notificationChannelDescription": "Obavještenja o novim oglasima",
+  "newAnnouncementsTitle": "{board}: novi oglasi ({count})",
+  "@newAnnouncementsTitle": {
+    "description": "Notification title",
+    "placeholders": {
+      "board": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "search": "Pretraga",
+  "noSearchResults": "Nema rezultata pretrage",
+  "newBadge": "Novo",
+  "share": "Podijeli",
+  "copyText": "Kopiraj tekst",
+  "copied": "Tekst je kopiran",
+  "moreOptions": "Više opcija",
+  "unseenAnnouncements": "Nepročitani oglasi: {count}",
+  "@unseenAnnouncements": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "previousWeek": "Prethodna sedmica",
+  "nextWeek": "Sljedeća sedmica",
+  "themeLight": "Svijetla",
+  "themeDark": "Tamna",
+  "themeSystem": "Sistemska"
 }

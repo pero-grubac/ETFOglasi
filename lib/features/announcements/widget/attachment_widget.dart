@@ -2,19 +2,24 @@ import 'dart:io';
 
 import 'package:etf_oglasi/core/model/api/announcement.dart';
 import 'package:etf_oglasi/core/util/dependency_injection.dart';
-import 'package:etf_oglasi/features/announcements/service/announcement_service.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:open_filex/open_filex.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
 
 import '../../../core/gen/app_localizations.dart';
 
 class AttachmentWidget extends ConsumerStatefulWidget {
   final Announcement announcement;
+  final Color color;
 
-  const AttachmentWidget({super.key, required this.announcement});
+  const AttachmentWidget({
+    super.key,
+    required this.announcement,
+    required this.color,
+  });
 
   @override
   ConsumerState<AttachmentWidget> createState() => _AttachmentWidgetState();
@@ -22,12 +27,10 @@ class AttachmentWidget extends ConsumerStatefulWidget {
 
 class _AttachmentWidgetState extends ConsumerState<AttachmentWidget> {
   bool _isDownloading = false;
-  late AnnouncementService _announcementService;
-  @override
-  void initState() {
-    super.initState();
-    _announcementService = ref.read(announcementServiceProvider);
-  }
+
+  // The API has a single download endpoint per announcement, so the first
+  // attachment's name is used for the file.
+  OglasPrilog get _attachment => widget.announcement.oglasPrilozi.first;
 
   void _showSnackBar(
     String message, {
@@ -39,116 +42,83 @@ class _AttachmentWidgetState extends ConsumerState<AttachmentWidget> {
       SnackBar(
         content: Text(message),
         action: actionLabel != null && onActionPressed != null
-            ? SnackBarAction(
-                label: actionLabel,
-                onPressed: onActionPressed,
-              )
+            ? SnackBarAction(label: actionLabel, onPressed: onActionPressed)
             : null,
       ),
     );
   }
 
-  Future<bool> _checkStoragePermission() async {
-    if (await Permission.manageExternalStorage.isGranted) {
-      return true;
-    }
-
-    final status = await Permission.manageExternalStorage.request();
-    return status.isGranted;
-  }
-
   Future<void> _handleDownload() async {
-    final confirmed = await _confirmDownload();
+    final locale = AppLocalizations.of(context);
+    final confirmed = await _confirmDownload(locale);
     if (!confirmed || !mounted) return;
 
+    setState(() => _isDownloading = true);
     try {
-      setState(() {
-        _isDownloading = true;
-      });
-      try {
-        String? selectedDirectory = await FilePicker.platform.getDirectoryPath(
-          dialogTitle: 'Izaberite lokaciju za preuzimanje',
-        );
-        if (!mounted) return;
+      final bytes = await ref
+          .read(announcementServiceProvider)
+          .downloadAttachment(widget.announcement.id.toString());
+      // Never trust a server-provided name as a path.
+      final fileName = path.basename(_attachment.originalniNaziv);
 
-        if (selectedDirectory == null) {
-          _showSnackBar('Preuzimanje otkazano');
-          return;
-        }
+      // Keep a private copy that can always be opened, regardless of where
+      // the user saves the file (scoped storage).
+      final tempDir = await getTemporaryDirectory();
+      final openablePath = path.join(tempDir.path, fileName);
+      await File(openablePath).writeAsBytes(bytes);
 
-        final segments = selectedDirectory
-            .split('/')
-            .where((segment) => segment.isNotEmpty)
-            .toList();
-        final uniqueSegments = <String>[];
-        final seen = <String>{};
-        for (var segment in segments) {
-          if (seen.add(segment)) {
-            uniqueSegments.add(segment);
-          }
-        }
-        selectedDirectory = '/${uniqueSegments.join('/')}';
-
-        final directory = Directory(selectedDirectory);
-        if (!await directory.exists()) {
-          _showSnackBar('Direktorijum ne postoji');
-          return;
-        }
-
-        final prilog = widget.announcement.oglasPrilozi.first;
-
-        final downloadPath = await _announcementService.download(
-            widget.announcement.id.toString(),
-            selectedDirectory,
-            prilog.originalniNaziv);
-
-        _showSnackBar(
-          'File downloaded successfully',
-          actionLabel: 'Open',
-          onActionPressed: () async {
-            try {
-              if (!await _checkStoragePermission()) {
-                _showSnackBar('Dozvola za otvaranje fajlova nije odobrena.');
-                return;
-              }
-              final result = await OpenFilex.open(downloadPath);
-              if (result.type != ResultType.done) {
-                _showSnackBar('Failed to open file');
-              }
-            } catch (e) {
-              _showSnackBar('Error opening file');
-            }
-          },
-        );
-      } catch (e) {
-        print('error $e');
-        _showSnackBar('Failed to download file: $e');
-      } finally {
-        if (mounted) {
-          setState(() {
-            _isDownloading = false;
-          });
-        }
+      final savedPath = await FilePicker.platform.saveFile(
+        dialogTitle: locale.chooseDownloadLocation,
+        fileName: fileName,
+        bytes: bytes,
+      );
+      if (savedPath == null) {
+        _showSnackBar(locale.downloadCancelled);
+        return;
       }
+
+      _showSnackBar(
+        locale.downloadSuccess,
+        actionLabel: locale.open,
+        onActionPressed: () => _openFile(openablePath, locale),
+      );
     } catch (e) {
-      _showSnackBar('Greška: $e');
+      debugPrint('Attachment download failed: $e');
+      _showSnackBar(locale.downloadFailed);
+    } finally {
+      if (mounted) setState(() => _isDownloading = false);
     }
   }
 
-  Future<bool> _confirmDownload() async {
+  Future<void> _openFile(String filePath, AppLocalizations locale) async {
+    try {
+      final result = await OpenFilex.open(filePath);
+      if (result.type != ResultType.done) {
+        _showSnackBar(locale.openFileFailed);
+      }
+    } catch (_) {
+      _showSnackBar(locale.openFileFailed);
+    }
+  }
+
+  Future<bool> _confirmDownload(AppLocalizations locale) async {
     return await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('Preuzimanje fajla'),
-            content: const Text('Da li želite da preuzmete ovaj fajl?'),
+            title: Text(locale.downloadFileTitle),
+            content: Text(
+              locale.downloadFileQuestion(
+                fileName: _attachment.originalniNaziv,
+              ),
+            ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Otkaži'),
+                child: Text(locale.cancel),
               ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(true),
-                child: const Text('Preuzmi'),
+                child: Text(locale.download),
               ),
             ],
           ),
@@ -170,20 +140,20 @@ class _AttachmentWidgetState extends ConsumerState<AttachmentWidget> {
                   height: 16,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: theme.colorScheme.onSurface,
+                    color: widget.color,
                   ),
                 )
-              : Icon(
-                  Icons.attach_file,
-                  size: 16,
-                  color: theme.colorScheme.onSurface,
-                ),
+              : Icon(Icons.attach_file, size: 16, color: widget.color),
           const SizedBox(width: 4),
-          Text(
-            locale!.attachment,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurface,
-              decoration: TextDecoration.underline,
+          Expanded(
+            child: Text(
+              '${locale.attachment}: ${_attachment.originalniNaziv}',
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: widget.color,
+                decoration: TextDecoration.underline,
+                decorationColor: widget.color,
+              ),
             ),
           ),
         ],

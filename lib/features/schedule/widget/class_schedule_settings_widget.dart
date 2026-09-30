@@ -3,25 +3,21 @@ import 'package:etf_oglasi/core/model/api/major.dart';
 import 'package:etf_oglasi/core/model/api/room.dart';
 import 'package:etf_oglasi/core/model/api/study_program.dart';
 import 'package:etf_oglasi/core/model/api/teacher.dart';
-import 'package:etf_oglasi/core/service/major_service.dart';
-import 'package:etf_oglasi/core/service/room_service.dart';
-import 'package:etf_oglasi/core/service/study_program_service.dart';
-import 'package:etf_oglasi/core/service/teacher_service.dart';
+import 'package:etf_oglasi/core/ui/widget/future_dropdown.dart';
 import 'package:etf_oglasi/core/util/dependency_injection.dart';
 import 'package:etf_oglasi/features/schedule/model/schedule_result.dart';
+import 'package:etf_oglasi/features/schedule/widget/schedule_settings_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/gen/app_localizations.dart';
 
+/// Picks a class schedule by teacher, room or study program + year.
+/// Pops with a [ScheduleResult] holding the schedule URL.
 class ClassScheduleSettingsWidget extends ConsumerStatefulWidget {
-  const ClassScheduleSettingsWidget({
-    super.key,
-    this.isSelect = true,
-  });
+  const ClassScheduleSettingsWidget({super.key, this.isSelect = true});
 
   final bool isSelect;
-  static const String classScheduleUrl = "classScheduleUrl";
 
   @override
   ConsumerState<ClassScheduleSettingsWidget> createState() =>
@@ -30,324 +26,105 @@ class ClassScheduleSettingsWidget extends ConsumerStatefulWidget {
 
 class _ClassScheduleSettingsWidgetState
     extends ConsumerState<ClassScheduleSettingsWidget> {
-  late TeacherService _teacherService;
-  late RoomService _roomService;
-  late StudyProgramService _studyProgramService;
-  late MajorService _majorService;
-  late Future<List<Teacher>> _teachers;
-  late Future<List<Room>> _rooms;
-  late Future<List<StudyProgram>> _studyPrograms;
-  late Future<List<Major>> _majors;
+  late final Future<List<Teacher>> _teachers;
+  late final Future<List<Room>> _rooms;
+  late final Future<List<StudyProgram>> _studyPrograms;
+  Future<List<Major>>? _majors;
   String? _selectedTeacherId;
   String? _selectedRoomId;
   String? _selectedStudyProgramId;
   String? _selectedMajorId;
   String? _generatedUrl;
-  String? _errorMessage;
-  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _roomService = ref.read(roomServiceProvider);
-    _teacherService = ref.read(teacherServiceProvider);
-    _studyProgramService = ref.read(studyProgramProvider);
-    _majorService = ref.read(majorServiceProvider);
-    _initializeData();
+    final service = ref.read(scheduleOptionsServiceProvider);
+    _teachers = service.fetchTeachers();
+    _rooms = service.fetchRooms();
+    _studyPrograms = service.fetchStudyPrograms();
   }
 
-  Future<void> _initializeData() async {
-    try {
-      final teachersFuture = _teacherService.fetchTeachers();
-      final roomsFuture = _roomService.fetchRooms();
-      final studyProgramsFuture = _studyProgramService.fetchStudyPrograms();
-
-      final studyProgramsList = await studyProgramsFuture;
-
-      setState(() {
-        _teachers = teachersFuture;
-        _rooms = roomsFuture;
-        _studyPrograms = studyProgramsFuture;
-        _majors = studyProgramsList.isNotEmpty
-            ? _majorService
-                .fetchMajors(studyProgramsList.first.epgId.toString())
-            : Future.value([]);
-        _errorMessage = null;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _errorMessage = 'Failed to load initial data';
-        _teachers = Future.value([]);
-        _rooms = Future.value([]);
-        _studyPrograms = Future.value([]);
-        _majors = Future.value([]);
-        _isLoading = false;
-      });
-    }
+  void _select({
+    String? teacherId,
+    String? roomId,
+    String? studyProgramId,
+    String? majorId,
+    String? url,
+  }) {
+    setState(() {
+      _selectedTeacherId = teacherId;
+      _selectedRoomId = roomId;
+      _selectedStudyProgramId = studyProgramId;
+      _selectedMajorId = majorId;
+      _generatedUrl = url;
+    });
   }
 
-  Future<void> _loadMajors(String studyProgramId) async {
-    try {
-      _majors = _majorService.fetchMajors(studyProgramId);
-      setState(() => _selectedMajorId = null);
-    } catch (e) {
-      setState(() {
-        _errorMessage = 'Failed to load majors';
-        _majors = Future.value([]);
-      });
-    }
-  }
-
-  Widget _buildDropdown<T>(
-    Future<List<T>> future,
-    String hint,
-    String? value,
-    List<DropdownMenuItem<String>> Function(List<T>) itemBuilder,
-    void Function(String?) onChanged,
-  ) {
-    final locale = AppLocalizations.of(context);
-
-    final colorScheme = Theme.of(context).colorScheme;
-    return FutureBuilder<List<T>>(
-      future: future,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snapshot.hasError ||
-            snapshot.data == null ||
-            snapshot.data!.isEmpty) {
-          return Text(locale!.noData);
-        }
-        final items = itemBuilder(snapshot.data!);
-        return DropdownButton<String>(
-          hint: Text(hint),
-          value: value,
-          isExpanded: true,
-          dropdownColor: colorScheme.primaryContainer,
-          style: TextStyle(color: colorScheme.onSurfaceVariant),
-          focusColor: colorScheme.primaryContainer,
-          items: items.isNotEmpty
-              ? items
-              : [DropdownMenuItem(child: Text(locale!.noData))],
-          onChanged: onChanged,
-        );
-      },
-    );
-  }
-
-  List<DropdownMenuItem<String>> _buildTeacherItems(List<Teacher> teachers) {
-    return teachers.map((teacher) {
-      return DropdownMenuItem<String>(
-        value: teacher.id.toString(),
-        child: Text(teacher.ime),
-      );
-    }).toList();
-  }
-
-  List<DropdownMenuItem<String>> _buildRoomItems(List<Room> rooms) {
-    return rooms.map((room) {
-      return DropdownMenuItem<String>(
-        value: room.id.toString(),
-        child: Text(room.naziv),
-      );
-    }).toList();
-  }
-
-  List<DropdownMenuItem<String>> _buildStudyProgramItems(
-      List<StudyProgram> studyPrograms) {
-    return studyPrograms.map((studyProgram) {
-      return DropdownMenuItem<String>(
-        value: studyProgram.epgId.toString(),
-        child: Text(studyProgram.name),
-      );
-    }).toList();
-  }
-
-  List<DropdownMenuItem<String>> _buildMajorItems(List<Major> majors) {
-    return majors.map((major) {
-      return DropdownMenuItem<String>(
-        value: major.epId.toString(),
-        child: Text(major.name),
-      );
-    }).toList();
+  void _pop(bool isSave) {
+    Navigator.pop(context, ScheduleResult(url: _generatedUrl!, isSave: isSave));
   }
 
   @override
   Widget build(BuildContext context) {
     final locale = AppLocalizations.of(context);
-    final colorScheme = Theme.of(context).colorScheme;
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
-      child: Card(
-        elevation: 8.0,
-        color: colorScheme.surface,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: _isLoading
-              ? const SizedBox(
-                  height: 200,
-                  child: Center(child: CircularProgressIndicator()),
-                )
-              : SingleChildScrollView(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      maxWidth: 400,
-                      minWidth: 280,
-                    ),
-                    child: StatefulBuilder(
-                      builder: (context, setDialogState) {
-                        return Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              locale!.selectSchedule,
-                              style: const TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                            if (_errorMessage != null) ...[
-                              const SizedBox(height: 16),
-                              Text(_errorMessage!,
-                                  style: const TextStyle(color: Colors.red)),
-                            ],
-                            const SizedBox(height: 16),
-                            _buildDropdown<Teacher>(
-                              _teachers,
-                              locale.teacher,
-                              _selectedTeacherId,
-                              _buildTeacherItems,
-                              (value) {
-                                setDialogState(() {
-                                  _selectedTeacherId = value;
-                                  _selectedRoomId = null;
-                                  _selectedStudyProgramId = null;
-                                  _selectedMajorId = null;
-                                  _generatedUrl = value != null
-                                      ? getScheduleByTeacherUrl(value)
-                                      : null;
-                                });
-                              },
-                            ),
-                            const SizedBox(height: 16),
-                            _buildDropdown<Room>(
-                              _rooms,
-                              locale.room,
-                              _selectedRoomId,
-                              _buildRoomItems,
-                              (value) {
-                                setDialogState(() {
-                                  _selectedTeacherId = null;
-                                  _selectedRoomId = value;
-                                  _selectedStudyProgramId = null;
-                                  _selectedMajorId = null;
-                                  _generatedUrl = value != null
-                                      ? getScheduleByRoomUrl(value)
-                                      : null;
-                                });
-                              },
-                            ),
-                            const SizedBox(height: 16),
-                            _buildDropdown<StudyProgram>(
-                              _studyPrograms,
-                              locale.studyProgram,
-                              _selectedStudyProgramId,
-                              _buildStudyProgramItems,
-                              (value) {
-                                setDialogState(() {
-                                  _selectedTeacherId = null;
-                                  _selectedRoomId = null;
-                                  _selectedStudyProgramId = value;
-                                  _selectedMajorId = null;
-                                  _generatedUrl = null;
-                                  if (value != null) _loadMajors(value);
-                                });
-                              },
-                            ),
-                            const SizedBox(height: 16),
-                            _buildDropdown<Major>(
-                              _majors,
-                              locale.year,
-                              _selectedMajorId,
-                              _buildMajorItems,
-                              (value) {
-                                setDialogState(() {
-                                  _selectedMajorId = value;
-                                  _generatedUrl = (value != null &&
-                                          _selectedStudyProgramId != null)
-                                      ? getScheduleUrl(
-                                          _selectedStudyProgramId!, value)
-                                      : null;
-                                });
-                              },
-                            ),
-                            const SizedBox(height: 16),
-                            Wrap(
-                              alignment: WrapAlignment.end,
-                              spacing: 8,
-                              runSpacing: 8,
-                              children: [
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 6),
-                                    minimumSize: Size.zero,
-                                    tapTargetSize:
-                                        MaterialTapTargetSize.shrinkWrap,
-                                  ),
-                                  onPressed: () => Navigator.pop(context),
-                                  child: Text(locale.cancel),
-                                ),
-                                if (widget.isSelect)
-                                  ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8, vertical: 6),
-                                      minimumSize: Size.zero,
-                                      tapTargetSize:
-                                          MaterialTapTargetSize.shrinkWrap,
-                                    ),
-                                    onPressed: _generatedUrl != null
-                                        ? () => Navigator.pop(
-                                              context,
-                                              ScheduleResult(
-                                                  url: _generatedUrl!,
-                                                  isSave: false),
-                                            )
-                                        : null,
-                                    child: Text(locale.select),
-                                  ),
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 6),
-                                    minimumSize: Size.zero,
-                                    tapTargetSize:
-                                        MaterialTapTargetSize.shrinkWrap,
-                                  ),
-                                  onPressed: _generatedUrl != null
-                                      ? () => Navigator.pop(
-                                            context,
-                                            ScheduleResult(
-                                                url: _generatedUrl!,
-                                                isSave: true),
-                                          )
-                                      : null,
-                                  child: Text(locale.save),
-                                ),
-                              ],
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                  ),
-                ),
+    final canPop = _generatedUrl != null;
+
+    return ScheduleSettingsDialog(
+      showSelect: widget.isSelect,
+      onSelect: canPop ? () => _pop(false) : null,
+      onSave: canPop ? () => _pop(true) : null,
+      children: [
+        FutureDropdown<Teacher>(
+          future: _teachers,
+          hint: locale.teacher,
+          value: _selectedTeacherId,
+          valueOf: (teacher) => teacher.id.toString(),
+          labelOf: (teacher) => teacher.ime,
+          onChanged: (value) => _select(
+            teacherId: value,
+            url: value != null ? getScheduleByTeacherUrl(value) : null,
+          ),
         ),
-      ),
+        FutureDropdown<Room>(
+          future: _rooms,
+          hint: locale.room,
+          value: _selectedRoomId,
+          valueOf: (room) => room.id.toString(),
+          labelOf: (room) => room.naziv,
+          onChanged: (value) => _select(
+            roomId: value,
+            url: value != null ? getScheduleByRoomUrl(value) : null,
+          ),
+        ),
+        FutureDropdown<StudyProgram>(
+          future: _studyPrograms,
+          hint: locale.studyProgram,
+          value: _selectedStudyProgramId,
+          valueOf: (program) => program.epgId.toString(),
+          labelOf: (program) => program.name,
+          onChanged: (value) {
+            _majors = value != null
+                ? ref.read(scheduleOptionsServiceProvider).fetchMajors(value)
+                : null;
+            _select(studyProgramId: value);
+          },
+        ),
+        FutureDropdown<Major>(
+          future: _majors,
+          hint: locale.year,
+          value: _selectedMajorId,
+          valueOf: (major) => major.epId.toString(),
+          labelOf: (major) => major.name,
+          onChanged: (value) => _select(
+            studyProgramId: _selectedStudyProgramId,
+            majorId: value,
+            url: value != null && _selectedStudyProgramId != null
+                ? getScheduleUrl(_selectedStudyProgramId!, value)
+                : null,
+          ),
+        ),
+      ],
     );
   }
 }

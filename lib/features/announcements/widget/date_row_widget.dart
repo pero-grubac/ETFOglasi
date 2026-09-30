@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/gen/app_localizations.dart';
+
 class DateRowWidget extends StatelessWidget {
   final DateTime creationDate;
   final DateTime expirationDate;
@@ -15,15 +17,19 @@ class DateRowWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    final locale = AppLocalizations.of(context);
+    final format = DateFormat('dd.MM.yyyy HH:mm');
+    return Wrap(
+      alignment: WrapAlignment.spaceBetween,
+      spacing: 12,
+      runSpacing: 4,
       children: [
         Text(
-          'Kreirano: ${DateFormat('dd.MM.yyyy HH:mm').format(creationDate)}',
+          locale.createdAt(date: format.format(creationDate.toLocal())),
           style: style,
         ),
         Text(
-          'Istek: ${DateFormat('dd.MM.yyyy HH:mm').format(expirationDate)}',
+          locale.expiresAt(date: format.format(expirationDate.toLocal())),
           style: style,
         ),
       ],

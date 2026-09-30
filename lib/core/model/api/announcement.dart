@@ -5,6 +5,7 @@ part 'announcement.g.dart';
 @JsonSerializable()
 class Announcement {
   static const String dbName = 'announcement';
+  static const String seenDbName = 'announcement_seen';
   final int id;
   final String naslov;
   final String? uvod;
@@ -42,12 +43,7 @@ class OglasnaPloca {
   final String? opis;
   final String? napomena;
 
-  OglasnaPloca({
-    required this.id,
-    this.naziv,
-    this.opis,
-    this.napomena,
-  });
+  OglasnaPloca({required this.id, this.naziv, this.opis, this.napomena});
 
   factory OglasnaPloca.fromJson(Map<String, dynamic> json) =>
       _$OglasnaPlocaFromJson(json);

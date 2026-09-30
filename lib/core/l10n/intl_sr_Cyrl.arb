@@ -15,8 +15,8 @@
   "finalThesis": "Одбране завршних радова",
   "classSchedule": "Распоред наставе",
   "hallSchedule": "Распоред заузетости сала",
-  "refresh": "Освежи",
-  "monday": "Понедељак",
+  "refresh": "Освјежи",
+  "monday": "Понедјељак",
   "tuesday": "Уторак",
   "wednesday": "Сриједа",
   "thursday": "Четвртак",
@@ -44,12 +44,92 @@
       "minutes": {}
     }
   },
-  "minDurationSet":"Дужина постављена на {minutes} минута због минималног захтјева",
+  "minDurationSet": "Дужина постављена на {minutes} минута због минималног захтјева",
   "@minDurationSet": {
     "description": "Дужина постављена на {minutes} минута због минималног захтјева",
     "placeholders": {
       "minutes": {}
     }
   },
-  "notAllowedNotification": "Нисте омогућили нотификације."
+  "notAllowedNotification": "Нисте омогућили нотификације.",
+  "error": "Грешка",
+  "routeNotFound": "Страница није пронађена",
+  "loadingError": "Грешка приликом учитавања података",
+  "tryAgain": "Покушај поново",
+  "offlineData": "Нема конекције – приказани су сачувани подаци",
+  "refreshFailed": "Освјежавање није успјело",
+  "noScheduleSelected": "Распоред није изабран",
+  "showMore": "Прикажи више",
+  "showLess": "Прикажи мање",
+  "createdAt": "Креирано: {date}",
+  "@createdAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "expiresAt": "Истек: {date}",
+  "@expiresAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "chooseDownloadLocation": "Изаберите локацију за преузимање",
+  "downloadCancelled": "Преузимање отказано",
+  "downloadSuccess": "Фајл је успјешно преузет",
+  "downloadFailed": "Преузимање фајла није успјело",
+  "open": "Отвори",
+  "openFileFailed": "Фајл није могуће отворити",
+  "downloadFileTitle": "Преузимање фајла",
+  "downloadFileQuestion": "Да ли желите да преузмете фајл „{fileName}”?",
+  "@downloadFileQuestion": {
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      }
+    }
+  },
+  "download": "Преузми",
+  "settingsSaved": "Подешавања сачувана",
+  "openSettings": "Подешавања",
+  "daysShort": "д",
+  "hoursShort": "ч",
+  "minutesShort": "мин",
+  "notificationChannelName": "Огласи",
+  "notificationChannelDescription": "Обавјештења о новим огласима",
+  "newAnnouncementsTitle": "{board}: нови огласи ({count})",
+  "@newAnnouncementsTitle": {
+    "description": "Notification title",
+    "placeholders": {
+      "board": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "search": "Претрага",
+  "noSearchResults": "Нема резултата претраге",
+  "newBadge": "Ново",
+  "share": "Подијели",
+  "copyText": "Копирај текст",
+  "copied": "Текст је копиран",
+  "moreOptions": "Више опција",
+  "unseenAnnouncements": "Непрочитани огласи: {count}",
+  "@unseenAnnouncements": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "previousWeek": "Претходна седмица",
+  "nextWeek": "Сљедећа седмица",
+  "themeLight": "Свијетла",
+  "themeDark": "Тамна",
+  "themeSystem": "Системска"
 }
