@@ -1,4 +1,6 @@
+import 'package:etf_oglasi/core/util/open_link.dart';
 import 'package:etf_oglasi/features/announcements/service/announcement_notifier.dart';
+import 'package:etf_oglasi/features/schedule/service/class_reminders.dart';
 import 'package:etf_oglasi/features/settings/model/notification_time_setting.dart';
 import 'package:etf_oglasi/features/settings/service/local_settings_provider.dart';
 import 'package:flutter/material.dart';
@@ -21,12 +23,41 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
 
   late Map<String, NotificationTimeSetting> _tempSettings;
 
+  /// Minutes before class for reminders; 0 = off. Saved with the rest.
+  late int _tempReminderMinutes;
+
+  /// Whether the app is exempt from battery optimisation. `null` until
+  /// checked; then the hint is shown only when it isn't.
+  bool? _batteryUnrestricted;
+
   @override
   void initState() {
     super.initState();
+    final settings = ref.read(localSettingsProvider);
     _tempSettings = Map<String, NotificationTimeSetting>.from(
-      ref.read(localSettingsProvider).notificationTimeSettings,
+      settings.notificationTimeSettings,
     );
+    _tempReminderMinutes = settings.classReminderMinutes;
+    _checkBatteryOptimization();
+  }
+
+  Future<void> _checkBatteryOptimization() async {
+    bool unrestricted;
+    try {
+      unrestricted = await Permission.ignoreBatteryOptimizations.isGranted;
+    } catch (_) {
+      unrestricted = true; // Can't tell, so don't nag.
+    }
+    if (mounted) setState(() => _batteryUnrestricted = unrestricted);
+  }
+
+  Future<void> _allowBackground() async {
+    try {
+      await Permission.ignoreBatteryOptimizations.request();
+    } catch (_) {
+      await openAppSettings();
+    }
+    await _checkBatteryOptimization();
   }
 
   /// Requests the notification permission when needed. Returns whether
@@ -72,12 +103,15 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
       }
     }
 
-    if (updated.values.any((s) => s.enabled)) {
+    if (updated.values.any((s) => s.enabled) || _tempReminderMinutes > 0) {
       await _ensureNotificationPermission();
     }
-    await ref
-        .read(localSettingsProvider.notifier)
-        .updateNotificationsTimeSettings(updated);
+    final notifier = ref.read(localSettingsProvider.notifier);
+    await notifier.updateNotificationsTimeSettings(updated);
+    if (_tempReminderMinutes !=
+        ref.read(localSettingsProvider).classReminderMinutes) {
+      await notifier.updateClassReminderMinutes(_tempReminderMinutes);
+    }
     if (!mounted) return;
 
     setState(() => _tempSettings = Map.of(updated));
@@ -116,9 +150,25 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
-        itemCount: keys.length,
+        itemCount: keys.length + 2,
         itemBuilder: (context, index) {
-          final key = keys[index];
+          if (index == 0) {
+            return _batteryUnrestricted == false
+                ? _BatteryHint(onAllow: _allowBackground)
+                : const SizedBox.shrink();
+          }
+          if (index == keys.length + 1) {
+            return _ClassReminderSetting(
+              minutes: _tempReminderMinutes,
+              hasSchedule:
+                  ref.watch(localSettingsProvider).classScheduleUrl != null,
+              onChanged: (minutes) {
+                setState(() => _tempReminderMinutes = minutes);
+                if (minutes > 0) _ensureNotificationPermission();
+              },
+            );
+          }
+          final key = keys[index - 1];
           final setting =
               _tempSettings[key] ?? NotificationTimeSetting.disabled;
           final hasError =
@@ -197,6 +247,120 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+/// Reminder before each class of the saved class schedule.
+class _ClassReminderSetting extends StatelessWidget {
+  const _ClassReminderSetting({
+    required this.minutes,
+    required this.hasSchedule,
+    required this.onChanged,
+  });
+
+  /// 0 = off.
+  final int minutes;
+  final bool hasSchedule;
+  final ValueChanged<int> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context);
+    final enabled = minutes > 0;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Divider(height: 32),
+        SwitchListTile(
+          secondary: const Icon(Icons.alarm),
+          title: Text(locale.classReminder),
+          subtitle: Text(
+            hasSchedule
+                ? locale.classReminderDescription
+                : locale.classReminderNoSchedule,
+          ),
+          value: enabled,
+          onChanged: (value) => onChanged(value ? classReminderOptions[1] : 0),
+        ),
+        if (enabled)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final option in classReminderOptions)
+                  ChoiceChip(
+                    label: Text(
+                      locale.classReminderMinutesBefore(minutes: option),
+                    ),
+                    selected: minutes == option,
+                    onSelected: (_) => onChanged(option),
+                  ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// Explains that some phones stop background work, with a button that asks
+/// Android to exempt the app from battery optimisation.
+class _BatteryHint extends StatelessWidget {
+  const _BatteryHint({required this.onAllow});
+
+  static const _moreInfoUrl = 'https://dontkillmyapp.com';
+
+  final VoidCallback onAllow;
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 8,
+          children: [
+            Row(
+              spacing: 8,
+              children: [
+                Icon(Icons.battery_alert, color: theme.colorScheme.primary),
+                Expanded(
+                  child: Text(
+                    locale.batteryTitle,
+                    style: theme.textTheme.titleMedium,
+                  ),
+                ),
+              ],
+            ),
+            Text(locale.batteryMessage),
+            Align(
+              alignment: Alignment.centerRight,
+              child: Wrap(
+                alignment: WrapAlignment.end,
+                spacing: 8,
+                children: [
+                  TextButton(
+                    onPressed: () => openLink(context, _moreInfoUrl),
+                    child: Text(locale.moreInfo),
+                  ),
+                  FilledButton(
+                    onPressed: onAllow,
+                    child: Text(locale.batteryAllow),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

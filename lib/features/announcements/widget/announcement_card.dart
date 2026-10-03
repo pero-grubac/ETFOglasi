@@ -1,33 +1,63 @@
 import 'package:etf_oglasi/core/model/api/announcement.dart';
 import 'package:etf_oglasi/core/ui/theme/announcement_card_theme.dart';
 import 'package:etf_oglasi/core/ui/widget/expandable_text_widget.dart';
+import 'package:etf_oglasi/core/service/error_log.dart';
+import 'package:etf_oglasi/features/announcements/service/bookmarks_provider.dart';
 import 'package:etf_oglasi/features/announcements/widget/announcement_share.dart';
 import 'package:etf_oglasi/features/announcements/widget/attachment_widget.dart';
 import 'package:etf_oglasi/features/announcements/widget/date_row_widget.dart';
 import 'package:etf_oglasi/features/announcements/widget/signature_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../core/gen/app_localizations.dart';
 
-enum _CardAction { share, copy }
+enum _CardAction { bookmark, share, copy }
 
-class AnnouncementCard extends StatelessWidget {
+class AnnouncementCard extends ConsumerWidget {
   const AnnouncementCard({
     super.key,
     required this.announcement,
     this.isNew = false,
+    this.isExpired = false,
   });
   final Announcement announcement;
 
   /// Shows a "new" badge (announcement not seen before).
   final bool isNew;
 
-  Future<void> _onAction(BuildContext context, _CardAction action) async {
+  /// Dims the card and shows an "expired" badge.
+  final bool isExpired;
+
+  Future<void> _onAction(
+    BuildContext context,
+    WidgetRef ref,
+    _CardAction action,
+  ) async {
     final locale = AppLocalizations.of(context);
     final text = announcementShareText(announcement, locale);
     switch (action) {
+      case _CardAction.bookmark:
+        final messenger = ScaffoldMessenger.of(context);
+        try {
+          final saved = await ref
+              .read(bookmarksProvider.notifier)
+              .toggle(announcement);
+          messenger.showSnackBar(
+            SnackBar(
+              content: Text(
+                saved ? locale.bookmarkSaved : locale.bookmarkRemoved,
+              ),
+            ),
+          );
+        } catch (e, stackTrace) {
+          await errorLog.record(e, stackTrace, source: 'bookmark');
+          messenger.showSnackBar(
+            SnackBar(content: Text(locale.bookmarkFailed)),
+          );
+        }
       case _CardAction.share:
         await SharePlus.instance.share(
           ShareParams(text: text, subject: announcement.naslov),
@@ -43,7 +73,10 @@ class AnnouncementCard extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isBookmarked = ref.watch(
+      bookmarkedIdsProvider.select((ids) => ids.contains(announcement.id)),
+    );
     final theme = Theme.of(context);
     final effectiveTheme =
         theme.extension<AnnouncementCardTheme>() ??
@@ -73,7 +106,7 @@ class AnnouncementCard extends StatelessWidget {
         effectiveTheme.decoration.borderRadius?.resolve(TextDirection.ltr) ??
         BorderRadius.circular(8);
 
-    return Card(
+    final card = Card(
       elevation: boxShadow != null && boxShadow.isNotEmpty
           ? boxShadow.first.blurRadius
           : 0,
@@ -94,7 +127,14 @@ class AnnouncementCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     spacing: 6,
                     children: [
-                      if (isNew) const _NewBadge(),
+                      if (isNew || isExpired)
+                        Wrap(
+                          spacing: 6,
+                          children: [
+                            if (isNew) const _NewBadge(),
+                            if (isExpired) const _ExpiredBadge(),
+                          ],
+                        ),
                       ExpandableTextWidget(
                         text: announcement.naslov,
                         style:
@@ -109,11 +149,36 @@ class AnnouncementCard extends StatelessWidget {
                     ],
                   ),
                 ),
+                if (isBookmarked)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: Icon(
+                      Icons.bookmark,
+                      color: foreground,
+                      semanticLabel: locale.bookmarks,
+                    ),
+                  ),
                 PopupMenuButton<_CardAction>(
                   icon: Icon(Icons.more_vert, color: foreground),
                   tooltip: locale.moreOptions,
-                  onSelected: (action) => _onAction(context, action),
+                  onSelected: (action) => _onAction(context, ref, action),
                   itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: _CardAction.bookmark,
+                      child: ListTile(
+                        leading: Icon(
+                          isBookmarked
+                              ? Icons.bookmark_remove
+                              : Icons.bookmark_add_outlined,
+                        ),
+                        title: Text(
+                          isBookmarked
+                              ? locale.removeBookmark
+                              : locale.bookmark,
+                        ),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
                     PopupMenuItem(
                       value: _CardAction.share,
                       child: ListTile(
@@ -157,6 +222,32 @@ class AnnouncementCard extends StatelessWidget {
                 ),
               ),
           ],
+        ),
+      ),
+    );
+    return isExpired ? Opacity(opacity: 0.6, child: card) : card;
+  }
+}
+
+class _ExpiredBadge extends StatelessWidget {
+  const _ExpiredBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    // Fixed colours, like the "new" badge, so it reads on the card in both
+    // themes.
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade300,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        AppLocalizations.of(context).expiredBadge,
+        style: const TextStyle(
+          color: Colors.black87,
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
         ),
       ),
     );

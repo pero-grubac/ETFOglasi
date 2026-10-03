@@ -131,5 +131,89 @@
   "nextWeek": "Sljedeća sedmica",
   "themeLight": "Svijetla",
   "themeDark": "Tamna",
-  "themeSystem": "Sistemska"
+  "themeSystem": "Sistemska",
+  "about": "O aplikaciji",
+  "appVersion": "Verzija {version}",
+  "@appVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "checkForUpdates": "Provjeravaj nove verzije",
+  "checkForUpdatesDescription": "Jednom sedmično, preko GitHub-a",
+  "checkNow": "Provjeri sada",
+  "upToDate": "Imate najnoviju verziju",
+  "updateCheckFailed": "Provjera nove verzije nije uspjela",
+  "updateAvailableTitle": "Nova verzija",
+  "updateAvailableMessage": "Dostupna je verzija {version}. Preuzmite APK sa GitHub stranice i instalirajte ga preko postojeće aplikacije – podešavanja i podaci ostaju.",
+  "@updateAvailableMessage": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "later": "Kasnije",
+  "reportProblem": "Prijavi problem",
+  "errorLog": "Dnevnik grešaka",
+  "errorLogDescription": "Greške se čuvaju samo na telefonu i nigdje se ne šalju. Možete ih kopirati uz prijavu problema.",
+  "errorLogEmpty": "Nema zabilježenih grešaka",
+  "copy": "Kopiraj",
+  "clear": "Obriši",
+  "errorLogCopied": "Dnevnik grešaka je kopiran",
+  "batteryTitle": "Obavještenja ne stižu?",
+  "batteryMessage": "Neki telefoni zaustavljaju aplikacije u pozadini radi uštede baterije. Isključite optimizaciju baterije za ovu aplikaciju.",
+  "batteryAllow": "Isključi optimizaciju",
+  "moreInfo": "Više informacija",
+  "linkOpenFailed": "Link nije moguće otvoriti",
+  "expiredBadge": "Isteklo",
+  "errorOffline": "Nema internet konekcije",
+  "errorCertificate": "Sigurna veza sa serverom fakulteta nije uspjela. Provjerite da su datum i vrijeme na telefonu tačni.",
+  "errorServer": "Server fakulteta trenutno ne radi. Pokušajte kasnije.",
+  "addToCalendar": "Dodaj u kalendar",
+  "calendarRepeatUntil": "Ponavljaj do",
+  "calendarExportFailed": "Izvoz u kalendar nije uspio",
+  "calendarFileSubject": "Raspored nastave (kalendar)",
+  "bookmark": "Sačuvaj",
+  "removeBookmark": "Ukloni iz sačuvanih",
+  "bookmarks": "Sačuvani oglasi",
+  "noBookmarks": "Nemate sačuvanih oglasa.\nOglas sačuvajte iz menija ⋮ na kartici.",
+  "bookmarkSaved": "Oglas je sačuvan",
+  "bookmarkRemoved": "Oglas je uklonjen iz sačuvanih",
+  "bookmarkFailed": "Čuvanje nije uspjelo",
+  "classReminder": "Podsjetnik prije nastave",
+  "classReminderDescription": "Za sačuvani raspored nastave",
+  "classReminderNoSchedule": "Prvo sačuvajte raspored nastave",
+  "classReminderMinutesBefore": "{minutes} min prije",
+  "@classReminderMinutesBefore": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "classReminderTitle": "Za {minutes} min: {subject}",
+  "@classReminderTitle": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      },
+      "subject": {
+        "type": "String"
+      }
+    }
+  },
+  "classReminderChannelName": "Podsjetnici za nastavu",
+  "classReminderChannelDescription": "Obavještenje prije početka časa",
+  "widgetNoSchedule": "Izaberite raspored nastave u aplikaciji",
+  "widgetNoClasses": "Nema nastave",
+  "widgetNow": "Sada",
+  "widgetUntil": "do",
+  "widgetNext": "Zatim",
+  "widgetTomorrow": "Sutra",
+  "widgetFree": "Sada nema nastave",
+  "widgetNoMoreToday": "Danas nema više nastave",
+  "widgetNoClassesToday": "Danas nema nastave"
 }

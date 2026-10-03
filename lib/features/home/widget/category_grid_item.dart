@@ -28,7 +28,7 @@ class CategoryGridItem extends ConsumerWidget {
         );
     final url = category.announcementsUrl;
     final unseen = url != null
-        ? ref.watch(unseenCountProvider(url)).valueOrNull ?? 0
+        ? ref.watch(unseenCountProvider(url)).value ?? 0
         : 0;
 
     return InkWell(

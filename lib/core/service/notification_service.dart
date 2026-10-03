@@ -1,9 +1,12 @@
+import 'package:etf_oglasi/features/schedule/service/class_reminders.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 import '../gen/app_localizations.dart';
 
 class NotificationService {
   static const String announcementChannelId = 'announcement_channel';
+  static const String classReminderChannelId = 'class_reminder_channel';
   static const String _icon = '@drawable/ic_notification';
 
   final FlutterLocalNotificationsPlugin _plugin;
@@ -69,5 +72,58 @@ class NotificationService {
       ),
     );
     await _plugin.show(id, title, body, details, payload: payload);
+  }
+
+  /// Cancels all scheduled class reminders.
+  Future<void> cancelClassReminders() async {
+    for (final request in await _plugin.pendingNotificationRequests()) {
+      if (request.id >= classReminderIdBase) await _plugin.cancel(request.id);
+    }
+  }
+
+  /// Schedules [reminders] to repeat every week. Uses exact alarms when the
+  /// system allows them, otherwise Android may deliver them a few minutes
+  /// late.
+  Future<void> scheduleClassReminders(
+    List<ClassReminder> reminders, {
+    required AppLocalizations locale,
+    required tz.Location location,
+  }) async {
+    if (reminders.isEmpty) return;
+    await _android?.createNotificationChannel(
+      AndroidNotificationChannel(
+        classReminderChannelId,
+        locale.classReminderChannelName,
+        description: locale.classReminderChannelDescription,
+        importance: Importance.high,
+      ),
+    );
+    final exact = await _android?.canScheduleExactNotifications() ?? false;
+    final details = NotificationDetails(
+      android: AndroidNotificationDetails(
+        classReminderChannelId,
+        locale.classReminderChannelName,
+        channelDescription: locale.classReminderChannelDescription,
+        importance: Importance.high,
+        priority: Priority.high,
+        icon: _icon,
+        category: AndroidNotificationCategory.reminder,
+      ),
+    );
+    final now = tz.TZDateTime.now(location);
+    for (final reminder in reminders) {
+      await _plugin.zonedSchedule(
+        reminder.id,
+        reminder.title,
+        reminder.body,
+        nextWeeklyInstance(now, reminder.weekday, reminder.time),
+        details,
+        androidScheduleMode: exact
+            ? AndroidScheduleMode.exactAllowWhileIdle
+            : AndroidScheduleMode.inexactAllowWhileIdle,
+        matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
+        payload: classSchedulePayload,
+      );
+    }
   }
 }

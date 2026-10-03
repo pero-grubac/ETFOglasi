@@ -1,11 +1,17 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:etf_oglasi/core/config/api_constants.dart';
 import 'package:etf_oglasi/core/model/category.dart';
+import 'package:etf_oglasi/core/service/error_log.dart';
 import 'package:etf_oglasi/core/ui/widget/api_error_widget.dart';
 import 'package:etf_oglasi/core/ui/widget/no_data_widget.dart';
 import 'package:etf_oglasi/core/ui/widget/offline_banner.dart';
 import 'package:etf_oglasi/core/util/format_date.dart';
 import 'package:etf_oglasi/features/schedule/model/schedule.dart';
+import 'package:etf_oglasi/features/schedule/model/schedule_block.dart';
 import 'package:etf_oglasi/features/schedule/model/schedule_result.dart';
+import 'package:etf_oglasi/features/schedule/service/calendar_export.dart';
 import 'package:etf_oglasi/features/schedule/service/schedule_provider.dart';
 import 'package:etf_oglasi/features/schedule/widget/class_schedule_settings_widget.dart';
 import 'package:etf_oglasi/features/schedule/widget/room_schedule_settings_widget.dart';
@@ -13,6 +19,9 @@ import 'package:etf_oglasi/features/settings/model/local_settings.dart';
 import 'package:etf_oglasi/features/settings/service/local_settings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../core/gen/app_localizations.dart';
 
@@ -102,7 +111,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen>
     if (result.isSave) {
       final notifier = ref.read(localSettingsProvider.notifier);
       if (_isClassSchedule) {
-        notifier.updateClassScheduleURL(result.url);
+        unawaited(notifier.updateClassScheduleURL(result.url));
       } else {
         notifier.updateRoomScheduleId(result.url);
       }
@@ -120,6 +129,47 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen>
     }
   }
 
+  /// Shares the class schedule as an .ics file with weekly repeating
+  /// events, until a date the user picks (end of the semester by default).
+  Future<void> _exportToCalendar(Schedule schedule) async {
+    final locale = AppLocalizations.of(context);
+    final now = DateTime.now();
+    final until = await showDatePicker(
+      context: context,
+      initialDate: defaultSemesterEnd(now),
+      firstDate: now,
+      lastDate: DateTime(now.year + 2),
+      helpText: locale.calendarRepeatUntil,
+    );
+    if (until == null || !mounted) return;
+
+    try {
+      final file = File(
+        path.join((await getTemporaryDirectory()).path, 'raspored.ics'),
+      );
+      await file.writeAsString(
+        buildScheduleCalendar(
+          blocks: scheduleBlocks(schedule),
+          from: now,
+          until: until,
+          now: now,
+        ),
+      );
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(file.path, mimeType: 'text/calendar')],
+          subject: locale.calendarFileSubject,
+        ),
+      );
+    } catch (e, stackTrace) {
+      await errorLog.record(e, stackTrace, source: 'calendar export');
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(locale.calendarExportFailed)));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final locale = AppLocalizations.of(context);
@@ -127,7 +177,8 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen>
     final url = _url(settings);
     final showWeekBar = !_isClassSchedule && _roomId(settings) != null;
     final data = url != null ? ref.watch(scheduleProvider(url)) : null;
-    final isLoading = data?.isLoading ?? false;
+    final isLoading =
+        (data?.isLoading ?? false) || (data?.value?.refreshing ?? false);
 
     return Scaffold(
       appBar: AppBar(
@@ -139,11 +190,21 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen>
             onPressed: url == null || isLoading ? null : () => _refresh(url),
             tooltip: locale.refresh,
           ),
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: _showSettingsDialog,
-            tooltip: locale.settings,
-          ),
+          if (_isClassSchedule)
+            _ClassScheduleMenu(
+              onSelect: _showSettingsDialog,
+              onExport: switch (data?.value?.schedule) {
+                final schedule? when schedule.isNotEmpty =>
+                  () => _exportToCalendar(schedule),
+                _ => null,
+              },
+            )
+          else
+            IconButton(
+              icon: const Icon(Icons.settings),
+              onPressed: _showSettingsDialog,
+              tooltip: locale.settings,
+            ),
         ],
         bottom: TabBar(
           controller: _tabController,
@@ -183,7 +244,8 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen>
         : data.when(
             skipLoadingOnRefresh: true,
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (_, __) => ApiErrorWidget(onRetry: () => _refresh(url)),
+            error: (error, _) =>
+                ApiErrorWidget(error: error, onRetry: () => _refresh(url)),
             data: (scheduleData) => Column(
               children: [
                 if (isLoading) const LinearProgressIndicator(),
@@ -371,6 +433,51 @@ class _DayScheduleListState extends State<_DayScheduleList> {
           ],
         ],
       ),
+    );
+  }
+}
+
+enum _MenuAction { select, export }
+
+/// "Pick a schedule" and "Add to calendar" for the class schedule. A menu
+/// instead of two more icons, so the title still fits on small phones.
+class _ClassScheduleMenu extends StatelessWidget {
+  const _ClassScheduleMenu({required this.onSelect, required this.onExport});
+
+  final VoidCallback onSelect;
+
+  /// `null` while there's no schedule to export.
+  final VoidCallback? onExport;
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context);
+    return PopupMenuButton<_MenuAction>(
+      tooltip: locale.moreOptions,
+      onSelected: (action) => switch (action) {
+        _MenuAction.select => onSelect(),
+        _MenuAction.export => onExport?.call(),
+      },
+      itemBuilder: (context) => [
+        PopupMenuItem(
+          value: _MenuAction.select,
+          child: ListTile(
+            leading: const Icon(Icons.settings),
+            title: Text(locale.selectSchedule),
+            contentPadding: EdgeInsets.zero,
+          ),
+        ),
+        PopupMenuItem(
+          value: _MenuAction.export,
+          enabled: onExport != null,
+          child: ListTile(
+            leading: const Icon(Icons.event),
+            title: Text(locale.addToCalendar),
+            contentPadding: EdgeInsets.zero,
+            enabled: onExport != null,
+          ),
+        ),
+      ],
     );
   }
 }

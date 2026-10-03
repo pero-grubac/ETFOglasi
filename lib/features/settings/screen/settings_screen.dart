@@ -1,8 +1,15 @@
+import 'dart:async';
+
+import 'package:etf_oglasi/core/service/update_service.dart';
+import 'package:etf_oglasi/core/util/dependency_injection.dart';
+import 'package:etf_oglasi/core/util/open_link.dart';
 import 'package:etf_oglasi/features/schedule/model/schedule_result.dart';
 import 'package:etf_oglasi/features/schedule/widget/class_schedule_settings_widget.dart';
 import 'package:etf_oglasi/features/schedule/widget/room_schedule_settings_widget.dart';
 import 'package:etf_oglasi/features/settings/model/local_settings.dart';
+import 'package:etf_oglasi/features/settings/screen/error_log_screen.dart';
 import 'package:etf_oglasi/features/settings/service/local_settings_provider.dart';
+import 'package:etf_oglasi/features/settings/widget/update_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -13,9 +20,13 @@ class SettingsScreen extends ConsumerWidget {
 
   const SettingsScreen({super.key});
 
+  static const _newIssueUrl =
+      'https://github.com/pero-grubac/ETFOglasi/issues/new';
+
   static const _languageOptions = [
     (name: LocalSettings.srLatName, value: LocalSettings.srLatLang),
     (name: LocalSettings.srCyrName, value: LocalSettings.srCyrLang),
+    (name: LocalSettings.enName, value: LocalSettings.enLang),
   ];
 
   Future<void> _showScheduleDialog(
@@ -33,7 +44,7 @@ class SettingsScreen extends ConsumerWidget {
 
     final settingsNotifier = ref.read(localSettingsProvider.notifier);
     if (isClassSchedule) {
-      settingsNotifier.updateClassScheduleURL(result.url);
+      unawaited(settingsNotifier.updateClassScheduleURL(result.url));
     } else {
       settingsNotifier.updateRoomScheduleId(result.url);
     }
@@ -131,9 +142,11 @@ class SettingsScreen extends ConsumerWidget {
                     ],
                     onChanged: (value) {
                       if (value != null) {
-                        ref
-                            .read(localSettingsProvider.notifier)
-                            .updateLanguage(value);
+                        unawaited(
+                          ref
+                              .read(localSettingsProvider.notifier)
+                              .updateLanguage(value),
+                        );
                       }
                     },
                     hint: Text(locale.choseLanguage),
@@ -152,10 +165,75 @@ class SettingsScreen extends ConsumerWidget {
                   onPressed: () => _showScheduleDialog(context, ref, false),
                   child: Text(locale.hallSchedule),
                 ),
+                _AboutSection(
+                  checkForUpdates: settings.checkForUpdates,
+                  newIssueUrl: _newIssueUrl,
+                ),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _AboutSection extends ConsumerWidget {
+  const _AboutSection({
+    required this.checkForUpdates,
+    required this.newIssueUrl,
+  });
+
+  final bool checkForUpdates;
+  final String newIssueUrl;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final locale = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final version = ref.watch(appVersionProvider).value;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Divider(),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            child: Text(locale.about, style: theme.textTheme.titleMedium),
+          ),
+          ListTile(
+            leading: const Icon(Icons.info_outline),
+            title: Text(locale.appVersion(version: version ?? '…')),
+            onTap: () => openLink(context, UpdateService.releasesPageUrl),
+          ),
+          SwitchListTile(
+            secondary: const Icon(Icons.system_update),
+            title: Text(locale.checkForUpdates),
+            subtitle: Text(locale.checkForUpdatesDescription),
+            value: checkForUpdates,
+            onChanged: (value) => ref
+                .read(localSettingsProvider.notifier)
+                .updateCheckForUpdates(value),
+          ),
+          ListTile(
+            leading: const Icon(Icons.refresh),
+            title: Text(locale.checkNow),
+            onTap: () => checkForUpdateNow(context, ref),
+          ),
+          ListTile(
+            leading: const Icon(Icons.bug_report_outlined),
+            title: Text(locale.errorLog),
+            onTap: () => Navigator.of(context).pushNamed(ErrorLogScreen.id),
+          ),
+          ListTile(
+            leading: const Icon(Icons.feedback_outlined),
+            title: Text(locale.reportProblem),
+            trailing: const Icon(Icons.open_in_new, size: 18),
+            onTap: () => openLink(context, newIssueUrl),
+          ),
+        ],
       ),
     );
   }

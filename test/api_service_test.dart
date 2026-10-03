@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:etf_oglasi/core/model/api_exception.dart';
 import 'package:etf_oglasi/core/service/api_service.dart';
@@ -7,6 +8,29 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 
 void main() {
+  test('reports TLS failures as certificate errors', () async {
+    final service = ApiService(
+      client: MockClient((_) async => throw const HandshakeException('bad')),
+    );
+
+    expect(
+      service.fetchData(url: 'https://example.com', fromJson: (json) => json),
+      throwsA(
+        isA<ApiException>().having(
+          (e) => e.kind,
+          'kind',
+          ApiErrorKind.certificate,
+        ),
+      ),
+    );
+  });
+
+  test('classifies errors by status code', () {
+    expect(ApiException('', null).kind, ApiErrorKind.network);
+    expect(ApiException('', 503).kind, ApiErrorKind.server);
+    expect(ApiException('', 404).kind, ApiErrorKind.other);
+  });
+
   test('decodes the body as UTF-8 even without a charset header', () async {
     final client = MockClient(
       (_) async => http.Response.bytes(

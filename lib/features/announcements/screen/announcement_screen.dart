@@ -29,14 +29,14 @@ class _AnnouncementScreenState extends ConsumerState<AnnouncementScreen> {
   /// mark everything as seen.
   final Set<int> _newIds = {};
 
-  AutoDisposeFutureProvider<AnnouncementsResult> get _provider =>
+  FutureProvider<AnnouncementsResult> get _provider =>
       announcementsProvider(widget.category.announcementsUrl!);
 
   @override
   void initState() {
     super.initState();
     ref.listenManual(_provider, (_, next) {
-      final newIds = next.valueOrNull?.newIds;
+      final newIds = next.value?.newIds;
       if (newIds != null && newIds.isNotEmpty) {
         setState(() => _newIds.addAll(newIds));
       }
@@ -141,9 +141,13 @@ class _AnnouncementScreenState extends ConsumerState<AnnouncementScreen> {
         ),
         body: data.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, __) => ApiErrorWidget(onRetry: _refresh),
+          error: (error, _) => ApiErrorWidget(error: error, onRetry: _refresh),
           data: (result) {
-            final announcements = _filter(result.announcements);
+            final now = DateTime.now();
+            final announcements = sortExpiredLast(
+              _filter(result.announcements),
+              now,
+            );
             final emptyMessage = result.announcements.isEmpty
                 ? locale.noNotifications
                 : locale.noSearchResults;
@@ -173,6 +177,7 @@ class _AnnouncementScreenState extends ConsumerState<AnnouncementScreen> {
                         return AnnouncementCard(
                           announcement: announcement,
                           isNew: _newIds.contains(announcement.id),
+                          isExpired: announcement.isExpiredAt(now),
                         );
                       },
                     ),

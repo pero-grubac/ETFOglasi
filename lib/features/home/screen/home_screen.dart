@@ -2,6 +2,7 @@ import 'package:etf_oglasi/core/model/category.dart';
 import 'package:etf_oglasi/features/announcements/service/announcements_provider.dart';
 import 'package:etf_oglasi/features/home/widget/category_grid_item.dart';
 import 'package:etf_oglasi/features/settings/widget/main_drawer.dart';
+import 'package:etf_oglasi/features/settings/widget/update_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -24,6 +25,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     _lifecycleListener = AppLifecycleListener(
       onResume: () => ref.read(seenVersionProvider.notifier).bump(),
     );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) checkForUpdateOnStart(context, ref);
+    });
   }
 
   @override

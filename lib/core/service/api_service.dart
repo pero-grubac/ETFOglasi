@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:etf_oglasi/core/model/api_exception.dart';
@@ -23,7 +24,11 @@ class ApiService {
       final data = jsonDecode(utf8.decode(response.bodyBytes));
       return fromJson(data);
     } catch (e) {
-      throw ApiException('Invalid response data: $e', response.statusCode);
+      throw ApiException(
+        'Invalid response data: $e',
+        response.statusCode,
+        kind: ApiErrorKind.other,
+      );
     }
   }
 
@@ -58,6 +63,12 @@ class ApiService {
       return response;
     } on ApiException {
       rethrow;
+    } on TlsException catch (e) {
+      throw ApiException(
+        'Secure connection failed: $e',
+        null,
+        kind: ApiErrorKind.certificate,
+      );
     } catch (e) {
       throw ApiException('Error occurred while fetching data: $e', null);
     }

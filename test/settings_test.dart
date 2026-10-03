@@ -29,7 +29,9 @@ void main() {
         );
       }
       expect(LocalSettings.parseLanguage('sr-Cyrl'), LocalSettings.srCyrLang);
-      expect(LocalSettings.parseLanguage('en'), LocalSettings.srLatLang);
+      expect(LocalSettings.parseLanguage('en'), LocalSettings.enLang);
+      expect(LocalSettings.parseLanguage('de'), LocalSettings.srLatLang);
+      expect(LocalSettings.parseLanguage(null), LocalSettings.srLatLang);
     });
 
     test('toLocale handles script subtags', () {

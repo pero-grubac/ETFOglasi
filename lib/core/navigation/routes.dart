@@ -1,6 +1,8 @@
 import 'package:etf_oglasi/core/model/category.dart';
 import 'package:etf_oglasi/features/announcements/screen/announcement_screen.dart';
+import 'package:etf_oglasi/features/announcements/screen/bookmarks_screen.dart';
 import 'package:etf_oglasi/features/schedule/screen/schedule_screen.dart';
+import 'package:etf_oglasi/features/settings/screen/error_log_screen.dart';
 import 'package:etf_oglasi/features/settings/screen/notification_screen.dart';
 import 'package:etf_oglasi/features/settings/screen/settings_screen.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +14,8 @@ class Routes {
   static const String scheduleScreen = ScheduleScreen.id;
   static const String settingsScreen = SettingsScreen.id;
   static const String notificationScreen = NotificationScreen.id;
+  static const String errorLogScreen = ErrorLogScreen.id;
+  static const String bookmarksScreen = BookmarksScreen.id;
 
   static String forCategory(Category category) {
     switch (category.type) {
@@ -45,6 +49,10 @@ class Routes {
         return MaterialPageRoute(builder: (_) => const SettingsScreen());
       case notificationScreen:
         return MaterialPageRoute(builder: (_) => const NotificationScreen());
+      case errorLogScreen:
+        return MaterialPageRoute(builder: (_) => const ErrorLogScreen());
+      case bookmarksScreen:
+        return MaterialPageRoute(builder: (_) => const BookmarksScreen());
       default:
         return _errorRoute();
     }

@@ -6,6 +6,7 @@ part 'announcement.g.dart';
 class Announcement {
   static const String dbName = 'announcement';
   static const String seenDbName = 'announcement_seen';
+  static const String bookmarkDbName = 'announcement_bookmark';
   final int id;
   final String naslov;
   final String? uvod;
@@ -34,6 +35,8 @@ class Announcement {
       _$AnnouncementFromJson(json);
 
   Map<String, dynamic> toJson() => _$AnnouncementToJson(this);
+
+  bool isExpiredAt(DateTime now) => !vrijemeIsteka.isAfter(now);
 }
 
 @JsonSerializable()

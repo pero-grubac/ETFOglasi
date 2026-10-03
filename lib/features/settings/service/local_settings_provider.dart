@@ -1,4 +1,5 @@
 import 'package:etf_oglasi/features/announcements/service/announcement_workmanager.dart';
+import 'package:etf_oglasi/features/schedule/service/saved_schedule_sync.dart';
 import 'package:etf_oglasi/features/settings/model/local_settings.dart';
 import 'package:etf_oglasi/features/settings/model/notification_time_setting.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +24,9 @@ class LocalSettingsNotifier extends Notifier<LocalSettings> {
       notificationTimeSettings: NotificationTimeSetting.decodeMap(
         prefs.getString(LocalSettings.notificationTimeSettingsKey),
       ),
+      checkForUpdates: prefs.getBool(LocalSettings.checkForUpdatesKey) ?? true,
+      classReminderMinutes:
+          prefs.getInt(LocalSettings.classReminderMinutesKey) ?? 0,
     );
   }
 
@@ -31,30 +35,40 @@ class LocalSettingsNotifier extends Notifier<LocalSettings> {
     _saveSettings();
   }
 
-  void updateLanguage(String language) {
+  Future<void> updateLanguage(String language) async {
     state = state.copyWith(language: language);
-    _saveSettings();
+    await _saveSettings();
+    // Reminder and widget texts are in the app's language.
+    await ref.read(savedScheduleSyncProvider).sync();
   }
 
   Future<void> updateNotificationsTimeSettings(
     Map<String, NotificationTimeSetting> settings,
   ) async {
-    final previous = state.notificationTimeSettings;
     state = state.copyWith(notificationTimeSettings: settings);
     await _saveSettings();
-    await AnnouncementWorkManager.updatePeriodicTasks(
-      previous: previous,
-      current: settings,
-    );
+    await AnnouncementWorkManager.syncPeriodicTask(settings);
   }
 
-  void updateClassScheduleURL(String url) {
+  Future<void> updateClassScheduleURL(String url) async {
     state = state.copyWith(classScheduleUrl: url);
-    _saveSettings();
+    await _saveSettings();
+    await ref.read(savedScheduleSyncProvider).sync();
+  }
+
+  Future<void> updateClassReminderMinutes(int minutes) async {
+    state = state.copyWith(classReminderMinutes: minutes);
+    await _saveSettings();
+    await ref.read(savedScheduleSyncProvider).sync();
   }
 
   void updateRoomScheduleId(String id) {
     state = state.copyWith(roomScheduleId: id);
+    _saveSettings();
+  }
+
+  void updateCheckForUpdates(bool enabled) {
+    state = state.copyWith(checkForUpdates: enabled);
     _saveSettings();
   }
 
@@ -78,6 +92,14 @@ class LocalSettingsNotifier extends Notifier<LocalSettings> {
     await prefs.setString(
       LocalSettings.notificationTimeSettingsKey,
       NotificationTimeSetting.encodeMap(state.notificationTimeSettings),
+    );
+    await prefs.setBool(
+      LocalSettings.checkForUpdatesKey,
+      state.checkForUpdates,
+    );
+    await prefs.setInt(
+      LocalSettings.classReminderMinutesKey,
+      state.classReminderMinutes,
     );
   }
 

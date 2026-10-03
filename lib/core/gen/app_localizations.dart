@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
+import 'app_localizations_en.dart';
 import 'app_localizations_sr.dart';
 
 // ignore_for_file: type=lint
@@ -93,6 +94,7 @@ abstract class AppLocalizations {
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
+    Locale('en'),
     Locale('sr'),
     Locale.fromSubtags(languageCode: 'sr', scriptCode: 'Cyrl'),
     Locale.fromSubtags(languageCode: 'sr', scriptCode: 'Latn'),
@@ -589,6 +591,324 @@ abstract class AppLocalizations {
   /// In sr, this message translates to:
   /// **'Sistemska'**
   String get themeSystem;
+
+  /// No description provided for @about.
+  ///
+  /// In sr, this message translates to:
+  /// **'O aplikaciji'**
+  String get about;
+
+  /// No description provided for @appVersion.
+  ///
+  /// In sr, this message translates to:
+  /// **'Verzija {version}'**
+  String appVersion({required String version});
+
+  /// No description provided for @checkForUpdates.
+  ///
+  /// In sr, this message translates to:
+  /// **'Provjeravaj nove verzije'**
+  String get checkForUpdates;
+
+  /// No description provided for @checkForUpdatesDescription.
+  ///
+  /// In sr, this message translates to:
+  /// **'Jednom sedmično, preko GitHub-a'**
+  String get checkForUpdatesDescription;
+
+  /// No description provided for @checkNow.
+  ///
+  /// In sr, this message translates to:
+  /// **'Provjeri sada'**
+  String get checkNow;
+
+  /// No description provided for @upToDate.
+  ///
+  /// In sr, this message translates to:
+  /// **'Imate najnoviju verziju'**
+  String get upToDate;
+
+  /// No description provided for @updateCheckFailed.
+  ///
+  /// In sr, this message translates to:
+  /// **'Provjera nove verzije nije uspjela'**
+  String get updateCheckFailed;
+
+  /// No description provided for @updateAvailableTitle.
+  ///
+  /// In sr, this message translates to:
+  /// **'Nova verzija'**
+  String get updateAvailableTitle;
+
+  /// No description provided for @updateAvailableMessage.
+  ///
+  /// In sr, this message translates to:
+  /// **'Dostupna je verzija {version}. Preuzmite APK sa GitHub stranice i instalirajte ga preko postojeće aplikacije – podešavanja i podaci ostaju.'**
+  String updateAvailableMessage({required String version});
+
+  /// No description provided for @later.
+  ///
+  /// In sr, this message translates to:
+  /// **'Kasnije'**
+  String get later;
+
+  /// No description provided for @reportProblem.
+  ///
+  /// In sr, this message translates to:
+  /// **'Prijavi problem'**
+  String get reportProblem;
+
+  /// No description provided for @errorLog.
+  ///
+  /// In sr, this message translates to:
+  /// **'Dnevnik grešaka'**
+  String get errorLog;
+
+  /// No description provided for @errorLogDescription.
+  ///
+  /// In sr, this message translates to:
+  /// **'Greške se čuvaju samo na telefonu i nigdje se ne šalju. Možete ih kopirati uz prijavu problema.'**
+  String get errorLogDescription;
+
+  /// No description provided for @errorLogEmpty.
+  ///
+  /// In sr, this message translates to:
+  /// **'Nema zabilježenih grešaka'**
+  String get errorLogEmpty;
+
+  /// No description provided for @copy.
+  ///
+  /// In sr, this message translates to:
+  /// **'Kopiraj'**
+  String get copy;
+
+  /// No description provided for @clear.
+  ///
+  /// In sr, this message translates to:
+  /// **'Obriši'**
+  String get clear;
+
+  /// No description provided for @errorLogCopied.
+  ///
+  /// In sr, this message translates to:
+  /// **'Dnevnik grešaka je kopiran'**
+  String get errorLogCopied;
+
+  /// No description provided for @batteryTitle.
+  ///
+  /// In sr, this message translates to:
+  /// **'Obavještenja ne stižu?'**
+  String get batteryTitle;
+
+  /// No description provided for @batteryMessage.
+  ///
+  /// In sr, this message translates to:
+  /// **'Neki telefoni zaustavljaju aplikacije u pozadini radi uštede baterije. Isključite optimizaciju baterije za ovu aplikaciju.'**
+  String get batteryMessage;
+
+  /// No description provided for @batteryAllow.
+  ///
+  /// In sr, this message translates to:
+  /// **'Isključi optimizaciju'**
+  String get batteryAllow;
+
+  /// No description provided for @moreInfo.
+  ///
+  /// In sr, this message translates to:
+  /// **'Više informacija'**
+  String get moreInfo;
+
+  /// No description provided for @linkOpenFailed.
+  ///
+  /// In sr, this message translates to:
+  /// **'Link nije moguće otvoriti'**
+  String get linkOpenFailed;
+
+  /// No description provided for @expiredBadge.
+  ///
+  /// In sr, this message translates to:
+  /// **'Isteklo'**
+  String get expiredBadge;
+
+  /// No description provided for @errorOffline.
+  ///
+  /// In sr, this message translates to:
+  /// **'Nema internet konekcije'**
+  String get errorOffline;
+
+  /// No description provided for @errorCertificate.
+  ///
+  /// In sr, this message translates to:
+  /// **'Sigurna veza sa serverom fakulteta nije uspjela. Provjerite da su datum i vrijeme na telefonu tačni.'**
+  String get errorCertificate;
+
+  /// No description provided for @errorServer.
+  ///
+  /// In sr, this message translates to:
+  /// **'Server fakulteta trenutno ne radi. Pokušajte kasnije.'**
+  String get errorServer;
+
+  /// No description provided for @addToCalendar.
+  ///
+  /// In sr, this message translates to:
+  /// **'Dodaj u kalendar'**
+  String get addToCalendar;
+
+  /// No description provided for @calendarRepeatUntil.
+  ///
+  /// In sr, this message translates to:
+  /// **'Ponavljaj do'**
+  String get calendarRepeatUntil;
+
+  /// No description provided for @calendarExportFailed.
+  ///
+  /// In sr, this message translates to:
+  /// **'Izvoz u kalendar nije uspio'**
+  String get calendarExportFailed;
+
+  /// No description provided for @calendarFileSubject.
+  ///
+  /// In sr, this message translates to:
+  /// **'Raspored nastave (kalendar)'**
+  String get calendarFileSubject;
+
+  /// No description provided for @bookmark.
+  ///
+  /// In sr, this message translates to:
+  /// **'Sačuvaj'**
+  String get bookmark;
+
+  /// No description provided for @removeBookmark.
+  ///
+  /// In sr, this message translates to:
+  /// **'Ukloni iz sačuvanih'**
+  String get removeBookmark;
+
+  /// No description provided for @bookmarks.
+  ///
+  /// In sr, this message translates to:
+  /// **'Sačuvani oglasi'**
+  String get bookmarks;
+
+  /// No description provided for @noBookmarks.
+  ///
+  /// In sr, this message translates to:
+  /// **'Nemate sačuvanih oglasa.\nOglas sačuvajte iz menija ⋮ na kartici.'**
+  String get noBookmarks;
+
+  /// No description provided for @bookmarkSaved.
+  ///
+  /// In sr, this message translates to:
+  /// **'Oglas je sačuvan'**
+  String get bookmarkSaved;
+
+  /// No description provided for @bookmarkRemoved.
+  ///
+  /// In sr, this message translates to:
+  /// **'Oglas je uklonjen iz sačuvanih'**
+  String get bookmarkRemoved;
+
+  /// No description provided for @bookmarkFailed.
+  ///
+  /// In sr, this message translates to:
+  /// **'Čuvanje nije uspjelo'**
+  String get bookmarkFailed;
+
+  /// No description provided for @classReminder.
+  ///
+  /// In sr, this message translates to:
+  /// **'Podsjetnik prije nastave'**
+  String get classReminder;
+
+  /// No description provided for @classReminderDescription.
+  ///
+  /// In sr, this message translates to:
+  /// **'Za sačuvani raspored nastave'**
+  String get classReminderDescription;
+
+  /// No description provided for @classReminderNoSchedule.
+  ///
+  /// In sr, this message translates to:
+  /// **'Prvo sačuvajte raspored nastave'**
+  String get classReminderNoSchedule;
+
+  /// No description provided for @classReminderMinutesBefore.
+  ///
+  /// In sr, this message translates to:
+  /// **'{minutes} min prije'**
+  String classReminderMinutesBefore({required int minutes});
+
+  /// No description provided for @classReminderTitle.
+  ///
+  /// In sr, this message translates to:
+  /// **'Za {minutes} min: {subject}'**
+  String classReminderTitle({required int minutes, required String subject});
+
+  /// No description provided for @classReminderChannelName.
+  ///
+  /// In sr, this message translates to:
+  /// **'Podsjetnici za nastavu'**
+  String get classReminderChannelName;
+
+  /// No description provided for @classReminderChannelDescription.
+  ///
+  /// In sr, this message translates to:
+  /// **'Obavještenje prije početka časa'**
+  String get classReminderChannelDescription;
+
+  /// No description provided for @widgetNoSchedule.
+  ///
+  /// In sr, this message translates to:
+  /// **'Izaberite raspored nastave u aplikaciji'**
+  String get widgetNoSchedule;
+
+  /// No description provided for @widgetNoClasses.
+  ///
+  /// In sr, this message translates to:
+  /// **'Nema nastave'**
+  String get widgetNoClasses;
+
+  /// No description provided for @widgetNow.
+  ///
+  /// In sr, this message translates to:
+  /// **'Sada'**
+  String get widgetNow;
+
+  /// No description provided for @widgetUntil.
+  ///
+  /// In sr, this message translates to:
+  /// **'do'**
+  String get widgetUntil;
+
+  /// No description provided for @widgetNext.
+  ///
+  /// In sr, this message translates to:
+  /// **'Zatim'**
+  String get widgetNext;
+
+  /// No description provided for @widgetTomorrow.
+  ///
+  /// In sr, this message translates to:
+  /// **'Sutra'**
+  String get widgetTomorrow;
+
+  /// No description provided for @widgetFree.
+  ///
+  /// In sr, this message translates to:
+  /// **'Sada nema nastave'**
+  String get widgetFree;
+
+  /// No description provided for @widgetNoMoreToday.
+  ///
+  /// In sr, this message translates to:
+  /// **'Danas nema više nastave'**
+  String get widgetNoMoreToday;
+
+  /// No description provided for @widgetNoClassesToday.
+  ///
+  /// In sr, this message translates to:
+  /// **'Danas nema nastave'**
+  String get widgetNoClassesToday;
 }
 
 class _AppLocalizationsDelegate
@@ -602,7 +922,7 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['sr'].contains(locale.languageCode);
+      <String>['en', 'sr'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -625,6 +945,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
 
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
+    case 'en':
+      return AppLocalizationsEn();
     case 'sr':
       return AppLocalizationsSr();
   }

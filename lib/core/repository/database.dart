@@ -46,6 +46,14 @@ class DatabaseHelper {
             ids TEXT NOT NULL
             )
             ''');
+
+          await tr.execute('''
+            CREATE TABLE ${Announcement.bookmarkDbName}(
+              id INTEGER PRIMARY KEY,
+              data TEXT NOT NULL,
+              saved_at INTEGER NOT NULL
+            )
+            ''');
         });
       },
       onUpgrade: (db, oldVersion, newVersion) async {
@@ -73,8 +81,17 @@ class DatabaseHelper {
             )
           ''');
         }
+        if (oldVersion < 5) {
+          await db.execute('''
+            CREATE TABLE ${Announcement.bookmarkDbName}(
+              id INTEGER PRIMARY KEY,
+              data TEXT NOT NULL,
+              saved_at INTEGER NOT NULL
+            )
+          ''');
+        }
       },
-      version: 4,
+      version: 5,
     );
   }
 

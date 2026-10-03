@@ -1,4 +1,5 @@
 import 'package:etf_oglasi/core/ui/theme/drawer_header_theme.dart';
+import 'package:etf_oglasi/features/announcements/screen/bookmarks_screen.dart';
 import 'package:etf_oglasi/features/settings/screen/notification_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -34,6 +35,19 @@ class MainDrawer extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.bookmarks,
+              size: 26,
+              color: theme.colorScheme.primary,
+            ),
+            title: Text(locale.bookmarks),
+            onTap: () {
+              Navigator.of(context)
+                ..pop()
+                ..pushNamed(BookmarksScreen.id);
+            },
           ),
           ListTile(
             leading: Icon(

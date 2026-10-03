@@ -267,6 +267,179 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get themeSystem => 'Sistemska';
+
+  @override
+  String get about => 'O aplikaciji';
+
+  @override
+  String appVersion({required String version}) {
+    return 'Verzija $version';
+  }
+
+  @override
+  String get checkForUpdates => 'Provjeravaj nove verzije';
+
+  @override
+  String get checkForUpdatesDescription => 'Jednom sedmično, preko GitHub-a';
+
+  @override
+  String get checkNow => 'Provjeri sada';
+
+  @override
+  String get upToDate => 'Imate najnoviju verziju';
+
+  @override
+  String get updateCheckFailed => 'Provjera nove verzije nije uspjela';
+
+  @override
+  String get updateAvailableTitle => 'Nova verzija';
+
+  @override
+  String updateAvailableMessage({required String version}) {
+    return 'Dostupna je verzija $version. Preuzmite APK sa GitHub stranice i instalirajte ga preko postojeće aplikacije – podešavanja i podaci ostaju.';
+  }
+
+  @override
+  String get later => 'Kasnije';
+
+  @override
+  String get reportProblem => 'Prijavi problem';
+
+  @override
+  String get errorLog => 'Dnevnik grešaka';
+
+  @override
+  String get errorLogDescription =>
+      'Greške se čuvaju samo na telefonu i nigdje se ne šalju. Možete ih kopirati uz prijavu problema.';
+
+  @override
+  String get errorLogEmpty => 'Nema zabilježenih grešaka';
+
+  @override
+  String get copy => 'Kopiraj';
+
+  @override
+  String get clear => 'Obriši';
+
+  @override
+  String get errorLogCopied => 'Dnevnik grešaka je kopiran';
+
+  @override
+  String get batteryTitle => 'Obavještenja ne stižu?';
+
+  @override
+  String get batteryMessage =>
+      'Neki telefoni zaustavljaju aplikacije u pozadini radi uštede baterije. Isključite optimizaciju baterije za ovu aplikaciju.';
+
+  @override
+  String get batteryAllow => 'Isključi optimizaciju';
+
+  @override
+  String get moreInfo => 'Više informacija';
+
+  @override
+  String get linkOpenFailed => 'Link nije moguće otvoriti';
+
+  @override
+  String get expiredBadge => 'Isteklo';
+
+  @override
+  String get errorOffline => 'Nema internet konekcije';
+
+  @override
+  String get errorCertificate =>
+      'Sigurna veza sa serverom fakulteta nije uspjela. Provjerite da su datum i vrijeme na telefonu tačni.';
+
+  @override
+  String get errorServer =>
+      'Server fakulteta trenutno ne radi. Pokušajte kasnije.';
+
+  @override
+  String get addToCalendar => 'Dodaj u kalendar';
+
+  @override
+  String get calendarRepeatUntil => 'Ponavljaj do';
+
+  @override
+  String get calendarExportFailed => 'Izvoz u kalendar nije uspio';
+
+  @override
+  String get calendarFileSubject => 'Raspored nastave (kalendar)';
+
+  @override
+  String get bookmark => 'Sačuvaj';
+
+  @override
+  String get removeBookmark => 'Ukloni iz sačuvanih';
+
+  @override
+  String get bookmarks => 'Sačuvani oglasi';
+
+  @override
+  String get noBookmarks =>
+      'Nemate sačuvanih oglasa.\nOglas sačuvajte iz menija ⋮ na kartici.';
+
+  @override
+  String get bookmarkSaved => 'Oglas je sačuvan';
+
+  @override
+  String get bookmarkRemoved => 'Oglas je uklonjen iz sačuvanih';
+
+  @override
+  String get bookmarkFailed => 'Čuvanje nije uspjelo';
+
+  @override
+  String get classReminder => 'Podsjetnik prije nastave';
+
+  @override
+  String get classReminderDescription => 'Za sačuvani raspored nastave';
+
+  @override
+  String get classReminderNoSchedule => 'Prvo sačuvajte raspored nastave';
+
+  @override
+  String classReminderMinutesBefore({required int minutes}) {
+    return '$minutes min prije';
+  }
+
+  @override
+  String classReminderTitle({required int minutes, required String subject}) {
+    return 'Za $minutes min: $subject';
+  }
+
+  @override
+  String get classReminderChannelName => 'Podsjetnici za nastavu';
+
+  @override
+  String get classReminderChannelDescription =>
+      'Obavještenje prije početka časa';
+
+  @override
+  String get widgetNoSchedule => 'Izaberite raspored nastave u aplikaciji';
+
+  @override
+  String get widgetNoClasses => 'Nema nastave';
+
+  @override
+  String get widgetNow => 'Sada';
+
+  @override
+  String get widgetUntil => 'do';
+
+  @override
+  String get widgetNext => 'Zatim';
+
+  @override
+  String get widgetTomorrow => 'Sutra';
+
+  @override
+  String get widgetFree => 'Sada nema nastave';
+
+  @override
+  String get widgetNoMoreToday => 'Danas nema više nastave';
+
+  @override
+  String get widgetNoClassesToday => 'Danas nema nastave';
 }
 
 /// The translations for Serbian, using the Cyrillic script (`sr_Cyrl`).
@@ -532,6 +705,179 @@ class AppLocalizationsSrCyrl extends AppLocalizationsSr {
 
   @override
   String get themeSystem => 'Системска';
+
+  @override
+  String get about => 'О апликацији';
+
+  @override
+  String appVersion({required String version}) {
+    return 'Верзија $version';
+  }
+
+  @override
+  String get checkForUpdates => 'Провјеравај нове верзије';
+
+  @override
+  String get checkForUpdatesDescription => 'Једном седмично, преко GitHub-а';
+
+  @override
+  String get checkNow => 'Провјери сада';
+
+  @override
+  String get upToDate => 'Имате најновију верзију';
+
+  @override
+  String get updateCheckFailed => 'Провјера нове верзије није успјела';
+
+  @override
+  String get updateAvailableTitle => 'Нова верзија';
+
+  @override
+  String updateAvailableMessage({required String version}) {
+    return 'Доступна је верзија $version. Преузмите APK са GitHub странице и инсталирајте га преко постојеће апликације – подешавања и подаци остају.';
+  }
+
+  @override
+  String get later => 'Касније';
+
+  @override
+  String get reportProblem => 'Пријави проблем';
+
+  @override
+  String get errorLog => 'Дневник грешака';
+
+  @override
+  String get errorLogDescription =>
+      'Грешке се чувају само на телефону и нигдје се не шаљу. Можете их копирати уз пријаву проблема.';
+
+  @override
+  String get errorLogEmpty => 'Нема забиљежених грешака';
+
+  @override
+  String get copy => 'Копирај';
+
+  @override
+  String get clear => 'Обриши';
+
+  @override
+  String get errorLogCopied => 'Дневник грешака је копиран';
+
+  @override
+  String get batteryTitle => 'Обавјештења не стижу?';
+
+  @override
+  String get batteryMessage =>
+      'Неки телефони заустављају апликације у позадини ради уштеде батерије. Искључите оптимизацију батерије за ову апликацију.';
+
+  @override
+  String get batteryAllow => 'Искључи оптимизацију';
+
+  @override
+  String get moreInfo => 'Више информација';
+
+  @override
+  String get linkOpenFailed => 'Линк није могуће отворити';
+
+  @override
+  String get expiredBadge => 'Истекло';
+
+  @override
+  String get errorOffline => 'Нема интернет конекције';
+
+  @override
+  String get errorCertificate =>
+      'Сигурна веза са сервером факултета није успјела. Провјерите да су датум и вријеме на телефону тачни.';
+
+  @override
+  String get errorServer =>
+      'Сервер факултета тренутно не ради. Покушајте касније.';
+
+  @override
+  String get addToCalendar => 'Додај у календар';
+
+  @override
+  String get calendarRepeatUntil => 'Понављај до';
+
+  @override
+  String get calendarExportFailed => 'Извоз у календар није успио';
+
+  @override
+  String get calendarFileSubject => 'Распоред наставе (календар)';
+
+  @override
+  String get bookmark => 'Сачувај';
+
+  @override
+  String get removeBookmark => 'Уклони из сачуваних';
+
+  @override
+  String get bookmarks => 'Сачувани огласи';
+
+  @override
+  String get noBookmarks =>
+      'Немате сачуваних огласа.\nОглас сачувајте из менија ⋮ на картици.';
+
+  @override
+  String get bookmarkSaved => 'Оглас је сачуван';
+
+  @override
+  String get bookmarkRemoved => 'Оглас је уклоњен из сачуваних';
+
+  @override
+  String get bookmarkFailed => 'Чување није успјело';
+
+  @override
+  String get classReminder => 'Подсјетник прије наставе';
+
+  @override
+  String get classReminderDescription => 'За сачувани распоред наставе';
+
+  @override
+  String get classReminderNoSchedule => 'Прво сачувајте распоред наставе';
+
+  @override
+  String classReminderMinutesBefore({required int minutes}) {
+    return '$minutes мин прије';
+  }
+
+  @override
+  String classReminderTitle({required int minutes, required String subject}) {
+    return 'За $minutes мин: $subject';
+  }
+
+  @override
+  String get classReminderChannelName => 'Подсјетници за наставу';
+
+  @override
+  String get classReminderChannelDescription =>
+      'Обавјештење прије почетка часа';
+
+  @override
+  String get widgetNoSchedule => 'Изаберите распоред наставе у апликацији';
+
+  @override
+  String get widgetNoClasses => 'Нема наставе';
+
+  @override
+  String get widgetNow => 'Сада';
+
+  @override
+  String get widgetUntil => 'до';
+
+  @override
+  String get widgetNext => 'Затим';
+
+  @override
+  String get widgetTomorrow => 'Сутра';
+
+  @override
+  String get widgetFree => 'Сада нема наставе';
+
+  @override
+  String get widgetNoMoreToday => 'Данас нема више наставе';
+
+  @override
+  String get widgetNoClassesToday => 'Данас нема наставе';
 }
 
 /// The translations for Serbian, using the Latin script (`sr_Latn`).
@@ -797,4 +1143,177 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get themeSystem => 'Sistemska';
+
+  @override
+  String get about => 'O aplikaciji';
+
+  @override
+  String appVersion({required String version}) {
+    return 'Verzija $version';
+  }
+
+  @override
+  String get checkForUpdates => 'Provjeravaj nove verzije';
+
+  @override
+  String get checkForUpdatesDescription => 'Jednom sedmično, preko GitHub-a';
+
+  @override
+  String get checkNow => 'Provjeri sada';
+
+  @override
+  String get upToDate => 'Imate najnoviju verziju';
+
+  @override
+  String get updateCheckFailed => 'Provjera nove verzije nije uspjela';
+
+  @override
+  String get updateAvailableTitle => 'Nova verzija';
+
+  @override
+  String updateAvailableMessage({required String version}) {
+    return 'Dostupna je verzija $version. Preuzmite APK sa GitHub stranice i instalirajte ga preko postojeće aplikacije – podešavanja i podaci ostaju.';
+  }
+
+  @override
+  String get later => 'Kasnije';
+
+  @override
+  String get reportProblem => 'Prijavi problem';
+
+  @override
+  String get errorLog => 'Dnevnik grešaka';
+
+  @override
+  String get errorLogDescription =>
+      'Greške se čuvaju samo na telefonu i nigdje se ne šalju. Možete ih kopirati uz prijavu problema.';
+
+  @override
+  String get errorLogEmpty => 'Nema zabilježenih grešaka';
+
+  @override
+  String get copy => 'Kopiraj';
+
+  @override
+  String get clear => 'Obriši';
+
+  @override
+  String get errorLogCopied => 'Dnevnik grešaka je kopiran';
+
+  @override
+  String get batteryTitle => 'Obavještenja ne stižu?';
+
+  @override
+  String get batteryMessage =>
+      'Neki telefoni zaustavljaju aplikacije u pozadini radi uštede baterije. Isključite optimizaciju baterije za ovu aplikaciju.';
+
+  @override
+  String get batteryAllow => 'Isključi optimizaciju';
+
+  @override
+  String get moreInfo => 'Više informacija';
+
+  @override
+  String get linkOpenFailed => 'Link nije moguće otvoriti';
+
+  @override
+  String get expiredBadge => 'Isteklo';
+
+  @override
+  String get errorOffline => 'Nema internet konekcije';
+
+  @override
+  String get errorCertificate =>
+      'Sigurna veza sa serverom fakulteta nije uspjela. Provjerite da su datum i vrijeme na telefonu tačni.';
+
+  @override
+  String get errorServer =>
+      'Server fakulteta trenutno ne radi. Pokušajte kasnije.';
+
+  @override
+  String get addToCalendar => 'Dodaj u kalendar';
+
+  @override
+  String get calendarRepeatUntil => 'Ponavljaj do';
+
+  @override
+  String get calendarExportFailed => 'Izvoz u kalendar nije uspio';
+
+  @override
+  String get calendarFileSubject => 'Raspored nastave (kalendar)';
+
+  @override
+  String get bookmark => 'Sačuvaj';
+
+  @override
+  String get removeBookmark => 'Ukloni iz sačuvanih';
+
+  @override
+  String get bookmarks => 'Sačuvani oglasi';
+
+  @override
+  String get noBookmarks =>
+      'Nemate sačuvanih oglasa.\nOglas sačuvajte iz menija ⋮ na kartici.';
+
+  @override
+  String get bookmarkSaved => 'Oglas je sačuvan';
+
+  @override
+  String get bookmarkRemoved => 'Oglas je uklonjen iz sačuvanih';
+
+  @override
+  String get bookmarkFailed => 'Čuvanje nije uspjelo';
+
+  @override
+  String get classReminder => 'Podsjetnik prije nastave';
+
+  @override
+  String get classReminderDescription => 'Za sačuvani raspored nastave';
+
+  @override
+  String get classReminderNoSchedule => 'Prvo sačuvajte raspored nastave';
+
+  @override
+  String classReminderMinutesBefore({required int minutes}) {
+    return '$minutes min prije';
+  }
+
+  @override
+  String classReminderTitle({required int minutes, required String subject}) {
+    return 'Za $minutes min: $subject';
+  }
+
+  @override
+  String get classReminderChannelName => 'Podsjetnici za nastavu';
+
+  @override
+  String get classReminderChannelDescription =>
+      'Obavještenje prije početka časa';
+
+  @override
+  String get widgetNoSchedule => 'Izaberite raspored nastave u aplikaciji';
+
+  @override
+  String get widgetNoClasses => 'Nema nastave';
+
+  @override
+  String get widgetNow => 'Sada';
+
+  @override
+  String get widgetUntil => 'do';
+
+  @override
+  String get widgetNext => 'Zatim';
+
+  @override
+  String get widgetTomorrow => 'Sutra';
+
+  @override
+  String get widgetFree => 'Sada nema nastave';
+
+  @override
+  String get widgetNoMoreToday => 'Danas nema više nastave';
+
+  @override
+  String get widgetNoClassesToday => 'Danas nema nastave';
 }

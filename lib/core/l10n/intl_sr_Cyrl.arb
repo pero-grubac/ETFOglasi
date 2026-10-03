@@ -131,5 +131,89 @@
   "nextWeek": "Сљедећа седмица",
   "themeLight": "Свијетла",
   "themeDark": "Тамна",
-  "themeSystem": "Системска"
+  "themeSystem": "Системска",
+  "about": "О апликацији",
+  "appVersion": "Верзија {version}",
+  "@appVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "checkForUpdates": "Провјеравај нове верзије",
+  "checkForUpdatesDescription": "Једном седмично, преко GitHub-а",
+  "checkNow": "Провјери сада",
+  "upToDate": "Имате најновију верзију",
+  "updateCheckFailed": "Провјера нове верзије није успјела",
+  "updateAvailableTitle": "Нова верзија",
+  "updateAvailableMessage": "Доступна је верзија {version}. Преузмите APK са GitHub странице и инсталирајте га преко постојеће апликације – подешавања и подаци остају.",
+  "@updateAvailableMessage": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "later": "Касније",
+  "reportProblem": "Пријави проблем",
+  "errorLog": "Дневник грешака",
+  "errorLogDescription": "Грешке се чувају само на телефону и нигдје се не шаљу. Можете их копирати уз пријаву проблема.",
+  "errorLogEmpty": "Нема забиљежених грешака",
+  "copy": "Копирај",
+  "clear": "Обриши",
+  "errorLogCopied": "Дневник грешака је копиран",
+  "batteryTitle": "Обавјештења не стижу?",
+  "batteryMessage": "Неки телефони заустављају апликације у позадини ради уштеде батерије. Искључите оптимизацију батерије за ову апликацију.",
+  "batteryAllow": "Искључи оптимизацију",
+  "moreInfo": "Више информација",
+  "linkOpenFailed": "Линк није могуће отворити",
+  "expiredBadge": "Истекло",
+  "errorOffline": "Нема интернет конекције",
+  "errorCertificate": "Сигурна веза са сервером факултета није успјела. Провјерите да су датум и вријеме на телефону тачни.",
+  "errorServer": "Сервер факултета тренутно не ради. Покушајте касније.",
+  "addToCalendar": "Додај у календар",
+  "calendarRepeatUntil": "Понављај до",
+  "calendarExportFailed": "Извоз у календар није успио",
+  "calendarFileSubject": "Распоред наставе (календар)",
+  "bookmark": "Сачувај",
+  "removeBookmark": "Уклони из сачуваних",
+  "bookmarks": "Сачувани огласи",
+  "noBookmarks": "Немате сачуваних огласа.\nОглас сачувајте из менија ⋮ на картици.",
+  "bookmarkSaved": "Оглас је сачуван",
+  "bookmarkRemoved": "Оглас је уклоњен из сачуваних",
+  "bookmarkFailed": "Чување није успјело",
+  "classReminder": "Подсјетник прије наставе",
+  "classReminderDescription": "За сачувани распоред наставе",
+  "classReminderNoSchedule": "Прво сачувајте распоред наставе",
+  "classReminderMinutesBefore": "{minutes} мин прије",
+  "@classReminderMinutesBefore": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "classReminderTitle": "За {minutes} мин: {subject}",
+  "@classReminderTitle": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      },
+      "subject": {
+        "type": "String"
+      }
+    }
+  },
+  "classReminderChannelName": "Подсјетници за наставу",
+  "classReminderChannelDescription": "Обавјештење прије почетка часа",
+  "widgetNoSchedule": "Изаберите распоред наставе у апликацији",
+  "widgetNoClasses": "Нема наставе",
+  "widgetNow": "Сада",
+  "widgetUntil": "до",
+  "widgetNext": "Затим",
+  "widgetTomorrow": "Сутра",
+  "widgetFree": "Сада нема наставе",
+  "widgetNoMoreToday": "Данас нема више наставе",
+  "widgetNoClassesToday": "Данас нема наставе"
 }

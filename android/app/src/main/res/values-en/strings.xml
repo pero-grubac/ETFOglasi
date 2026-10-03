@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ETF Oglasi</string>
+    <string name="schedule_widget_label">Class schedule</string>
+    <string name="schedule_widget_description">Today\'s classes from the saved schedule</string>
+    <string name="next_class_widget_label">Next class</string>
+    <string name="next_class_widget_description">The class going on now and the next one</string>
+</resources>

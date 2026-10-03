@@ -21,6 +21,7 @@ import 'package:etf_oglasi/core/util/format_date.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Announcement _announcement(int id, {bool withAttachment = false}) =>
@@ -130,6 +131,19 @@ Widget _app(Widget home, List<Override> overrides) => ProviderScope(
     home: home,
   ),
 );
+
+/// A small phone (360×740 dp) with the system font size at [textScale].
+void _usePhone(WidgetTester tester, {double textScale = 1}) {
+  final view = tester.view;
+  view.physicalSize = const Size(1080, 2220);
+  view.devicePixelRatio = 3;
+  tester.platformDispatcher.textScaleFactorTestValue = textScale;
+  addTearDown(() {
+    view.resetPhysicalSize();
+    view.resetDevicePixelRatio();
+    tester.platformDispatcher.clearTextScaleFactorTestValue();
+  });
+}
 
 const _announcementCategory = Category(
   id: 1,
@@ -450,6 +464,69 @@ void main() {
       await tester.tap(find.text(formatWeekRange(addWeeks(week, 1))));
       await tester.pumpAndSettle();
       expect(find.text(formatWeekRange(week)), findsOneWidget);
+    });
+  });
+
+  // Overflows are reported as test failures, so these catch text that
+  // doesn't fit when the user picks a large system font.
+  group('large text (200%)', () {
+    testWidgets('announcements fit', (tester) async {
+      _usePhone(tester, textScale: 2);
+      await tester.pumpWidget(
+        _app(const AnnouncementScreen(category: _announcementCategory), [
+          announcementServiceProvider.overrideWithValue(
+            _FakeAnnouncementService(),
+          ),
+          announcementRepositoryProvider.overrideWithValue(
+            _FakeAnnouncementRepository(),
+          ),
+        ]),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Oglas 1'), findsOneWidget);
+    });
+
+    testWidgets('class schedule fits', (tester) async {
+      _usePhone(tester, textScale: 2);
+      await tester.pumpWidget(
+        _app(const ScheduleScreen(category: _classScheduleCategory), [
+          scheduleServiceProvider.overrideWithValue(_FakeScheduleService()),
+          scheduleRepositoryProvider.overrideWithValue(
+            _FakeScheduleRepository(),
+          ),
+          localSettingsProvider.overrideWith(
+            () => _TestSettingsNotifier(
+              const LocalSettings(
+                classScheduleUrl: 'https://example.com/schedule',
+              ),
+            ),
+          ),
+        ]),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(TabBarView), findsOneWidget);
+    });
+
+    testWidgets('room schedule week navigation fits', (tester) async {
+      _usePhone(tester, textScale: 2);
+      await tester.pumpWidget(
+        _app(const ScheduleScreen(category: _roomScheduleCategory), [
+          scheduleServiceProvider.overrideWithValue(_FakeScheduleService()),
+          scheduleRepositoryProvider.overrideWithValue(
+            _FakeScheduleRepository(),
+          ),
+          localSettingsProvider.overrideWith(
+            () => _TestSettingsNotifier(
+              const LocalSettings(roomScheduleId: '105'),
+            ),
+          ),
+        ]),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(TabBarView), findsOneWidget);
     });
   });
 }
