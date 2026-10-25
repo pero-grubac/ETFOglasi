@@ -9,7 +9,7 @@
 ![WorkManager](https://img.shields.io/badge/WorkManager-Background_Tasks-orange?logo=android)
 ![Notifications](https://img.shields.io/badge/Notifications-Enabled-brightgreen?logo=android)
 
-<img src="readme_assets/demo.gif" alt="ETF Oglasi demo" width="300">
+<img src="readme_assets/demo.gif" alt="ETF Oglasi demo: the announcement boards, live first-year notices from the faculty, expanding and saving one, then the class timetable of a second-year programme for Monday, Tuesday and Wednesday" width="300">
 
 </div>
 
